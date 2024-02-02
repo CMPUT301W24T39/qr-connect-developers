@@ -3,7 +3,7 @@ package com.example.qrconnectdevelopers;
 public abstract class Shape {
     int x;
     int y;
-    
+
     String color = "dark";
 
 
