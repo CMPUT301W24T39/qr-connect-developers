@@ -6,7 +6,7 @@ public abstract class Shape {
 
     protected String color = "purple"; // Default color is blue
 
-    String color = "yellow";
+    String color = "dark";
 
     public Shape(int x, int y) {
         this.x = x;
