@@ -5,7 +5,7 @@ public abstract class Shape {
     int y;
 
 
-    String color = "green";
+    String color = "red";
 
     public Shape(int x, int y) {
         this.x = x;
