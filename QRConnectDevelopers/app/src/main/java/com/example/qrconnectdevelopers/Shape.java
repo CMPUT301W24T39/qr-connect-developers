@@ -6,9 +6,14 @@ public abstract class Shape {
 
     String color = "green";
 
+
     public Shape(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public String getColor() {
+        return color;
     }
 
     public abstract double area();
