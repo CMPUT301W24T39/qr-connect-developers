@@ -1,12 +1,18 @@
 package com.example.qrconnectdevelopers;
 
 public abstract class Shape {
-    int x;
-    int y;
+    protected int x;
+    protected int y;
+
+    protected String color = "blue"; // Default color is blue
 
     public Shape(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public String getColor() {
+        return color;
     }
 
     public abstract double area();
