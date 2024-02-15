@@ -19,6 +19,8 @@
             android:weightSum="4">
 
             <!-- User Icon -->
+
+            <!-- Menu Icon -->
             <ImageButton
                 android:id="@+id/user_icon_button"
                 android:layout_width="match_parent"
@@ -27,7 +29,6 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/person_icon" />
 
-            <!-- Menu Icon -->
             <ImageButton
                 android:id="@+id/menu_icon_button"
                 android:layout_width="match_parent"
@@ -35,6 +36,7 @@
                 android:layout_weight="1"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/menu_icon" />
+
 
             <!-- Notification Icon -->
             <ImageButton
