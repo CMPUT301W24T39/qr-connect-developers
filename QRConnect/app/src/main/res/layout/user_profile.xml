@@ -16,23 +16,30 @@
         android:layout_marginBottom="16dp"/>
 
     <!-- Upload/Remove Profile Picture Buttons -->
-    <Button
-        android:id="@+id/uploadPictureButton"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Upload Picture"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="8dp"/>
+        android:orientation="horizontal"
+        android:padding="0dp">
 
-    <Button
-        android:id="@+id/removePictureButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Remove Picture"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp"/>
+        <Button
+            android:id="@+id/uploadPictureButton"
+            android:layout_width="189dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:text="Upload Picture" />
 
-    <!-- Profile Information -->
+        <Button
+            android:id="@+id/removePictureButton"
+            android:layout_width="186dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:text="Remove Picture" />
+    </LinearLayout>
+
+    <!-- Profile Name Information -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -48,30 +55,68 @@
         android:inputType="textPersonName"
         android:layout_marginBottom="16dp"/>
 
-    <!-- Event History Button -->
-    <Button
-        android:id="@+id/eventHistoryButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Event History"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp"/>
-
-    <!-- Contact Information -->
+    <!-- Profile Pronouns Information -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Contact Information:"
+        android:text="Pronouns:"
         android:textSize="18sp"
         android:layout_marginBottom="8dp"/>
 
     <EditText
-        android:id="@+id/contactInfoEditText"
+        android:id="@+id/pronounsEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter your contact information"
-        android:inputType="textMultiLine"
-        android:minLines="3"
+        android:hint="Enter your pronouns"
+        android:inputType="textPersonName"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Profile Email Information -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email:"
+        android:textSize="18sp"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/emailEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter your email"
+        android:inputType="textPersonName"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Profile Phone Information -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Phone:"
+        android:textSize="18sp"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/phoneEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter your phone number"
+        android:inputType="textPersonName"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Profile Location Information -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Location:"
+        android:textSize="18sp"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/locationEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enabled/Disabled"
+        android:inputType="textPersonName"
         android:layout_marginBottom="16dp"/>
 
     <!-- Save Button -->
@@ -82,4 +127,3 @@
         android:text="Save"
         android:layout_gravity="center_horizontal"/>
 </LinearLayout>
-
