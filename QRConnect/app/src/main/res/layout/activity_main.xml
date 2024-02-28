@@ -22,7 +22,7 @@
             <ImageButton
                 android:id="@+id/user_icon_button"
                 android:layout_width="match_parent"
-                android:layout_height="74dp"
+                android:layout_height="75dp"
                 android:layout_weight="1"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/person_icon" />
