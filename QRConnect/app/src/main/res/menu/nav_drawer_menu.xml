@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/nav_download"
+        android:icon="@drawable/ic_download"
+        android:title="Save Image"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/nav_upload"
+        android:icon="@drawable/ic_upload"
+        android:title="Upload a QR Code"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/nav_turn_right"
+        android:icon="@drawable/ic_turn_right"
+        android:title="Reuse an Existing Event QR Code"
+        app:showAsAction="never"/>
+
+</menu>
