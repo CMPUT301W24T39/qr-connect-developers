@@ -36,16 +36,21 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         if (MainActivity.isAddButtonClicked == true){
-            Integer eventId_int = new Random().nextInt(100000);
-            String eventId = String.valueOf(eventId_int);
-            generateQRCode(eventId);
-            generatePromoQRCode(eventId);
+            Integer eventCheckInId_int = new Random().nextInt(100000);
+            String eventCheckInId = String.valueOf(eventCheckInId_int);
+
+            Integer eventPromoId_int = new Random().nextInt(100000);
+            String eventPromoId = String.valueOf(eventPromoId_int);
+
+            generateQRCode(eventCheckInId);
+            generatePromoQRCode(eventPromoId);
             if (!events.isEmpty()) {
                 Event newEvent = events.get(events.size() - 1);
-                newEvent.setEventTitle("The First Event");
+                newEvent.setEventTitle("A New Event");
                 newEvent.setQRCodeImage(QRCodeImage);
                 newEvent.setPromoQRCodeImage(PromoQRCodeImage);
-                newEvent.setEventId(eventId_int);
+                newEvent.setEventCheckInId(eventCheckInId_int);
+                newEvent.setEventPromoId(eventPromoId_int);
             }
         }
 

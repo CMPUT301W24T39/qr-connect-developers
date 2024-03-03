@@ -2,6 +2,7 @@ package com.example.qrconnect;
 
 import static com.example.qrconnect.MainActivity.events;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -9,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Spinner;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class SelectEventPage extends AppCompatActivity {
@@ -28,7 +30,7 @@ public class SelectEventPage extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 Event selectedEvent = (Event) parentView.getItemAtPosition(position);
-                events.get(position).setQRCodeImage(selectedEvent.getQRCodeImage());
+                events.get(events.size() - 1).setQRCodeImage(selectedEvent.getQRCodeImage());
             }
 
             @Override
@@ -36,5 +38,8 @@ public class SelectEventPage extends AppCompatActivity {
 
             }
         });
+
     }
+
+
 }
