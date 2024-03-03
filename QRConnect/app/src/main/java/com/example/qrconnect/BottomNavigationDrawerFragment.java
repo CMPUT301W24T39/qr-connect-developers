@@ -36,13 +36,13 @@ public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
                 int itemId = menuItem.getItemId();
-                if (itemId == R.id.navDownload) {
+                if (itemId == R.id.nav_download) {
 
                     return true;
-                } else if (itemId == R.id.navUpload) {
+                } else if (itemId == R.id.nav_upload) {
 
                     return true;
-                } else if (itemId == R.id.navReuse) {
+                } else if (itemId == R.id.nav_turn_right){
                     startActivity(new Intent(getActivity(), SelectEventPage.class));
                     return true;
                 }

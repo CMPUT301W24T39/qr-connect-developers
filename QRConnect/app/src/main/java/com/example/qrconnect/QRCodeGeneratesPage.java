@@ -5,7 +5,10 @@ import static com.example.qrconnect.MainActivity.events;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.Spinner;
 
 
 import androidx.appcompat.app.ActionBar;
@@ -28,14 +31,14 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
     private ImageView QRCodeImage;
     private ImageView PromoQRCodeImage;
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.qr_code_generates_page);
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        if (MainActivity.isAddButtonClicked == true){
+        if (MainActivity.isAddButtonClicked == true) {
             Integer eventCheckInId_int = new Random().nextInt(100000);
             String eventCheckInId = String.valueOf(eventCheckInId_int);
 
@@ -64,55 +67,42 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
             }
         });
 
-       PromoQRCodeImage.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                BottomNavigationDrawerFragment bottomNavigationDrawerFragment = new BottomNavigationDrawerFragment();
-                bottomNavigationDrawerFragment.show(getSupportFragmentManager(), "Navigating");
+    }
 
-                return true;
+        private void generateQRCode (String eventId){
+
+            QRCodeImage = findViewById(R.id.QRCodeImage);
+
+            MultiFormatWriter writer = new MultiFormatWriter();
+            try {
+
+                BitMatrix matrix = writer.encode(eventId, BarcodeFormat.QR_CODE, 800, 800);
+
+                BarcodeEncoder encoder = new BarcodeEncoder();
+                Bitmap bitmap = encoder.createBitmap(matrix);
+                QRCodeImage.setImageBitmap(bitmap);
+            } catch (WriterException e) {
+                e.printStackTrace();
             }
-        });
 
-    }
-
-    private void generateQRCode(String eventId){
-
-        QRCodeImage = findViewById(R.id.QRCodeImage);
-
-        MultiFormatWriter writer = new MultiFormatWriter();
-        try{
-
-            BitMatrix matrix = writer.encode(eventId, BarcodeFormat.QR_CODE, 800,800);
-
-            BarcodeEncoder encoder = new BarcodeEncoder();
-            Bitmap bitmap = encoder.createBitmap(matrix);
-            QRCodeImage.setImageBitmap(bitmap);
-        } catch (WriterException e)
-        {
-            e.printStackTrace();
         }
 
-    }
+        private void generatePromoQRCode (String eventId){
 
-    private void generatePromoQRCode(String eventId){
+            PromoQRCodeImage = findViewById(R.id.PromoQRCodeImage);
 
-        PromoQRCodeImage = findViewById(R.id.PromoQRCodeImage);
+            MultiFormatWriter writer = new MultiFormatWriter();
+            try {
+                BitMatrix matrix = writer.encode(eventId, BarcodeFormat.QR_CODE, 800, 800);
 
-        MultiFormatWriter writer = new MultiFormatWriter();
-        try{
-            BitMatrix matrix = writer.encode(eventId, BarcodeFormat.QR_CODE, 800,800);
+                BarcodeEncoder encoder = new BarcodeEncoder();
+                Bitmap bitmap = encoder.createBitmap(matrix);
+                PromoQRCodeImage.setImageBitmap(bitmap);
+            } catch (WriterException e) {
+                e.printStackTrace();
+            }
 
-            BarcodeEncoder encoder = new BarcodeEncoder();
-            Bitmap bitmap = encoder.createBitmap(matrix);
-            PromoQRCodeImage.setImageBitmap(bitmap);
-        } catch (WriterException e)
-        {
-            e.printStackTrace();
         }
-
-    }
-
 
 
 }

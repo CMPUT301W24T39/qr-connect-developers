@@ -3,19 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/navDownload"
+        android:id="@+id/nav_download"
         android:icon="@drawable/ic_download"
         android:title="Save Image"
         app:showAsAction="never" />
     <item
-        android:id="@+id/navUpload"
+        android:id="@+id/nav_upload"
         android:icon="@drawable/ic_upload"
         android:title="Upload a QR Code"
         app:showAsAction="never"/>
 
     <item
-        android:id="@+id/navReuse"
+        android:id="@+id/nav_turn_right"
         android:icon="@drawable/ic_turn_right"
-        android:title="Use an Existing QR Code"
+        android:title="Reuse an Existing Event QR Code"
         app:showAsAction="never"/>
+
 </menu>
