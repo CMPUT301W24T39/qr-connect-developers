@@ -21,6 +21,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:parentActivityName=".MainActivity"
+            android:name=".QRCodeGeneratesPage"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        </activity>
+        <activity
+            android:name=".SelectEventPage"
+            android:parentActivityName=".QRCodeGeneratesPage"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        </activity>
     </application>
 
 </manifest>
