@@ -16,26 +16,22 @@ import androidx.appcompat.app.AppCompatActivity;
 public class SelectEventPage extends AppCompatActivity {
 
 
+    AutoCompleteTextView autoCompleteTextView;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.select_existing_event_qr_code_page);
+        setContentView(R.layout.select_existing_event_qr_code);
 
-        Spinner spinner = findViewById(R.id.spinner_for_event);
-        ArrayAdapter<Event> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, events);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
+        autoCompleteTextView = findViewById(R.id.auto_complete_textview);
+        EventAdapterForQRCodeGenerating adapter = new EventAdapterForQRCodeGenerating(this, events);
+        autoCompleteTextView.setAdapter(adapter);
 
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                Event selectedEvent = (Event) parentView.getItemAtPosition(position);
-                events.get(events.size() - 1).setQRCodeImage(selectedEvent.getQRCodeImage());
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Event selectedEvent = (Event) parent.getItemAtPosition(position);
+                Event newEvent = events.get(events.size() - 1);
+                newEvent.setQRCodeImage(selectedEvent.getQRCodeImage());
             }
         });
 

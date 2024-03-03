@@ -6,4 +6,5 @@
     </style>
 
     <style name="Theme.QRConnect" parent="Base.Theme.QRConnect" />
+    <style name="CustomExposedDropdownMenu" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"/>
 </resources>
