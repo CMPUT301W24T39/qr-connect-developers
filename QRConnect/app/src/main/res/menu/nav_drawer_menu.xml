@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/navDownload"
+        android:icon="@drawable/ic_download"
+        android:title="Save Image"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/navUpload"
+        android:icon="@drawable/ic_upload"
+        android:title="Upload a QR Code"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/navReuse"
+        android:icon="@drawable/ic_turn_right"
+        android:title="Use an Existing QR Code"
+        app:showAsAction="never"/>
+</menu>
