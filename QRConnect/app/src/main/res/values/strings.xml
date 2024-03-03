@@ -5,5 +5,5 @@
     <string name="qr_code">qr_code</string>
     <string name="enter_your_info">Enter your info</string>
     <string name="generate_qr_code">Generate QR Code</string>
-    <string name="select">Select Item</string>
+    <string name="select">Select Existing Event QR Code</string>
 </resources>
