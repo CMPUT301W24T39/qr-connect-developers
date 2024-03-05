@@ -24,6 +24,21 @@ public class Event {
         return QRCodeImage;
     }
 
+    public Event(String eventTitle, Date date, Time time, String location, Integer capacity, String announcement, ImageView QRCodeImage, ImageView promoQRCodeImage, Integer eventCheckInId, Integer eventPromoId) {
+        this.eventTitle = eventTitle;
+        this.date = date;
+        this.time = time;
+        this.location = location;
+        this.capacity = capacity;
+        this.announcement = announcement;
+        this.QRCodeImage = QRCodeImage;
+        PromoQRCodeImage = promoQRCodeImage;
+        this.eventCheckInId = eventCheckInId;
+        this.eventPromoId = eventPromoId;
+    }
+
+    public Event(){};
+
     public void setQRCodeImage(ImageView QRCodeImage) {
         this.QRCodeImage = QRCodeImage;
     }
