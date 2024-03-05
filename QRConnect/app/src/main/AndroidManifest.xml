@@ -42,7 +42,11 @@
             android:name=".SendNotificationsActivity"
             android:exported="true">
         </activity>
-
+        <activity
+            android:parentActivityName=".MainActivity"
+            android:name=".UserProfilePage"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        </activity>
     </application>
 
 </manifest>
