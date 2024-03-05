@@ -1,14 +1,15 @@
 package com.example.qrconnect;
 
-import static com.example.qrconnect.MainActivity.events;
+import static com.example.qrconnect.MainActivity.eventDataList;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.Spinner;
 
 
 import androidx.appcompat.app.ActionBar;
@@ -38,6 +39,9 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        QRCodeImage = findViewById(R.id.qr_code_image);
+        PromoQRCodeImage = findViewById(R.id.promo_qr_code_image);
+
         if (MainActivity.isAddButtonClicked == true) {
             Integer eventCheckInId_int = new Random().nextInt(100000);
             String eventCheckInId = String.valueOf(eventCheckInId_int);
@@ -47,15 +51,16 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
 
             generateQRCode(eventCheckInId);
             generatePromoQRCode(eventPromoId);
-            if (!events.isEmpty()) {
-                Event newEvent = events.get(events.size() - 1);
-                newEvent.setEventTitle("A New Event");
+            if (!eventDataList.isEmpty()) {
+                Event newEvent = eventDataList.get(eventDataList.size() - 1);
                 newEvent.setQRCodeImage(QRCodeImage);
                 newEvent.setPromoQRCodeImage(PromoQRCodeImage);
                 newEvent.setEventCheckInId(eventCheckInId_int);
                 newEvent.setEventPromoId(eventPromoId_int);
             }
         }
+
+        MainActivity.isAddButtonClicked = false;
 
         QRCodeImage.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -71,7 +76,7 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
 
         private void generateQRCode (String eventId){
 
-            QRCodeImage = findViewById(R.id.QRCodeImage);
+
 
             MultiFormatWriter writer = new MultiFormatWriter();
             try {
@@ -89,8 +94,6 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
 
         private void generatePromoQRCode (String eventId){
 
-            PromoQRCodeImage = findViewById(R.id.PromoQRCodeImage);
-
             MultiFormatWriter writer = new MultiFormatWriter();
             try {
                 BitMatrix matrix = writer.encode(eventId, BarcodeFormat.QR_CODE, 800, 800);
@@ -103,6 +106,8 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
             }
 
         }
+
+
 
 
 }
