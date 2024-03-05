@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -22,10 +23,12 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
     private FloatingActionButton addButton;
+    private ImageButton profileButton;
 
     static ArrayList<Event> events = new ArrayList<Event>();
 
     static boolean isAddButtonClicked = false;
+    static boolean isProfileButtonClicked = false;
 
 
     @Override
@@ -34,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         addButton = findViewById(R.id.button_add_event);
+        profileButton = findViewById(R.id.user_icon_button);
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,8 +49,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        profileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, UserProfilePage.class));
+                isProfileButtonClicked = true;
+            }
+        });
+
 
     }
-
 
 }
