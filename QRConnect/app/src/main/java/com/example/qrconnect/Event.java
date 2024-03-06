@@ -20,11 +20,10 @@ public class Event {
 
     private Integer eventPromoId;
 
-    public ImageView getQRCodeImage() {
-        return QRCodeImage;
-    }
+    private String eventId;
 
-    public Event(String eventTitle, Date date, Time time, String location, Integer capacity, String announcement, ImageView QRCodeImage, ImageView promoQRCodeImage, Integer eventCheckInId, Integer eventPromoId) {
+
+    public Event(String eventTitle, Date date, Time time, String location, Integer capacity, String announcement, ImageView QRCodeImage, ImageView promoQRCodeImage, Integer eventCheckInId, Integer eventPromoId, String eventId) {
         this.eventTitle = eventTitle;
         this.date = date;
         this.time = time;
@@ -35,9 +34,14 @@ public class Event {
         PromoQRCodeImage = promoQRCodeImage;
         this.eventCheckInId = eventCheckInId;
         this.eventPromoId = eventPromoId;
+        this.eventId = eventId;
     }
 
     public Event(){};
+
+    public ImageView getQRCodeImage() {
+        return QRCodeImage;
+    }
 
     public void setQRCodeImage(ImageView QRCodeImage) {
         this.QRCodeImage = QRCodeImage;
@@ -115,6 +119,16 @@ public class Event {
 
     public void setEventPromoId(Integer eventPromoId) {
         this.eventPromoId = eventPromoId;
+    }
+
+
+
+    public String getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
     }
 
     @Override

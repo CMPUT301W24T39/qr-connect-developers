@@ -10,11 +10,17 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class EventAdapter extends ArrayAdapter<Event> {
-    public EventAdapter(Context context, List<Event> events) {
+    private Context context;
+    private ArrayList<Event> events;
+
+    public EventAdapter(Context context, ArrayList<Event> events) {
         super(context, 0, events);
+        this.context = context;
+        this.events = events;
     }
 
     @NonNull
@@ -27,11 +33,10 @@ public class EventAdapter extends ArrayAdapter<Event> {
             view = convertView;
         }
 
-        Event event = getItem(position);
+        Event event = events.get(position);
         TextView eventTitle = view.findViewById(R.id.event_title_text);
 
         eventTitle.setText(event.getEventTitle());
-
 
         return view;
     }
@@ -45,12 +50,10 @@ public class EventAdapter extends ArrayAdapter<Event> {
             view = convertView;
         }
 
-        Event event = getItem(position);
+        Event event = events.get(position);
         TextView eventTitle = view.findViewById(R.id.event_title_text);
 
         eventTitle.setText(event.getEventTitle());
-
-
         return view;
     }
 }
