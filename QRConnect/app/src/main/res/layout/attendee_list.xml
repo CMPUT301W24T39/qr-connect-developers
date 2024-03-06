@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Attendee List -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_second_top"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp">
+        <!-- Map Icon -->
+        <ImageButton
+            android:id="@+id/map_icon_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/map_icon" />
+
+        <!-- Share QR code -->
+        <ImageButton
+            android:id="@+id/share_qr_code_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/shared_qr_code_icon"
+            android:layout_marginEnd="16dp"/>
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_top"
+        android:layout_width="match_parent"
+        android:layout_height="76dp"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp">
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Attendee List"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            android:textColor="@android:color/white" />
+
+        <!-- Menu Icon -->
+        <ImageButton
+            android:id="@+id/menu_icon_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/menu_icon" />
+    </androidx.appcompat.widget.Toolbar>
+
+
+
+    <ListView android:id="@+id/attendee_list"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1"
+    android:divider="@android:color/darker_gray"
+    android:dividerHeight="0.5dp"
+    android:listSelector="@android:color/transparent" />
+
+</LinearLayout>
