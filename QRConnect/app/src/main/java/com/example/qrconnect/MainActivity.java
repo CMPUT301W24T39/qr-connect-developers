@@ -13,10 +13,12 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -41,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -81,8 +84,10 @@ public class MainActivity extends AppCompatActivity {
                 isAddButtonClicked = true;
                 numAddButtonClicked += 1;
                 Event newEvent = new Event();
-                System.out.println(numAddButtonClicked);
-                newEvent.setEventTitle("A New Event " + numAddButtonClicked);
+
+                String uniqueID = UUID.randomUUID().toString();
+                newEvent.setEventTitle("New Event " + numAddButtonClicked);
+                newEvent.setEventId(uniqueID);
                 addNewEvent(newEvent);
 
 
@@ -99,9 +104,10 @@ public class MainActivity extends AppCompatActivity {
                 if (querySnapshots != null) {
                     eventDataList.clear();
                     for (QueryDocumentSnapshot doc: querySnapshots){
-                        String eventTitle = doc.getId();
-                        eventDataList.add(new Event(eventTitle, null,null, null, null, null, null, null, null, null));
-                        Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s %s) fetched", eventTitle, null,null, null, null, null, null, null, null, null));
+                        String eventId = doc.getId();
+                        String eventTitle = doc.getString("title");
+                        eventDataList.add(new Event(eventTitle, null,null, null, null, null, null, null, null, null, eventId));
+                        Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s %s %s) fetched", eventTitle, null,null, null, null, null, null, null, null, null, eventId));
                     }
                     adapter.notifyDataSetChanged();
                 }
@@ -124,7 +130,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        eventList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
+                deleteEvent(eventDataList.get(position));
+                eventDataList.remove(eventDataList.get(position));
+
+                adapter.notifyDataSetChanged();
+                return true;
+            }
+        });
 
     }
 
@@ -140,9 +156,10 @@ public class MainActivity extends AppCompatActivity {
         data.put("PromoQRCodeImage", event.getPromoQRCodeImage());
         data.put("eventCheckInId", event.getEventCheckInId());
         data.put("eventPromoId", event.getEventPromoId());
+        data.put("eventId", event.getEventId());
 
         eventsRef
-                .document(event.getEventTitle())
+                .document(event.getEventId())
                 .set(data)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -150,6 +167,25 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("Firestore", "DocumentSnapshot successfully written!");
                     }
                 });
+    }
+
+    private void deleteEvent(Event event){
+        eventsRef
+                .document(event.getEventId())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("Firestore", "DocumentSnapshot successfully deleted!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("Firestore", "Error deleting document", e);
+                    }
+                });
+
     }
 
 

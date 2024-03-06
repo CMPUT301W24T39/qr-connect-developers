@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class SelectEventPage extends AppCompatActivity {
@@ -17,6 +18,9 @@ public class SelectEventPage extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.select_existing_event_qr_code);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         autoCompleteTextView = findViewById(R.id.auto_complete_textview);
         EventAdapter adapter = new EventAdapter(this, eventDataList);
