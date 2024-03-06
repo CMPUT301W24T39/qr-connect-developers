@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "352566742501",
+    "project_id": "qrconnect-d2115",
+    "storage_bucket": "qrconnect-d2115.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:352566742501:android:f73c3448236766cf9db30c",
+        "android_client_info": {
+          "package_name": "com.example.qrconnect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBfwXax8xu0BX2Lp5eeH00jgOMg0qXt-E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
