@@ -3,6 +3,7 @@ package com.example.qrconnect;
 import android.widget.ImageView;
 
 import java.sql.Time;
+import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -25,6 +26,7 @@ public class Event {
 
     private String eventId;
 
+    protected Collection<Attendee> AttendeeList;
 
     /**
      * This is constructor for the Event class
@@ -243,4 +245,10 @@ public class Event {
     public String toString() {
         return eventTitle;
     }
+
+    public void addAttendee(Attendee attendee) {
+        AttendeeList.add(attendee);
+    }
+
+
 }
