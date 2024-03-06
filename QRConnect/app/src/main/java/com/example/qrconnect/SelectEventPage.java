@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,13 +15,14 @@ public class SelectEventPage extends AppCompatActivity {
 
 
     AutoCompleteTextView autoCompleteTextView;
+
+    private ImageButton backButton2;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.select_existing_event_qr_code);
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        backButton2 = findViewById(R.id.arrow_back_2);
 
         autoCompleteTextView = findViewById(R.id.auto_complete_textview);
         EventAdapter adapter = new EventAdapter(this, eventDataList);
@@ -35,7 +37,18 @@ public class SelectEventPage extends AppCompatActivity {
             }
         });
 
+
+        backButton2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
     }
+
+
+
 
 
 }

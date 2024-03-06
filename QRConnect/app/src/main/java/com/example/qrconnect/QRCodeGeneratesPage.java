@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -48,39 +49,40 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
     private Bitmap bitMapQRCode;
     private Bitmap bitMapPromoQRCode;
 
+    private ImageButton backButton1;
     private FirebaseFirestore db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.qr_code_generates_page);
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-
+//        ActionBar actionBar = getSupportActionBar();
+//        actionBar.setDisplayHomeAsUpEnabled(true);
+        backButton1 = findViewById(R.id.arrow_back_1);
         db = FirebaseFirestore.getInstance();
 
         QRCodeImage = findViewById(R.id.qr_code_image);
         PromoQRCodeImage = findViewById(R.id.promo_qr_code_image);
 
-            Integer eventCheckInId_int = new Random().nextInt(100000);
-            String eventCheckInId = String.valueOf(eventCheckInId_int);
+        Integer eventCheckInId_int = new Random().nextInt(100000);
+        String eventCheckInId = String.valueOf(eventCheckInId_int);
 
-            Integer eventPromoId_int = new Random().nextInt(100000);
-            String eventPromoId = String.valueOf(eventPromoId_int);
+        Integer eventPromoId_int = new Random().nextInt(100000);
+        String eventPromoId = String.valueOf(eventPromoId_int);
 
-            generateQRCode(eventCheckInId);
-            generatePromoQRCode(eventPromoId);
-            if (!eventDataList.isEmpty()) {
-                Event newEvent = eventDataList.get(eventDataList.size() - 1);
-                newEvent.setQRCodeImage(QRCodeImage);
-                newEvent.setPromoQRCodeImage(PromoQRCodeImage);
-                newEvent.setEventCheckInId(eventCheckInId_int);
-                newEvent.setEventPromoId(eventPromoId_int);
+        generateQRCode(eventCheckInId);
+        generatePromoQRCode(eventPromoId);
+        if (!eventDataList.isEmpty()) {
+            Event newEvent = eventDataList.get(eventDataList.size() - 1);
+            newEvent.setQRCodeImage(QRCodeImage);
+            newEvent.setPromoQRCodeImage(PromoQRCodeImage);
+            newEvent.setEventCheckInId(eventCheckInId_int);
+            newEvent.setEventPromoId(eventPromoId_int);
 
-                uploadQRCodeAndUpdatEvent(bitMapQRCode, newEvent, "checkInQRCodeImageUrl");
-                uploadQRCodeAndUpdatEvent(bitMapPromoQRCode, newEvent, "promoQRCodeImageUrl");
+            uploadQRCodeAndUpdatEvent(bitMapQRCode, newEvent, "checkInQRCodeImageUrl");
+            uploadQRCodeAndUpdatEvent(bitMapPromoQRCode, newEvent, "promoQRCodeImageUrl");
 
-            }
+        }
 
 
 
@@ -93,6 +95,14 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
                 return true;
             }
         });
+
+        backButton1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
 
     }
 
@@ -130,12 +140,11 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
     }
 
 
-// 假设您已经生成了QR码的Bitmap对象：bitmap
 
     private void uploadQRCodeAndUpdatEvent(final Bitmap bitmap, final Event event, final String fieldName) {
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
-        // 为了简化，我们直接使用事件ID和字段名作为文件名
+
         StorageReference qrCodeRef = storageRef.child("qrcodes/" + event.getEventId() + "_" + fieldName + ".jpg");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -146,19 +155,19 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                // 处理失败的情况
+
                 Toast.makeText(QRCodeGeneratesPage.this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // 获取图片的URL并更新Firestore记录
+
                 qrCodeRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
-                        // 此处获取到图片的下载URL
+
                         String imageUrl = uri.toString();
-                        // 更新Firestore中的记录
+
                         db.collection("events")
                                 .document(event.getEventId())
                                 .update(fieldName, imageUrl)

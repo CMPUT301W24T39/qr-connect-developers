@@ -5,6 +5,27 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_top"
+        android:layout_width="match_parent"
+        android:layout_height="76dp"
+        android:background="?attr/colorPrimary"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="4">
+
+            <ImageButton
+                android:id="@+id/arrow_back_1"
+                android:layout_width="65dp"
+                android:layout_height="55dp"
+                android:src="@drawable/arrow_back_icon" />
+        </LinearLayout>
+    </androidx.appcompat.widget.Toolbar>
+
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
@@ -17,13 +38,13 @@
         app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.345" />
+        app:layout_constraintVertical_bias="0.711" />
 
     <ImageView
         android:id="@+id/qr_code_image"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:layout_marginTop="140dp"
+        android:layout_marginTop="172dp"
         android:contentDescription="@string/qr_code"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
@@ -46,7 +67,7 @@
         android:id="@+id/promo_qr_code_image"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:layout_marginBottom="36dp"
+        android:layout_marginBottom="60dp"
         android:contentDescription="@string/qr_code"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
