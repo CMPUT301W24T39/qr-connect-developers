@@ -28,6 +28,7 @@
             </intent-filter>
         </activity>
         <activity
+<<<<<<< HEAD
             android:name=".QRCodeGeneratesPage"
             android:parentActivityName=".MainActivity"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
@@ -35,6 +36,13 @@
             android:name=".SelectEventPage"
             android:parentActivityName=".QRCodeGeneratesPage"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+=======
+            android:name=".QRCodeGeneratesPage">
+        </activity>
+        <activity
+            android:name=".SelectEventPage">
+        </activity>
+>>>>>>> origin
     </application>
 
 </manifest>
