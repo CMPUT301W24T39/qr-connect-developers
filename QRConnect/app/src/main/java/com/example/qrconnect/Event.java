@@ -3,6 +3,7 @@ package com.example.qrconnect;
 import android.widget.ImageView;
 
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
@@ -26,7 +27,7 @@ public class Event {
 
     private String eventId;
 
-    protected Collection<Attendee> AttendeeList;
+    protected ArrayList<Attendee> AttendeeList;
 
     /**
      * This is constructor for the Event class
@@ -54,6 +55,8 @@ public class Event {
         this.eventCheckInId = eventCheckInId;
         this.eventPromoId = eventPromoId;
         this.eventId = eventId;
+
+        this.AttendeeList = new ArrayList<>();
     }
 
     /**
