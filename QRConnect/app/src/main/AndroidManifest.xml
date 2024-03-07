@@ -22,14 +22,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:parentActivityName=".MainActivity"
-            android:name=".QRCodeGeneratesPage"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+            android:name=".QRCodeGeneratesPage">
         </activity>
         <activity
-            android:name=".SelectEventPage"
-            android:parentActivityName=".QRCodeGeneratesPage"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+            android:name=".SelectEventPage">
         </activity>
     </application>
 
