@@ -45,6 +45,9 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.UUID;
 
+/**
+ * This class maintains the functions of the main activity
+ */
 public class MainActivity extends AppCompatActivity {
 
     private FloatingActionButton addButton;
@@ -57,7 +60,13 @@ public class MainActivity extends AppCompatActivity {
     private CollectionReference eventsRef;
     private static int numAddButtonClicked;
 
-
+    /**
+     * This defines the functions in main activity
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     *
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,13 +86,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-
                 Intent intent = new Intent(MainActivity.this, QRCodeGeneratesPage.class);
                 startActivity(intent);
 
                 isAddButtonClicked = true;
                 numAddButtonClicked += 1;
                 Event newEvent = new Event();
+
+                eventDataList.add(newEvent);
+                adapter.notifyDataSetChanged();
 
                 String uniqueID = UUID.randomUUID().toString();
                 newEvent.setEventTitle("New Event " + numAddButtonClicked);
@@ -144,6 +155,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * This adds a new event to firebase
+     * @param event This is a event that is added to firebase
+     */
     private void addNewEvent(Event event) {
         HashMap<String, Object> data = new HashMap<>();
         data.put("title", event.getEventTitle());
@@ -171,6 +186,10 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * This deletes an event from the firebase
+     * @param event This is the event to delete
+     */
     private void deleteEvent(Event event){
         eventsRef
                 .document(event.getEventId())

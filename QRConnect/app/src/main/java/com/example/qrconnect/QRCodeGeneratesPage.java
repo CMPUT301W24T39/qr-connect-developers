@@ -39,7 +39,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-
+/**
+ * This is a class that maintains the functions in the QRCodeGeneratesPage Activity
+ */
 public class QRCodeGeneratesPage extends AppCompatActivity {
 
 
@@ -51,36 +53,45 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
 
     private ImageButton backButton1;
     private FirebaseFirestore db;
+
+    /**
+     * This defines the functions in the QRCodeGeneratesPage Activity
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     *
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.qr_code_generates_page);
 
-//        ActionBar actionBar = getSupportActionBar();
-//        actionBar.setDisplayHomeAsUpEnabled(true);
         backButton1 = findViewById(R.id.arrow_back_1);
         db = FirebaseFirestore.getInstance();
 
         QRCodeImage = findViewById(R.id.qr_code_image);
         PromoQRCodeImage = findViewById(R.id.promo_qr_code_image);
 
-        Integer eventCheckInId_int = new Random().nextInt(100000);
-        String eventCheckInId = String.valueOf(eventCheckInId_int);
+        String fieldNameCheckInQRCode = "checkInQRCodeImageUrl";
+        String fieldNamePromoteQRCode = "promoQRCodeImageUrl";
 
-        Integer eventPromoId_int = new Random().nextInt(100000);
-        String eventPromoId = String.valueOf(eventPromoId_int);
-
-        generateQRCode(eventCheckInId);
-        generatePromoQRCode(eventPromoId);
         if (!eventDataList.isEmpty()) {
+
             Event newEvent = eventDataList.get(eventDataList.size() - 1);
+
+            String eventCheckInId = newEvent.getEventId() + "_" + fieldNameCheckInQRCode + ".jpg";
+            String eventPromoId = newEvent.getEventId() + "_" + fieldNamePromoteQRCode + ".jpg";
+            generateQRCode(eventCheckInId);
+            generatePromoQRCode(eventPromoId);
+
             newEvent.setQRCodeImage(QRCodeImage);
             newEvent.setPromoQRCodeImage(PromoQRCodeImage);
-            newEvent.setEventCheckInId(eventCheckInId_int);
-            newEvent.setEventPromoId(eventPromoId_int);
 
-            uploadQRCodeAndUpdatEvent(bitMapQRCode, newEvent, "checkInQRCodeImageUrl");
-            uploadQRCodeAndUpdatEvent(bitMapPromoQRCode, newEvent, "promoQRCodeImageUrl");
+            QRCodeImage.setImageBitmap(bitMapQRCode);
+            PromoQRCodeImage.setImageBitmap(bitMapPromoQRCode);
+
+            uploadQRCodeAndUpdateEvent(bitMapQRCode, newEvent, fieldNameCheckInQRCode);
+            uploadQRCodeAndUpdateEvent(bitMapPromoQRCode, newEvent, fieldNamePromoteQRCode);
 
         }
 
@@ -106,33 +117,39 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
 
     }
 
-    private void generateQRCode (String eventId){
-
-
-
-            MultiFormatWriter writer = new MultiFormatWriter();
-            try {
-
-                BitMatrix matrix = writer.encode(eventId, BarcodeFormat.QR_CODE, 800, 800);
-
-                BarcodeEncoder encoder = new BarcodeEncoder();
-                bitMapQRCode = encoder.createBitmap(matrix);
-                QRCodeImage.setImageBitmap(bitMapQRCode);
-            } catch (WriterException e) {
-                e.printStackTrace();
-            }
-
-        }
-
-    private void generatePromoQRCode (String eventId){
+    /**
+     * This generates a QR code for check-in
+     * @param eventCheckInId This is a seed to generate a QR code
+     */
+    private void generateQRCode (String eventCheckInId){
 
         MultiFormatWriter writer = new MultiFormatWriter();
         try {
-            BitMatrix matrix = writer.encode(eventId, BarcodeFormat.QR_CODE, 800, 800);
+
+            BitMatrix matrix = writer.encode(eventCheckInId, BarcodeFormat.QR_CODE, 800, 800);
+
+            BarcodeEncoder encoder = new BarcodeEncoder();
+            bitMapQRCode = encoder.createBitmap(matrix);
+
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * This generatss a promotion QR code that links to event description and event poster
+      * @param eventPromoId This is a seed to generate a promotion QR code
+     */
+    private void generatePromoQRCode (String eventPromoId){
+
+        MultiFormatWriter writer = new MultiFormatWriter();
+        try {
+            BitMatrix matrix = writer.encode(eventPromoId, BarcodeFormat.QR_CODE, 800, 800);
 
             BarcodeEncoder encoder = new BarcodeEncoder();
             bitMapPromoQRCode = encoder.createBitmap(matrix);
-            PromoQRCodeImage.setImageBitmap(bitMapPromoQRCode);
+
         } catch (WriterException e) {
             e.printStackTrace();
         }
@@ -140,8 +157,13 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
     }
 
 
-
-    private void uploadQRCodeAndUpdatEvent(final Bitmap bitmap, final Event event, final String fieldName) {
+    /**
+     * This upload a QR code to firebase storage and update the URL for QR code in firebase database
+     * @param bitmap This is a pixel to draw
+     * @param event This is an Event object to be used to generate a unique QR code
+     * @param fieldName This is a reference in firebase database
+     */
+    private void uploadQRCodeAndUpdateEvent(final Bitmap bitmap, final Event event, final String fieldName) {
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
 
