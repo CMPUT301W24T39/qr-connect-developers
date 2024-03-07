@@ -19,32 +19,18 @@
 
     </ImageView>
     <TextView
-        android:id="@+id/welcome_text"
+        android:id="@+id/welcome_back_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="Welcome!"
+        android:text="Welcome! John Smith"
         android:textColor="@color/white"
-        android:textSize="20dp">
+        android:textSize="40dp">
     </TextView>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        <EditText
-            android:id="@+id/first_name_editText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="First Name">
-
-        </EditText>
-        <EditText
-            android:id="@+id/last_name_editText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Last Name">
-
-        </EditText>
 
         <Button
             android:layout_width="match_parent"
