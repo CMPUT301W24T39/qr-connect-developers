@@ -2,6 +2,8 @@ package com.example.qrconnect;
 
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -21,6 +23,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.security.DigestException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Objects;
 
 public class UserProfilePage extends AppCompatActivity {
@@ -42,7 +48,7 @@ public class UserProfilePage extends AppCompatActivity {
         setContentView(R.layout.user_profile_page);
 
         profilePicture = findViewById(R.id.profile_picture);
-        profilePicture.setImageResource(R.drawable.profile_icon_9);
+        profilePicture.setImageBitmap(generateAvatar());
 
         addPhotoButton = findViewById(R.id.add_photo_button);
         removePhotoButton = findViewById(R.id.remove_photo_button);
@@ -71,6 +77,7 @@ public class UserProfilePage extends AppCompatActivity {
 
                 /*
                 TODO: connect this to firebase
+                should also update generated avatar if no profile picture has been added
                  */
             }
         });
@@ -104,13 +111,69 @@ public class UserProfilePage extends AppCompatActivity {
         removePhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*
-                TODO: this function should revert profile picture to a procedurally generated image
-                 */
-                profilePicture.setImageResource(R.drawable.profile_icon_9);
+                profilePicture.setImageBitmap(generateAvatar());
             }
         });
+    }
 
+    private Bitmap generateAvatar() {
+        // temporary. should get names from firebase
+        firstNameEditText = findViewById(R.id.first_name_edit);
+        lastNameEditText = findViewById(R.id.last_name_edit);
+        String firstName = firstNameEditText.getText().toString();
+        String lastName = lastNameEditText.getText().toString();
+        String name = firstName + " " + lastName;
+
+        try {
+            // generate hash of user's name and convert to byte array
+            // TODO: should be user's name + user ID
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] sha = md.digest(name.getBytes());
+
+            // convert bytes to string of their binary representation
+            // pad with zeros to keep it 16x16. this pads on the wrong side but it doesn't make a difference
+            String binaryString = "";
+            for (byte b : sha) {
+                String s = Integer.toBinaryString(b & 0xFF);
+                while (s.length() < 8) {
+                    s += "0";
+                }
+                binaryString += s;
+            }
+
+            // create bitmap and then fill its pixels in with the values of the binary string
+            Bitmap bitmap = Bitmap.createBitmap(256, 256, Bitmap.Config.RGB_565);
+            for (int i=0; i<16; i++) {
+                for (int j=0; j<16; j++) {
+                    int pixel;
+                    if (binaryString.charAt(16*i + j) == '1') {
+                        pixel = 0xFFFFFF;
+                    } else {
+                        pixel = 0x000000;
+                    }
+                    // this sets each 16x16 grid in the 256x256 bitmap to the given pixel
+                    // same as scaling the image up, but without a loss in quality
+                    for (int ii = 16*i; ii < 16*i + 16; ii++) {
+                        for (int jj = 16*j; jj < 16*j + 16; jj++) {
+                            bitmap.setPixel(ii,jj,pixel);
+                        }
+                    }
+                    // alternative approach: a 16x16 grid of 16x16 bitmaps
+//                    for (int ii=0; ii<16; ii++) {
+//                        for (int jj=0; jj<16; jj++) {
+//                            bitmap.setPixel(ii*16 + i, jj*16+j,pixel);
+//                        }
+//                    }
+                    // just a 16x16 bitmap
+                    //bitmap.setPixel(i,j,pixel);
+                }
+            }
+            Log.d("byte array", Arrays.toString(sha));
+            return bitmap;
+        } catch (NoSuchAlgorithmException e){
+            System.err.println("NoSuchAlgorithmException");
+        }
+        return null;
     }
 }
 
