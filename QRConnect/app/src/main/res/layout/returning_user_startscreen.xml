@@ -15,7 +15,7 @@
         android:layout_width="310dp"
         android:layout_height="257dp"
         android:layout_gravity="center"
-        android:src="@drawable/QR_connect_logo">
+        android:src="@drawable/qr_connect_logo">
 
     </ImageView>
     <TextView
