@@ -48,7 +48,7 @@ public class Event {
         this.capacity = capacity;
         this.announcement = announcement;
         this.QRCodeImage = QRCodeImage;
-        PromoQRCodeImage = promoQRCodeImage;
+        this.PromoQRCodeImage = promoQRCodeImage;
         this.eventCheckInId = eventCheckInId;
         this.eventPromoId = eventPromoId;
         this.eventId = eventId;
