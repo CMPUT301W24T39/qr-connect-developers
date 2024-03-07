@@ -24,7 +24,6 @@
             android:parentActivityName=".QRCodeGeneratesPage"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar"/>
 
-
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -33,6 +32,29 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+
+        <activity
+            android:name=".QRCodeGeneratesPage">
+        </activity>
+        <activity
+            android:name=".SelectEventPage">
+        </activity>
+
+        <activity
+            android:name=".EventDetailsActivity"
+            android:exported="true">
+        </activity>
+
+        <activity
+            android:name=".AttendeeListActivity"
+            android:exported="true">
+        </activity>
+
+        <activity
+            android:name=".SendNotificationsActivity"
+            android:exported="true">
         </activity>
 
 
