@@ -11,8 +11,7 @@
         android:id="@+id/toolbar_event_details"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp">
+        android:background="?attr/colorPrimary">
 
         <!-- Back Navigation Icon -->
         <ImageButton
@@ -51,6 +50,7 @@
 
         <!-- Send Notifications Icon-->
         <ImageButton
+            android:id="@+id/event_details_send_notifications"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/send_notifications_icon"

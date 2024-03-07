@@ -40,5 +40,22 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         });
 
+        ImageButton sendNotificationsButton = findViewById(R.id.event_details_send_notifications);
+
+        sendNotificationsButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                try {
+                    Intent showIntent = new Intent(EventDetailsActivity.this, SendNotificationsActivity.class);
+                    //TODO: showIntent.putExtra("EVENT", event);
+                    startActivity(showIntent);
+                } catch (Exception e) {
+                    Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+        });
+
+
     }
 }
