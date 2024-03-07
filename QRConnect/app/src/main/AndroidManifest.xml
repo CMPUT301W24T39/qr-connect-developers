@@ -27,6 +27,22 @@
         <activity
             android:name=".SelectEventPage">
         </activity>
+
+        <activity
+            android:name=".EventDetailsActivity"
+            android:exported="true">
+        </activity>
+
+        <activity
+            android:name=".AttendeeListActivity"
+            android:exported="true">
+        </activity>
+
+        <activity
+            android:name=".SendNotificationsActivity"
+            android:exported="true">
+        </activity>
+
     </application>
 
 </manifest>
