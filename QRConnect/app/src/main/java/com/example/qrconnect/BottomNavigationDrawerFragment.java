@@ -13,18 +13,7 @@ import com.google.android.material.navigation.NavigationView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-<<<<<<< HEAD
-public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
 
-    private Context mContext;
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        mContext=context;
-    }
-
-=======
 /**
  * This class manages the drop down menu after long clicks on a QR code
  */
@@ -43,7 +32,6 @@ public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
      *
      * @return Return a view for the drop down menu
      */
->>>>>>> origin
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
