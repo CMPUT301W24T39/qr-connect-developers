@@ -2,14 +2,23 @@ package com.example.qrconnect;
 
 import static com.example.qrconnect.MainActivity.eventDataList;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 /**
  * This class maintains the functions of SelectEventPage activity
@@ -43,7 +52,19 @@ public class SelectEventPage extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Event selectedEvent = (Event) parent.getItemAtPosition(position);
                 Event newEvent = eventDataList.get(eventDataList.size() - 1);
-                newEvent.setQRCodeImage(selectedEvent.getQRCodeImage());
+
+                FirebaseStorage storage = FirebaseStorage.getInstance();
+                StorageReference storageRef = storage.getReference();
+                StorageReference pathReference = storageRef.child("qrcodes/" + selectedEvent.getEventId() + "_" + "checkInQRCodeImageUrl" + ".jpg");
+                pathReference.getDownloadUrl().addOnSuccessListener(uri -> {
+                    Intent resultIntent = new Intent();
+                    resultIntent.putExtra("imageUrl", uri.toString());
+                    setResult(RESULT_OK, resultIntent);
+                    finish();
+                }).addOnFailureListener(exception -> {
+
+                });
+
             }
         });
 
@@ -54,4 +75,6 @@ public class SelectEventPage extends AppCompatActivity {
             }
         });
     }
+
+
 }
