@@ -45,6 +45,31 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.UUID;
+/*
+https://developer.android.com/media/camera/camera-deprecated/photobasics
+https://stackoverflow.com/questions/5089300/how-can-i-change-the-image-of-an-imageview
+https://stackoverflow.com/questions/71729415/saving-an-image-and-displaying-it-in-gallery
+https://www.geeksforgeeks.org/how-to-update-data-in-firebase-firestore-in-android/
+https://stackoverflow.com/questions/41296416/updating-the-data-on-firebase-android
+https://www.geeksforgeeks.org/how-to-update-data-in-firebase-firestore-in-android/
+https://www.jsowl.com/get-a-document-using-its-id-from-a-collection-in-firestore/#google_vignette
+https://developer.android.com/training/articles/user-data-ids
+https://stackoverflow.com/questions/52860840/retrieving-document-id-from-firestore-collection-android
+https://stackoverflow.com/questions/2550099/how-to-kill-an-android-activity-when-leaving-it-so-that-it-cannot-be-accessed-fr
+https://developer.android.com/guide/components/activities/activity-lifecycle
+https://stackoverflow.com/questions/32306458/recreate-restart-activity-from-another-activity
+https://developer.android.com/guide/components/activities/tasks-and-back-stack
+https://stackoverflow.com/questions/3473168/clear-the-entire-history-stack-and-start-a-new-activity-on-android
+https://stackoverflow.com/questions/2091465/how-do-i-pass-data-between-activities-in-android-application
+https://stackoverflow.com/questions/45410314/save-class-to-firebase
+https://stackoverflow.com/questions/57134070/error-inflating-class-com-google-android-material-textfield-textinputlayout
+https://www.youtube.com/watch?v=KsprqXfugGQ
+https://www.geeksforgeeks.org/handling-click-events-button-android/
+https://www.youtube.com/watch?v=MCeWm8qu0sw
+https://stackoverflow.com/questions/44676579/how-to-make-option-menu-appear-on-bottom-of-the-screen
+https://stackoverflow.com/questions/72713837/redirecting-user-to-menu-section-after-button-click-by-popping-up-nav-bar-from
+https://developer.android.com/training/basics/intents/sending
+ */
 
 /**
  * This class maintains the functions of the main activity
