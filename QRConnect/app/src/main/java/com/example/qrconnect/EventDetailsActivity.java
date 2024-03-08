@@ -10,12 +10,22 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+/**
+ * This activity displays details of a specific event.
+ * It allows users to navigate back, access the menu, and send notifications for the event.
+ */
 public class EventDetailsActivity extends AppCompatActivity {
+    /**
+     * Called when the activity is first created. Responsible for initializing the activity.
+     *
+     * @param savedInstanceState A Bundle containing the activity's previously frozen state, if there was one.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_details);
 
+        // initialize backButton
         ImageButton backButton = findViewById(R.id.event_details_back_nav_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -24,6 +34,7 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         });
 
+        // initialize menu button
         ImageButton menuButton = findViewById(R.id.event_details_menu_icon_button);
 
         menuButton.setOnClickListener(new View.OnClickListener(){
@@ -40,6 +51,7 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         });
 
+        // initialize send notification button
         ImageButton sendNotificationsButton = findViewById(R.id.event_details_send_notifications);
 
         sendNotificationsButton.setOnClickListener(new View.OnClickListener(){
