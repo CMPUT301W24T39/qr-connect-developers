@@ -19,12 +19,10 @@ public class Event {
     private String location;
     private Integer capacity;
     private String announcement;
-
     private Bitmap QRCodeImage;
     private Bitmap PromoQRCodeImage;
     private String eventCheckInId;
     private String eventPromoId;
-
     private String eventId;
     protected ArrayList<Attendee> AttendeeList;
 
@@ -66,7 +64,6 @@ public class Event {
      * This method gets the QR code of an event.
      * @return Return a QR code image.
      */
-
     public Bitmap getQRCodeImage() {
         return QRCodeImage;
     }
@@ -83,7 +80,6 @@ public class Event {
      * This method gets the Promotion QR code of an event.
      * @return Return the promotion QR code image.
      */
-
     public Bitmap getPromoQRCodeImage() {
         return PromoQRCodeImage;
     }
