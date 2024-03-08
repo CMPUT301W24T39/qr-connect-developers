@@ -3,6 +3,7 @@ package com.example.qrconnect;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
 
+import java.io.Serializable;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,7 +13,7 @@ import java.util.Date;
  * The Event class defines an event.
  * Contains details such as title, date, time, location, capacity, announcement, and associated QR codes.
  */
-public class Event {
+public class Event implements Serializable {
     private String eventTitle;
     private Date date;
     private Time time;
