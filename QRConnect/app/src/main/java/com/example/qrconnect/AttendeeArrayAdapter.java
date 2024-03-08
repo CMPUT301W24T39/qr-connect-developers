@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * The AttendeeArrayAdapter class provides a way to adapt an ArrayList of Attendee objects
  * to be displayed in an AdapterView.
- * It extends the ArrayAdapter<Attendee> Class.
+ * It extends the ArrayAdapter Class.
  */
 public class AttendeeArrayAdapter extends ArrayAdapter<Attendee> {
 
