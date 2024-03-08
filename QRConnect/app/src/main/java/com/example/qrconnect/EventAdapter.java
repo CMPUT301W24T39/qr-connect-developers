@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * The EventAdapter class makes the objects in eventDataList to be able to show in the view.
- * It extends the ArrayAdapter<Event> class.
+ * It extends the ArrayAdapter class.
  */
 public class EventAdapter extends ArrayAdapter<Event> {
     private Context context;
