@@ -1,21 +1,41 @@
 package com.example.qrconnect;
 
+/**
+ * This is the Organizer class is for an organizer, they are a user.
+ * Initializes an organizer.
+ */
 public class Organizer extends User{
 
-
+    /**
+     * Constructor for the organizer class.
+     * @param userID ID of the user (organizer).
+     * @param name name of the user (organizer).
+     * @param contactInformation contact information of the user (organizer).
+     */
     public Organizer(String userID, String name, String contactInformation) {
         super(userID, name, contactInformation);
     }
 
+    /**
+     * Uploads a profile picture for the organizer (user).
+     * This method is not implemented in this class.
+     * @param imagePath The path to the image.
+     */
     @Override
     public void uploadProfilePicture(String imagePath) {
 
     }
 
+    /**
+     * Removes the uploaded profile picture of the organizer (user).
+     * This method is not implemented in this class.
+     */
     @Override
     public void removeProfilePicture() {
 
     }
+
+    // FUTURE IMPLEMENTATION:
 
     public void createEvent(/* Event details */) {
         // Implementation for creating a new event

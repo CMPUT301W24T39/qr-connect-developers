@@ -1,5 +1,6 @@
 package com.example.qrconnect;
 
+// FUTURE IMPLEMENTATION:
 public class QRGenerator {
     // Generates QR code data
     public String generatePromoCode(/*Event targetEvent*/) {
