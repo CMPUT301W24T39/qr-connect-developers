@@ -14,4 +14,8 @@ public class Attendee extends User{
     public void removeProfilePicture() {
 
     }
+
+    public void checkInQrcodeScan(){
+
+    }
 }

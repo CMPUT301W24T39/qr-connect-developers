@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -27,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
 
     static boolean isAddButtonClicked = false;
 
+    private ImageButton openCamera;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         addButton = findViewById(R.id.button_add_event);
+        openCamera = findViewById(R.id.qr_code_scanner_button);
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -42,6 +47,14 @@ public class MainActivity extends AppCompatActivity {
                 isAddButtonClicked = true;
                 Event newEvent = new Event();
                 events.add(newEvent);
+            }
+        });
+
+        openCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, QRCodeCheckInActivity.class));
+
             }
         });
 
