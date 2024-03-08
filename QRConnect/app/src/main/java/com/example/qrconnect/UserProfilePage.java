@@ -20,12 +20,16 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -78,6 +82,17 @@ public class UserProfilePage extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
+                user.setProfilePictureUploaded(false);
+                HashMap<String, Object> data = new HashMap<>();
+                data.put("isProfilePictureUploaded", false);
+                usersRef.document("1").update(data).addOnSuccessListener(
+                        new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.d("Firestore", "DocumentSnapshot successfully written");
+                            }
+                        }
+                );
             }
         });
     }
@@ -92,7 +107,7 @@ public class UserProfilePage extends AppCompatActivity {
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         setUserData(documentSnapshot);
                         setEditTextData();
-                        profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
+                        setProfilePicture();
                     }
                 }
         ).addOnFailureListener(new OnFailureListener() {
@@ -102,6 +117,16 @@ public class UserProfilePage extends AppCompatActivity {
                 // TODO: handle error
             }
         });
+    }
+
+    private void setProfilePicture() {
+        Log.d("profile page setup", String.valueOf(user.getProfilePictureUploaded()));
+        if (user.getProfilePictureUploaded()) {
+            Log.d("profile pic", user.getProfilePictureURL());
+            Glide.with(this).load(user.getProfilePictureURL()).into(profilePicture);
+        } else {
+            profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
+        }
     }
 
     /**
@@ -135,6 +160,8 @@ public class UserProfilePage extends AppCompatActivity {
         user.setEmail(documentSnapshot.getString("email"));
         user.setPhone(documentSnapshot.getString("phone"));
         user.setLocationTracking(documentSnapshot.getBoolean("isLocationTrackingOn"));
+        user.setProfilePictureUploaded(documentSnapshot.getBoolean("isProfilePictureUploaded"));
+        user.setProfilePictureURL(documentSnapshot.getString("profilePictureURL"));
     }
 
     /**
@@ -177,7 +204,7 @@ public class UserProfilePage extends AppCompatActivity {
 
         // Hardcoded to single user for now.
         // TODO: allow multiple users.
-        usersRef.document("1").set(data).addOnSuccessListener(
+        usersRef.document("1").update(data).addOnSuccessListener(
                 new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
@@ -191,6 +218,10 @@ public class UserProfilePage extends AppCompatActivity {
                 // TODO: handle error
             }
         });
+
+        if (!user.getProfilePictureUploaded()) {
+            profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
+        }
     }
 
     /**
@@ -206,7 +237,7 @@ public class UserProfilePage extends AppCompatActivity {
                     // photo picker.
                     if (uri != null) {
                         Log.d("PhotoPicker", "Selected URI: " + uri);
-                        // TODO: save this image to firebase
+                        saveImageToFirebase(uri);
                         profilePicture.setImageURI(uri);
                     } else {
                         Log.d("PhotoPicker", "No media selected");
@@ -223,6 +254,41 @@ public class UserProfilePage extends AppCompatActivity {
                         .build());
             }
         });
+    }
+
+    private void saveImageToFirebase(Uri uri) {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+
+        StorageReference imageRef = storageRef.child("profile_pictures/" + user.getUserID() + ".png");
+
+        imageRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                    String url = uri.toString();
+                    user.setProfilePictureURL(url);
+                    user.setProfilePictureUploaded(true);
+                    HashMap<String, Object> data = new HashMap<>();
+                    data.put("profilePictureURL", url);
+                    data.put("isProfilePictureUploaded", true);
+                    usersRef.document("1").update(data).addOnSuccessListener(
+                            new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    Log.d("Firestore", "DocumentSnapshot successfully written");
+                                }
+                            }
+                    );
+                }).addOnFailureListener(exception ->
+                        Log.e("Firebase", "Failed to download profile picture URL")
+                        // TODO: handle error
+                );
+            }
+        }).addOnFailureListener(exception ->
+                Log.e("Firebase", "Failed to upload profile picture to Firebase")
+                //TODO: handle error
+        );
     }
 }
 

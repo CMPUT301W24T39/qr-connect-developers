@@ -10,7 +10,7 @@ public class UserProfile {
     protected String email;
     protected String phone;
     protected Bitmap generatedProfilePicture;
-    //uploaded profile picture
+    protected String profilePictureURL;
     protected Boolean isProfilePictureUploaded;
     protected Boolean isLocationTracking;
 
@@ -74,7 +74,7 @@ public class UserProfile {
         this.generatedProfilePicture = generatedProfilePicture;
     }
 
-    public Boolean getProfilePictureUploaded() {
+    public boolean getProfilePictureUploaded() {
         return isProfilePictureUploaded;
     }
 
@@ -88,5 +88,13 @@ public class UserProfile {
 
     public void setLocationTracking(Boolean locationTracking) {
         isLocationTracking = locationTracking;
+    }
+
+    public String getProfilePictureURL() {
+        return profilePictureURL;
+    }
+
+    public void setProfilePictureURL(String profilePictureURL) {
+        this.profilePictureURL = profilePictureURL;
     }
 }
