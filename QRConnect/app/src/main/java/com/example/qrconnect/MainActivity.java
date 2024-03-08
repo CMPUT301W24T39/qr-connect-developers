@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     static boolean isAddButtonClicked = false;
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
-    private static int numAddButtonClicked;
+    public static int numAddButtonClicked;
 
     /**
      * This defines the functions in main activity
