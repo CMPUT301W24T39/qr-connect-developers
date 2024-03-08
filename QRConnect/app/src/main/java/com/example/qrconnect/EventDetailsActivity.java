@@ -45,6 +45,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         Button saveChangesButton = findViewById(R.id.save_event_button);
 
         String eventId = getIntent().getStringExtra("EVENT_ID");
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference eventRef = db.collection("events").document(eventId);
 
@@ -118,17 +119,24 @@ public class EventDetailsActivity extends AppCompatActivity {
         });
 
     }
-    private void loadEventData(DocumentReference eventRef, EditText... editTexts) {
+    private void loadEventData(DocumentReference eventRef,
+                               EditText eventDescriptionEdit,
+                               EditText eventDate,
+                               EditText eventTime,
+                               EditText eventLocation,
+                               EditText eventCapacity,
+                               EditText eventCurrentAttendance) {
         eventRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 if (document.exists()) {
-                    editTexts[0].setText(document.getString("description"));
-                    editTexts[1].setText(document.getString("date"));
-                    editTexts[2].setText(document.getString("time"));
-                    editTexts[3].setText(document.getString("location"));
-                    editTexts[4].setText(String.valueOf(document.getLong("capacity")));
-                    editTexts[5].setText(String.valueOf(document.getLong("currentAttendance")));
+                    // Directly set text on each EditText from the document
+                    eventDescriptionEdit.setText(document.getString("description"));
+                    eventDate.setText(document.getString("date"));
+                    eventTime.setText(document.getString("time"));
+                    eventLocation.setText(document.getString("location"));
+                    eventCapacity.setText(String.valueOf(document.getLong("capacity")));
+                    eventCurrentAttendance.setText(String.valueOf(document.getLong("currentAttendance")));
                 } else {
                     Toast.makeText(EventDetailsActivity.this, "No such document", Toast.LENGTH_SHORT).show();
                 }
@@ -137,4 +145,5 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         });
     }
+
 }
