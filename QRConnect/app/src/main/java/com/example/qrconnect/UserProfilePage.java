@@ -36,6 +36,9 @@ import java.util.HashMap;
 import java.util.Objects;
 
 public class UserProfilePage extends AppCompatActivity {
+    private static String USER_ID = "1";
+    private static String COLLECTION_PATH = "users";
+    private static String STORAGE_PATH = "profile_pictures/";
     private ImageView profilePicture;
     private Button addPhotoButton;
     private Button removePhotoButton;
@@ -48,85 +51,36 @@ public class UserProfilePage extends AppCompatActivity {
     private TextInputEditText phoneEditText;
 
     private FirebaseFirestore db;
+    private CollectionReference usersRef;
+    FirebaseStorage storage;
+    StorageReference storageRef;
 
     // Hardcoded to single user for now.
     // TODO: allow multiple users.
-    private UserProfile user = new UserProfile("1");
-    private CollectionReference usersRef;
+    private UserProfile user = new UserProfile(USER_ID);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_profile_page);
 
-        db = FirebaseFirestore.getInstance();
-        usersRef = db.collection("users");
-
+        initializeFirebase();
         findViews();
-
         getUserData();
 
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveUserData();
-                /*
-                should also update generated avatar if no profile picture has been added
-                 */
-            }
-        });
-
         handleAddPhotoButton();
-
-        removePhotoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
-                user.setProfilePictureUploaded(false);
-                HashMap<String, Object> data = new HashMap<>();
-                data.put("isProfilePictureUploaded", false);
-                usersRef.document("1").update(data).addOnSuccessListener(
-                        new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void unused) {
-                                Log.d("Firestore", "DocumentSnapshot successfully written");
-                            }
-                        }
-                );
-            }
-        });
+        handleRemovePhotoButton();
+        handleSaveButton();
     }
 
     /**
-     * Gets user data from Firebase and updates the profile page with said data.
+     * Initializes Firebase database and storage
      */
-    private void getUserData() {
-        usersRef.document("1").get().addOnSuccessListener(
-                new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        setUserData(documentSnapshot);
-                        setEditTextData();
-                        setProfilePicture();
-                    }
-                }
-        ).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.e("Firestore", "Error fetching user data");
-                // TODO: handle error
-            }
-        });
-    }
-
-    private void setProfilePicture() {
-        Log.d("profile page setup", String.valueOf(user.getProfilePictureUploaded()));
-        if (user.getProfilePictureUploaded()) {
-            Log.d("profile pic", user.getProfilePictureURL());
-            Glide.with(this).load(user.getProfilePictureURL()).into(profilePicture);
-        } else {
-            profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
-        }
+    private void initializeFirebase() {
+        db = FirebaseFirestore.getInstance();
+        usersRef = db.collection(COLLECTION_PATH);
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
     }
 
     /**
@@ -150,17 +104,39 @@ public class UserProfilePage extends AppCompatActivity {
     }
 
     /**
+     * Gets user data from Firebase and updates the profile page with said data.
+     */
+    private void getUserData() {
+        usersRef.document(USER_ID).get().addOnSuccessListener(
+                new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        setUserData(documentSnapshot);
+                        setEditTextData();
+                        setProfilePicture();
+                    }
+                }
+        ).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e("Firestore", "Error fetching user data");
+                // TODO: handle error
+            }
+        });
+    }
+
+    /**
      * This function sets the values of the user object to those on Firebase
      * @param documentSnapshot Firebase documentSnapshot
      */
     private void setUserData(DocumentSnapshot documentSnapshot) {
-        user.setFirstName(documentSnapshot.getString("firstName"));
-        user.setLastName(documentSnapshot.getString("lastName"));
-        user.setPronouns(documentSnapshot.getString("pronouns"));
         user.setEmail(documentSnapshot.getString("email"));
-        user.setPhone(documentSnapshot.getString("phone"));
+        user.setFirstName(documentSnapshot.getString("firstName"));
         user.setLocationTracking(documentSnapshot.getBoolean("isLocationTrackingOn"));
         user.setProfilePictureUploaded(documentSnapshot.getBoolean("isProfilePictureUploaded"));
+        user.setLastName(documentSnapshot.getString("lastName"));
+        user.setPhone(documentSnapshot.getString("phone"));
+        user.setPronouns(documentSnapshot.getString("pronouns"));
         user.setProfilePictureURL(documentSnapshot.getString("profilePictureURL"));
     }
 
@@ -177,49 +153,12 @@ public class UserProfilePage extends AppCompatActivity {
     }
 
     /**
-     * This function saves the inputted data to firebase and updates the user object
+     * Sets profile picture if it exists, sets a generated one if it doesn't
      */
-    private void saveUserData() {
-        String firstName = firstNameEditText.getText().toString();
-        String lastName = lastNameEditText.getText().toString();
-        String pronouns = pronounsEditText.getText().toString();
-        String email = emailEditText.getText().toString();
-        String phone = phoneEditText.getText().toString();
-        Boolean isLocationTrackingOn = locationSwitch.isChecked();
-
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setPronouns(pronouns);
-        user.setEmail(email);
-        user.setPhone(phone);
-        user.setLocationTracking(isLocationTrackingOn);
-
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("firstName", firstName);
-        data.put("lastName", lastName);
-        data.put("pronouns", pronouns);
-        data.put("email", email);
-        data.put("phone", phone);
-        data.put("isLocationTrackingOn", isLocationTrackingOn);
-
-        // Hardcoded to single user for now.
-        // TODO: allow multiple users.
-        usersRef.document("1").update(data).addOnSuccessListener(
-                new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Log.d("Firestore", "DocumentSnapshot successfully written");
-                    }
-                }
-        ).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.e("Firestore", "Error writing user data to Firebase");
-                // TODO: handle error
-            }
-        });
-
-        if (!user.getProfilePictureUploaded()) {
+    private void setProfilePicture() {
+        if (user.getProfilePictureUploaded()) {
+            Glide.with(this).load(user.getProfilePictureURL()).into(profilePicture);
+        } else {
             profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
         }
     }
@@ -256,11 +195,12 @@ public class UserProfilePage extends AppCompatActivity {
         });
     }
 
+    /**
+     * Saves the added profile picture to firebase
+     * @param uri Uri of new profile picture
+     */
     private void saveImageToFirebase(Uri uri) {
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference();
-
-        StorageReference imageRef = storageRef.child("profile_pictures/" + user.getUserID() + ".png");
+        StorageReference imageRef = storageRef.child(STORAGE_PATH + user.getUserID() + ".png");
 
         imageRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -281,14 +221,97 @@ public class UserProfilePage extends AppCompatActivity {
                             }
                     );
                 }).addOnFailureListener(exception ->
-                        Log.e("Firebase", "Failed to download profile picture URL")
+                                Log.e("Firebase", "Failed to download profile picture URL")
                         // TODO: handle error
                 );
             }
         }).addOnFailureListener(exception ->
-                Log.e("Firebase", "Failed to upload profile picture to Firebase")
+                        Log.e("Firebase", "Failed to upload profile picture to Firebase")
                 //TODO: handle error
         );
     }
-}
 
+    /**
+     * Removes profile picture and replaces it with a generated one
+     */
+    private void handleRemovePhotoButton() {
+        removePhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
+                user.setProfilePictureUploaded(false);
+                HashMap<String, Object> data = new HashMap<>();
+                data.put("isProfilePictureUploaded", false);
+                usersRef.document("1").update(data).addOnSuccessListener(
+                        new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.d("Firestore", "DocumentSnapshot successfully written");
+                            }
+                        }
+                );
+            }
+        });
+    }
+
+    /**
+     * Saves the data that the user inputted
+     */
+    private void handleSaveButton() {
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveUserData();
+                // update generated bitmap to match current name.
+                // do not do this if user has uploaded their own profile picture
+                if (!user.getProfilePictureUploaded()) {
+                    profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
+                }
+            }
+        });
+    }
+
+    /**
+     * This function saves the inputted data to firebase and updates the user object
+     */
+    private void saveUserData() {
+        String firstName = firstNameEditText.getText().toString();
+        String lastName = lastNameEditText.getText().toString();
+        String pronouns = pronounsEditText.getText().toString();
+        String email = emailEditText.getText().toString();
+        String phone = phoneEditText.getText().toString();
+        Boolean isLocationTrackingOn = locationSwitch.isChecked();
+
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setPronouns(pronouns);
+        user.setEmail(email);
+        user.setPhone(phone);
+        user.setLocationTracking(isLocationTrackingOn);
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("firstName", firstName);
+        data.put("lastName", lastName);
+        data.put("pronouns", pronouns);
+        data.put("email", email);
+        data.put("phone", phone);
+        data.put("isLocationTrackingOn", isLocationTrackingOn);
+
+        // Hardcoded to single user for now.
+        // TODO: allow multiple users.
+        usersRef.document(USER_ID).update(data).addOnSuccessListener(
+                new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Log.d("Firestore", "DocumentSnapshot successfully written");
+                    }
+                }
+        ).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e("Firestore", "Error writing user data to Firebase");
+                // TODO: handle error
+            }
+        });
+    }
+}
