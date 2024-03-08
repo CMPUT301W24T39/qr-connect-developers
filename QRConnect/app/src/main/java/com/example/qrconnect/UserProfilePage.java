@@ -116,6 +116,11 @@ public class UserProfilePage extends AppCompatActivity {
         });
     }
 
+    /**
+     * This function returns a deterministically generated bitmap based on a hash of the user's name
+     * to be used as the user's profile picture if they do not upload one themselves
+     * @return Bitmap To be used as the profile picture
+     */
     private Bitmap generateAvatar() {
         // temporary. should get names from firebase
         firstNameEditText = findViewById(R.id.first_name_edit);
@@ -171,7 +176,7 @@ public class UserProfilePage extends AppCompatActivity {
             Log.d("byte array", Arrays.toString(sha));
             return bitmap;
         } catch (NoSuchAlgorithmException e){
-            System.err.println("NoSuchAlgorithmException");
+            Log.e("SHA error", "NoSuchAlgorithmException");
         }
         return null;
     }

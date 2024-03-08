@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
 
     ListView eventList;
     static boolean isAddButtonClicked = false;
-    static boolean isProfileButtonClicked = false;
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
     private static int numAddButtonClicked;
@@ -162,7 +161,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, UserProfilePage.class));
-                isProfileButtonClicked = true;
             }
         });
 
