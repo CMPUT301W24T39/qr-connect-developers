@@ -76,6 +76,13 @@ public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
         return rootView;
     }
 
+    /**
+     * Called when the activity is starting. Initialization should go:
+     * calling setContentView(int) to inflate the activity's UI, using findViewById(int) to
+     * programmatically interact with widgets in the UI, etc.
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,5 +102,4 @@ public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
                     }
                 });
     }
-
 }
