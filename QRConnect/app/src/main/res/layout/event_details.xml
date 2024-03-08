@@ -3,7 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_event_details"
         android:layout_width="match_parent"
@@ -52,193 +51,221 @@
 
     </androidx.appcompat.widget.Toolbar>
 
-    <FrameLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="111dp"
-        android:layout_marginTop="16dp">
-
-        <ImageView
-            android:id="@+id/event_image"
-            android:layout_width="279dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_horizontal"
-            android:scaleType="fitCenter"
-            android:src="@mipmap/ic_launcher" />
-
-    </FrameLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:orientation="vertical">
-
-        <Button
-            android:id="@+id/upload_poster_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-
-            android:drawableLeft="@drawable/ic_upload"
-            android:text="UPLOAD POSTER" />
-
-        <EditText
-            android:id="@+id/event_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:hint="Event Title"
-            android:layout_gravity="center_horizontal"
-            android:textSize="24sp"
-            android:background="@android:color/transparent" />
-
-
-        <EditText
-            android:id="@+id/event_description_edit"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
-            android:gravity="top|start"
-            android:hint="Event Description"
-            android:inputType="textMultiLine"
-            android:textSize="18sp"
-            android:scrollbars="vertical"
-            android:padding="16dp"
-            android:minLines="2"
-            android:maxLines="3"
-            android:background="@android:color/transparent" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="0dp"
+        android:layout_weight="1">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <TextView
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="111dp"
+                android:layout_marginTop="16dp">
+
+                <ImageView
+                    android:id="@+id/event_image"
+                    android:layout_width="279dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:scaleType="fitCenter"
+                    android:src="@mipmap/ic_launcher" />
+
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+            <Button
+                android:id="@+id/upload_poster_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="24dp"
-                android:layout_gravity="center_vertical"
-                android:textSize="20dp"
-                android:text="Date: "
-                android:textStyle="bold"/>
+                android:layout_gravity="center"
+
+                android:drawableLeft="@drawable/ic_upload"
+                android:text="UPLOAD POSTER" />
 
             <EditText
-                android:id="@+id/event_date"
+                android:id="@+id/event_title_edittext"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:hint="dd/mm/yy" />
+                android:hint="Event Title"
+                android:layout_gravity="center_horizontal"
+                android:textSize="24sp"
+                android:background="@android:color/transparent" />
 
-            <Space
-                android:layout_width="10dp"
-                android:layout_height="wrap_content"/>
-
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:src="@drawable/calendar_month_icon"
-                android:background="@drawable/calendar_month_icon"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="24dp"
-                android:textSize="20dp"
-                android:text="Time: "
-                android:textStyle="bold"/>
 
             <EditText
-                android:id="@+id/event_time"
-                android:layout_width="wrap_content"
+                android:id="@+id/event_description_edit"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                android:gravity="top|start"
+                android:hint="Event Description"
+                android:inputType="textMultiLine"
+                android:textSize="18sp"
+                android:scrollbars="vertical"
+                android:padding="16dp"
+                android:minLines="2"
+                android:maxLines="3"
+                android:background="@android:color/transparent" />
+            </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="24dp"
+                    android:layout_gravity="center_vertical"
+                    android:textSize="20dp"
+                    android:text="Date: "
+                    android:textStyle="bold"/>
+
+                <EditText
+                    android:id="@+id/event_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:hint="dd/mm/yy" />
+
+                <Space
+                    android:layout_width="10dp"
+                    android:layout_height="wrap_content"/>
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/calendar_month_icon"
+                    android:background="@drawable/calendar_month_icon"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="12:00 AM/PM"/>
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="24dp"
+                    android:textSize="20dp"
+                    android:text="Time: "
+                    android:textStyle="bold"/>
+
+                <EditText
+                    android:id="@+id/event_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="12:00 AM/PM"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="24dp"
+                    android:textSize="20dp"
+                    android:text="Location:  "
+                    android:textStyle="bold"/>
+
+                <EditText
+                    android:id="@+id/event_location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="Street Address" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="24dp"
+                    android:textSize="20dp"
+                    android:text="Capacity:  "
+                    android:textStyle="bold"/>
+
+                <EditText
+                    android:id="@+id/event_capacity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="0"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="24dp"
+                    android:textSize="20dp"
+                    android:text="Limit Capacity:  "
+                    android:textStyle="bold"/>
+                <Switch
+                    android:id="@+id/switch_limit_capacity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Current Attendance: "
+                    android:layout_marginLeft="24dp"
+                    android:textSize="20dp"
+                    android:textStyle="bold"
+                    />
+
+                <TextView
+                    android:id="@+id/event_current_attendance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="10"
+                    android:textSize="20dp"/>
+
+            </LinearLayout>
+
+            </LinearLayout>
+                <Button
+                    android:id="@+id/save_event_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="SAVE CHANGES" />
+                <Button
+                    android:id="@+id/share_event_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="SHARE EVENT" />
+
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+    </ScrollView>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="24dp"
-                android:textSize="20dp"
-                android:text="Location:  "
-                android:textStyle="bold"/>
-
-            <EditText
-                android:id="@+id/event_location"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="Street Address" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="24dp"
-                android:textSize="20dp"
-                android:text="Capacity:  "
-                android:textStyle="bold"/>
-
-            <EditText
-                android:id="@+id/event_capacity"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="0"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Current Attendance:"
-                android:layout_marginLeft="24dp"
-                android:textSize="20dp"
-                android:textStyle="bold"/>
-
-            <EditText
-                android:id="@+id/event_current_attendance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="0"/>
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/save_event_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:text="SAVE CHANGES" />
-    <Button
-        android:id="@+id/share_event_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:text="SHARE EVENT" />
 </LinearLayout>
+
