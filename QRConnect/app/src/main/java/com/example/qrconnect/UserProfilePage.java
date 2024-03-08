@@ -19,8 +19,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.CollectionReference;
@@ -55,13 +57,63 @@ public class UserProfilePage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_profile_page);
 
+        db = FirebaseFirestore.getInstance();
+        usersRef = db.collection("users");
+
+        findViews();
+
+        getUserData();
+
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveUserData();
+                /*
+                should also update generated avatar if no profile picture has been added
+                 */
+            }
+        });
+
+        handleAddPhotoButton();
+
+        removePhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                profilePicture.setImageBitmap(generateAvatar());
+            }
+        });
+    }
+
+    /**
+     * Gets user data from Firebase and updates the profile page with said data.
+     */
+    private void getUserData() {
+        usersRef.document("1").get().addOnSuccessListener(
+                new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        setUserData(documentSnapshot);
+                        setEditTextData();
+                        profilePicture.setImageBitmap(generateAvatar());
+                    }
+                }
+        ).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e("Firestore", "Error fetching user data");
+                // TODO: handle error
+            }
+        });
+    }
+
+    /**
+     * Initializes all views
+     */
+    private void findViews() {
         profilePicture = findViewById(R.id.profile_picture);
 
         addPhotoButton = findViewById(R.id.add_photo_button);
         removePhotoButton = findViewById(R.id.remove_photo_button);
-
-        saveButton = findViewById(R.id.save_button);
-        locationSwitch = findViewById(R.id.location_switch);
 
         firstNameEditText = findViewById(R.id.first_name_edit);
         lastNameEditText = findViewById(R.id.last_name_edit);
@@ -69,73 +121,83 @@ public class UserProfilePage extends AppCompatActivity {
         emailEditText = findViewById(R.id.email_edit);
         phoneEditText =  findViewById(R.id.phone_edit);
 
-        db = FirebaseFirestore.getInstance();
-        usersRef = db.collection("users");
-        usersRef.document("1").get().addOnSuccessListener(
-                new OnSuccessListener<DocumentSnapshot>() {
+        locationSwitch = findViewById(R.id.location_switch);
+
+        saveButton = findViewById(R.id.save_button);
+    }
+
+    /**
+     * This function sets the values of the user object to those on Firebase
+     * @param documentSnapshot Firebase documentSnapshot
+     */
+    private void setUserData(DocumentSnapshot documentSnapshot) {
+        user.setFirstName(documentSnapshot.getString("firstName"));
+        user.setLastName(documentSnapshot.getString("lastName"));
+        user.setPronouns(documentSnapshot.getString("pronouns"));
+        user.setEmail(documentSnapshot.getString("email"));
+        user.setPhone(documentSnapshot.getString("phone"));
+        user.setLocationTracking(documentSnapshot.getBoolean("isLocationTrackingOn"));
+    }
+
+    /**
+     * This function sets the edit text data to match the values of the user object
+     */
+    private void setEditTextData() {
+        firstNameEditText.setText(user.getFirstName());
+        lastNameEditText.setText(user.getLastName());
+        pronounsEditText.setText(user.getPronouns());
+        emailEditText.setText(user.getEmail());
+        phoneEditText.setText(user.getPhone());
+        locationSwitch.setChecked(user.getLocationTracking());
+    }
+
+    /**
+     * This function saves the inputted data to firebase and updates the user object
+     */
+    private void saveUserData() {
+        String firstName = firstNameEditText.getText().toString();
+        String lastName = lastNameEditText.getText().toString();
+        String pronouns = pronounsEditText.getText().toString();
+        String email = emailEditText.getText().toString();
+        String phone = phoneEditText.getText().toString();
+        Boolean isLocationTrackingOn = locationSwitch.isChecked();
+
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setPronouns(pronouns);
+        user.setEmail(email);
+        user.setPhone(phone);
+        user.setLocationTracking(isLocationTrackingOn);
+
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("firstName", firstName);
+        data.put("lastName", lastName);
+        data.put("pronouns", pronouns);
+        data.put("email", email);
+        data.put("phone", phone);
+        data.put("isLocationTrackingOn", isLocationTrackingOn);
+
+        usersRef.document("1").set(data).addOnSuccessListener(
+                new OnSuccessListener<Void>() {
                     @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        user.setFirstName(documentSnapshot.getString("firstName"));
-                        user.setLastName(documentSnapshot.getString("lastName"));
-                        user.setPronouns(documentSnapshot.getString("pronouns"));
-                        user.setEmail(documentSnapshot.getString("email"));
-                        user.setPhone(documentSnapshot.getString("phone"));
-                        user.setLocationTracking(documentSnapshot.getBoolean("isLocationTrackingOn"));
-
-                        firstNameEditText.setText(user.getFirstName());
-                        lastNameEditText.setText(user.getLastName());
-                        pronounsEditText.setText(user.getPronouns());
-                        emailEditText.setText(user.getEmail());
-                        phoneEditText.setText(user.getPhone());
-                        locationSwitch.setChecked(user.getLocationTracking());
-
-                        profilePicture.setImageBitmap(generateAvatar());
+                    public void onSuccess(Void unused) {
+                        Log.d("Firestore", "DocumentSnapshot successfully written");
                     }
                 }
-        );
-
-
-        saveButton.setOnClickListener(new View.OnClickListener() {
+        ).addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onClick(View v) {
-                String firstName = firstNameEditText.getText().toString();
-                String lastName = lastNameEditText.getText().toString();
-                String pronouns = pronounsEditText.getText().toString();
-                String email = emailEditText.getText().toString();
-                String phone = phoneEditText.getText().toString();
-                Boolean isLocationTrackingOn = locationSwitch.isChecked();
-
-                user.setFirstName(firstName);
-                user.setLastName(lastName);
-                user.setPronouns(pronouns);
-                user.setEmail(email);
-                user.setPhone(phone);
-                user.setLocationTracking(isLocationTrackingOn);
-
-                HashMap<String, Object> data = new HashMap<>();
-                data.put("firstName", firstName);
-                data.put("lastName", lastName);
-                data.put("pronouns", pronouns);
-                data.put("email", email);
-                data.put("phone", phone);
-                data.put("isLocationTrackingOn", isLocationTrackingOn);
-
-                usersRef.document("1").set(data).addOnSuccessListener(
-                        new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void unused) {
-                                Log.d("Firestore", "DocumentSnapshot successfully written");
-                            }
-                        }
-                );
-
-                /*
-                TODO: connect this to firebase
-                should also update generated avatar if no profile picture has been added
-                 */
+            public void onFailure(@NonNull Exception e) {
+                Log.e("Firestore", "Error writing user data to Firebase");
+                // TODO: handle error
             }
         });
+    }
 
+    /**
+     * Opens up image gallery on selection of add photo button.
+     * From here, users can select a photo to be used as their profile picture
+     */
+    private void handleAddPhotoButton() {
         // The following function from https://developer.android.com/training/data-storage/shared/photopicker#java, Downloaded 2024-03-07
         // Registers a photo picker activity launcher in single-select mode.
         ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
@@ -156,16 +218,9 @@ public class UserProfilePage extends AppCompatActivity {
             public void onClick(View v) {
                 // The following function from https://developer.android.com/training/data-storage/shared/photopicker#java, Downloaded 2024-03-07
                 // Launch the photo picker and let the user choose only images.
-                 pickMedia.launch(new PickVisualMediaRequest.Builder()
+                pickMedia.launch(new PickVisualMediaRequest.Builder()
                         .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                         .build());
-            }
-        });
-
-        removePhotoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                profilePicture.setImageBitmap(generateAvatar());
             }
         });
     }
@@ -176,11 +231,7 @@ public class UserProfilePage extends AppCompatActivity {
      * @return Bitmap To be used as the profile picture
      */
     private Bitmap generateAvatar() {
-        // temporary. should get names from firebase
-//        firstNameEditText = findViewById(R.id.first_name_edit);
-//        lastNameEditText = findViewById(R.id.last_name_edit);
-//        String firstName = firstNameEditText.getText().toString();
-//        String lastName = lastNameEditText.getText().toString();
+        // This function should be moved to its own class
         String firstName = user.getFirstName();
         String lastName = user.getLastName();
         String userID = user.getUserID();
@@ -189,7 +240,6 @@ public class UserProfilePage extends AppCompatActivity {
 
         try {
             // generate hash of user's name and convert to byte array
-            // TODO: should be user's name + user ID
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] sha = md.digest(name.getBytes());
 
