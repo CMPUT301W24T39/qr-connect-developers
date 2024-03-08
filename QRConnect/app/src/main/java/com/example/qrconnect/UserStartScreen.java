@@ -10,6 +10,7 @@ import android.widget.Button;
 /**
  * The UserStartScreen class represents the screen that is displayed when a new user launches the application.
  * It provides an option for the user to continue, leading to the main functionality of the application in MainActivity.
+ * It extends AppCompatActivity.
  */
 public class UserStartScreen extends AppCompatActivity {
 
@@ -18,7 +19,6 @@ public class UserStartScreen extends AppCompatActivity {
 
     /**
      * Called when the activity is first created. Responsible for initializing the user start screen.
-     *
      * @param savedInstanceState A Bundle containing the activity's previously frozen state, if there was one.
      */
     @Override

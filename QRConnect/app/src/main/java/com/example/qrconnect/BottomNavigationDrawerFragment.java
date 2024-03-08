@@ -24,22 +24,21 @@ import androidx.annotation.Nullable;
 
 
 /**
- * This class manages the drop down menu after long clicks on a QR code
+ * The BottomNavigationDrawerFragment class manages the drop down menu after long clicks on a QR code.
+ * It extends BottomSheetDialogFragment.
  */
 public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
 
-
     /**
-     * This maintains the function in the drop down menu
+     * This maintains the function in the drop down menu.
      * @param inflater The LayoutInflater object that can be used to inflate
-     * any views in the fragment,
+     * any views in the fragment.
      * @param container If non-null, this is the parent view that the fragment's
-     * UI should be attached to.  The fragment should not add the view itself,
+     * UI should be attached to. The fragment should not add the view itself,
      * but this can be used to generate the LayoutParams of the view.
      * @param savedInstanceState If non-null, this fragment is being re-constructed
      * from a previous saved state as given here.
-     *
-     * @return Return a view for the drop down menu
+     * @return Return a view for the drop down menu.
      */
     private ActivityResultLauncher<Intent> activityResultLauncher;
     @Nullable
@@ -77,6 +76,13 @@ public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
         return rootView;
     }
 
+    /**
+     * Called when the activity is starting. Initialization should go:
+     * calling setContentView(int) to inflate the activity's UI, using findViewById(int) to
+     * programmatically interact with widgets in the UI, etc.
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,6 +102,4 @@ public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
                     }
                 });
     }
-
-
 }

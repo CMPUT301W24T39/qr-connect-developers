@@ -2,8 +2,6 @@ package com.example.qrconnect;
 
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -19,17 +17,33 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
-import java.security.DigestException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
 
+/**
+ * The UserProfilePage class is for the user profile page.
+ * Contains all of the information of a user such as name, pronouns, contact information (email and phone), and their profile picture.
+ * It extends AppCompatActivity.
+ */
 public class UserProfilePage extends AppCompatActivity {
+    private static String USER_ID = "1";
+    private static String COLLECTION_PATH = "users";
+    private static String STORAGE_PATH = "profile_pictures/";
     private ImageView profilePicture;
     private Button addPhotoButton;
     private Button removePhotoButton;
@@ -41,20 +55,47 @@ public class UserProfilePage extends AppCompatActivity {
     private TextInputEditText emailEditText;
     private TextInputEditText phoneEditText;
 
+    private FirebaseFirestore db;
+    private CollectionReference usersRef;
+    FirebaseStorage storage;
+    StorageReference storageRef;
+
+    // Hardcoded to single user for now.
+    // TODO: allow multiple users.
+    private UserProfile user = new UserProfile(USER_ID);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_profile_page);
 
+        initializeFirebase();
+        findViews();
+        getUserData();
+
+        handleAddPhotoButton();
+        handleRemovePhotoButton();
+        handleSaveButton();
+    }
+
+    /**
+     * Initializes Firebase database and storage
+     */
+    private void initializeFirebase() {
+        db = FirebaseFirestore.getInstance();
+        usersRef = db.collection(COLLECTION_PATH);
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
+    }
+
+    /**
+     * Initializes all views
+     */
+    private void findViews() {
         profilePicture = findViewById(R.id.profile_picture);
-        profilePicture.setImageBitmap(generateAvatar());
 
         addPhotoButton = findViewById(R.id.add_photo_button);
         removePhotoButton = findViewById(R.id.remove_photo_button);
-
-        saveButton = findViewById(R.id.save_button);
-        locationSwitch = findViewById(R.id.location_switch);
 
         firstNameEditText = findViewById(R.id.first_name_edit);
         lastNameEditText = findViewById(R.id.last_name_edit);
@@ -62,26 +103,76 @@ public class UserProfilePage extends AppCompatActivity {
         emailEditText = findViewById(R.id.email_edit);
         phoneEditText =  findViewById(R.id.phone_edit);
 
+        locationSwitch = findViewById(R.id.location_switch);
 
-        saveButton.setOnClickListener(new View.OnClickListener() {
+        saveButton = findViewById(R.id.save_button);
+    }
+
+    /**
+     * Gets user data from Firebase and updates the profile page with said data.
+     */
+    private void getUserData() {
+        usersRef.document(USER_ID).get().addOnSuccessListener(
+                new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        setUserData(documentSnapshot);
+                        setEditTextData();
+                        setProfilePicture();
+                    }
+                }
+        ).addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onClick(View v) {
-                String firstName = firstNameEditText.getText().toString();
-                String lastName = lastNameEditText.getText().toString();
-                String pronouns = pronounsEditText.getText().toString();
-                String email = emailEditText.getText().toString();
-                String phone = phoneEditText.getText().toString();
-
-                Boolean isLocationTrackingOn = locationSwitch.isChecked();
-                Log.d("switch", String.valueOf(isLocationTrackingOn));
-
-                /*
-                TODO: connect this to firebase
-                should also update generated avatar if no profile picture has been added
-                 */
+            public void onFailure(@NonNull Exception e) {
+                Log.e("Firestore", "Error fetching user data");
+                // TODO: handle error
             }
         });
+    }
 
+    /**
+     * This function sets the values of the user object to those on Firebase
+     * @param documentSnapshot Firebase documentSnapshot
+     */
+    private void setUserData(DocumentSnapshot documentSnapshot) {
+        user.setEmail(documentSnapshot.getString("email"));
+        user.setFirstName(documentSnapshot.getString("firstName"));
+        user.setLocationTracking(documentSnapshot.getBoolean("isLocationTrackingOn"));
+        user.setProfilePictureUploaded(documentSnapshot.getBoolean("isProfilePictureUploaded"));
+        user.setLastName(documentSnapshot.getString("lastName"));
+        user.setPhone(documentSnapshot.getString("phone"));
+        user.setPronouns(documentSnapshot.getString("pronouns"));
+        user.setProfilePictureURL(documentSnapshot.getString("profilePictureURL"));
+    }
+
+    /**
+     * This function sets the edit text data to match the values of the user object
+     */
+    private void setEditTextData() {
+        firstNameEditText.setText(user.getFirstName());
+        lastNameEditText.setText(user.getLastName());
+        pronounsEditText.setText(user.getPronouns());
+        emailEditText.setText(user.getEmail());
+        phoneEditText.setText(user.getPhone());
+        locationSwitch.setChecked(user.getLocationTracking());
+    }
+
+    /**
+     * Sets profile picture if it exists, sets a generated one if it doesn't
+     */
+    private void setProfilePicture() {
+        if (user.getProfilePictureUploaded()) {
+            Glide.with(this).load(user.getProfilePictureURL()).into(profilePicture);
+        } else {
+            profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
+        }
+    }
+
+    /**
+     * Opens up image gallery on selection of add photo button.
+     * From here, users can select a photo to be used as their profile picture
+     */
+    private void handleAddPhotoButton() {
         // The following function from https://developer.android.com/training/data-storage/shared/photopicker#java, Downloaded 2024-03-07
         // Registers a photo picker activity launcher in single-select mode.
         ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
@@ -90,7 +181,7 @@ public class UserProfilePage extends AppCompatActivity {
                     // photo picker.
                     if (uri != null) {
                         Log.d("PhotoPicker", "Selected URI: " + uri);
-                        // TODO: save this image to firebase
+                        saveImageToFirebase(uri);
                         profilePicture.setImageURI(uri);
                     } else {
                         Log.d("PhotoPicker", "No media selected");
@@ -102,83 +193,130 @@ public class UserProfilePage extends AppCompatActivity {
             public void onClick(View v) {
                 // The following function from https://developer.android.com/training/data-storage/shared/photopicker#java, Downloaded 2024-03-07
                 // Launch the photo picker and let the user choose only images.
-                 pickMedia.launch(new PickVisualMediaRequest.Builder()
+                pickMedia.launch(new PickVisualMediaRequest.Builder()
                         .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                         .build());
-            }
-        });
-
-        removePhotoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                profilePicture.setImageBitmap(generateAvatar());
             }
         });
     }
 
     /**
-     * This function returns a deterministically generated bitmap based on a hash of the user's name
-     * to be used as the user's profile picture if they do not upload one themselves
-     * @return Bitmap To be used as the profile picture
+     * Saves the added profile picture to firebase
+     * @param uri Uri of new profile picture
      */
-    private Bitmap generateAvatar() {
-        // temporary. should get names from firebase
-        firstNameEditText = findViewById(R.id.first_name_edit);
-        lastNameEditText = findViewById(R.id.last_name_edit);
+    private void saveImageToFirebase(Uri uri) {
+        StorageReference imageRef = storageRef.child(STORAGE_PATH + user.getUserID() + ".png");
+
+        imageRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                    String url = uri.toString();
+                    user.setProfilePictureURL(url);
+                    user.setProfilePictureUploaded(true);
+                    HashMap<String, Object> data = new HashMap<>();
+                    data.put("profilePictureURL", url);
+                    data.put("isProfilePictureUploaded", true);
+                    usersRef.document("1").update(data).addOnSuccessListener(
+                            new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    Log.d("Firestore", "DocumentSnapshot successfully written");
+                                }
+                            }
+                    );
+                }).addOnFailureListener(exception ->
+                                Log.e("Firebase", "Failed to download profile picture URL")
+                        // TODO: handle error
+                );
+            }
+        }).addOnFailureListener(exception ->
+                        Log.e("Firebase", "Failed to upload profile picture to Firebase")
+                //TODO: handle error
+        );
+    }
+
+    /**
+     * Removes profile picture and replaces it with a generated one
+     */
+    private void handleRemovePhotoButton() {
+        removePhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
+                user.setProfilePictureUploaded(false);
+                HashMap<String, Object> data = new HashMap<>();
+                data.put("isProfilePictureUploaded", false);
+                usersRef.document("1").update(data).addOnSuccessListener(
+                        new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.d("Firestore", "DocumentSnapshot successfully written");
+                            }
+                        }
+                );
+            }
+        });
+    }
+
+    /**
+     * Saves the data that the user inputted
+     */
+    private void handleSaveButton() {
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveUserData();
+                // update generated bitmap to match current name.
+                // do not do this if user has uploaded their own profile picture
+                if (!user.getProfilePictureUploaded()) {
+                    profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
+                }
+            }
+        });
+    }
+
+    /**
+     * This function saves the inputted data to firebase and updates the user object
+     */
+    private void saveUserData() {
         String firstName = firstNameEditText.getText().toString();
         String lastName = lastNameEditText.getText().toString();
-        String name = firstName + " " + lastName;
+        String pronouns = pronounsEditText.getText().toString();
+        String email = emailEditText.getText().toString();
+        String phone = phoneEditText.getText().toString();
+        Boolean isLocationTrackingOn = locationSwitch.isChecked();
 
-        try {
-            // generate hash of user's name and convert to byte array
-            // TODO: should be user's name + user ID
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] sha = md.digest(name.getBytes());
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setPronouns(pronouns);
+        user.setEmail(email);
+        user.setPhone(phone);
+        user.setLocationTracking(isLocationTrackingOn);
 
-            // convert bytes to string of their binary representation
-            // pad with zeros to keep it 16x16. this pads on the wrong side but it doesn't make a difference
-            String binaryString = "";
-            for (byte b : sha) {
-                String s = Integer.toBinaryString(b & 0xFF);
-                while (s.length() < 8) {
-                    s += "0";
-                }
-                binaryString += s;
-            }
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("firstName", firstName);
+        data.put("lastName", lastName);
+        data.put("pronouns", pronouns);
+        data.put("email", email);
+        data.put("phone", phone);
+        data.put("isLocationTrackingOn", isLocationTrackingOn);
 
-            // create bitmap and then fill its pixels in with the values of the binary string
-            Bitmap bitmap = Bitmap.createBitmap(256, 256, Bitmap.Config.RGB_565);
-            for (int i=0; i<16; i++) {
-                for (int j=0; j<16; j++) {
-                    int pixel;
-                    if (binaryString.charAt(16*i + j) == '1') {
-                        pixel = 0xFFFFFF;
-                    } else {
-                        pixel = 0x000000;
+        // Hardcoded to single user for now.
+        // TODO: allow multiple users.
+        usersRef.document(USER_ID).update(data).addOnSuccessListener(
+                new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Log.d("Firestore", "DocumentSnapshot successfully written");
                     }
-                    // this sets each 16x16 grid in the 256x256 bitmap to the given pixel
-                    // same as scaling the image up, but without a loss in quality
-                    for (int ii = 16*i; ii < 16*i + 16; ii++) {
-                        for (int jj = 16*j; jj < 16*j + 16; jj++) {
-                            bitmap.setPixel(ii,jj,pixel);
-                        }
-                    }
-                    // alternative approach: a 16x16 grid of 16x16 bitmaps
-//                    for (int ii=0; ii<16; ii++) {
-//                        for (int jj=0; jj<16; jj++) {
-//                            bitmap.setPixel(ii*16 + i, jj*16+j,pixel);
-//                        }
-//                    }
-                    // just a 16x16 bitmap
-                    //bitmap.setPixel(i,j,pixel);
                 }
+        ).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e("Firestore", "Error writing user data to Firebase");
+                // TODO: handle error
             }
-            Log.d("byte array", Arrays.toString(sha));
-            return bitmap;
-        } catch (NoSuchAlgorithmException e){
-            Log.e("SHA error", "NoSuchAlgorithmException");
-        }
-        return null;
+        });
     }
 }
-

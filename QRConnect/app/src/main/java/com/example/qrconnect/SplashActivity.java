@@ -10,13 +10,15 @@ import android.os.Handler;
  * The SplashActivity class represents the initial screen displayed when the application is launched.
  * It serves as a splash screen that appears for a specific duration before transitioning to the
  * UserStartScreen activity.
+ * It extends AppCompatActivity.
  */
 public class SplashActivity extends AppCompatActivity {
 
     /**
      * Called when the activity is first created. Responsible for initializing the splash screen.
-     *
-     * @param savedInstanceState A Bundle containing the activity's previously frozen state, if there was one.
+     * @param savedInstanceState If the activity is being re-initialized after
+     *      previously being shut down then this Bundle contains the data it most
+     *      recently supplied in {@link #onSaveInstanceState}. Otherwise it is null.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {

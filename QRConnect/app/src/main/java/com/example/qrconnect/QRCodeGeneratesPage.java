@@ -42,27 +42,23 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 /**
- * This is a class that maintains the functions in the QRCodeGeneratesPage Activity
+ * The QRCodeGeneratesPage class that maintains the functions in the QRCodeGeneratesPage Activity.
+ * It extends AppCompatAcitivty.
  */
 public class QRCodeGeneratesPage extends AppCompatActivity {
-
-
     public static ImageView QRCodeImage;
     private ImageView PromoQRCodeImage;
-
     private Bitmap bitMapQRCode;
     private Bitmap bitMapPromoQRCode;
-
     private ImageButton backButton1;
     private FirebaseFirestore db;
 
     ActivityResultLauncher<Intent> selectEventLauncher;
     /**
-     * This defines the functions in the QRCodeGeneratesPage Activity
+     * This defines the functions in the QRCodeGeneratesPage Activity.
      * @param savedInstanceState If the activity is being re-initialized after
      *     previously being shut down then this Bundle contains the data it most
-     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
-     *
+     *     recently supplied in {@link #onSaveInstanceState}. Otherwise it is null.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +74,6 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
         String fieldNameCheckInQRCode = "checkInQRCodeImageUrl";
         String fieldNamePromoteQRCode = "promoQRCodeImageUrl";
 
-        // 初始化 ActivityResultLauncher
         selectEventLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -137,8 +132,8 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
     }
 
     /**
-     * This generates a QR code for check-in
-     * @param eventCheckInId This is a seed to generate a QR code
+     * This generates a QR code for check-in.
+     * @param eventCheckInId This is a seed to generate a QR code.
      */
     private void generateQRCode (String eventCheckInId){
 
@@ -157,8 +152,8 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
     }
 
     /**
-     * This generatss a promotion QR code that links to event description and event poster
-      * @param eventPromoId This is a seed to generate a promotion QR code
+     * This generatss a promotion QR code that links to event description and event poster.
+      * @param eventPromoId This is a seed to generate a promotion QR code.
      */
     private void generatePromoQRCode (String eventPromoId){
 
@@ -181,10 +176,13 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
     }
 
     /**
-     * This update the field name in firebase
-     * @param event the event to get id
-     * @param fieldName the reference
+     * This upload a QR code to firebase storage and update the URL for QR code in firebase database.
+     * @param event This is an Event object to be used to generate a unique QR code.
+     * @param fieldName This is a reference in firebase database.
      * @param Id the id to be updated
+     * This upload a QR code to firebase storage and update the URL for QR code in firebase database
+     * @param event This is an Event object to be used to generate a unique QR code.
+     * @param fieldName This is a reference in firebase database.
      */
     private void updateEvent(Event event, String fieldName, String Id) {
 
