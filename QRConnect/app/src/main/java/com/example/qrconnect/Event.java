@@ -68,6 +68,7 @@ public class Event {
      * This method gets the QR code of an event
      * @return Return a QR code image
      */
+
     public ImageView getQRCodeImage() {
         return QRCodeImage;
     }
@@ -84,9 +85,11 @@ public class Event {
      * This method gets the Promotion QR code of an event
      * @return Return the promotion QR code image
      */
+
     public ImageView getPromoQRCodeImage() {
         return PromoQRCodeImage;
     }
+
 
     /**
      * This method sets a QR code image to QRCodeImage attribute
@@ -167,6 +170,7 @@ public class Event {
     public Integer getCapacity() {
         return capacity;
     }
+
 
     /**
      * This method sets the capacity of an event

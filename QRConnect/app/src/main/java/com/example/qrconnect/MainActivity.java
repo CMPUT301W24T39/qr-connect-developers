@@ -1,5 +1,4 @@
 package com.example.qrconnect;
-
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static com.google.zxing.integration.android.IntentIntegrator.REQUEST_CODE;
 
@@ -74,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         eventList = findViewById(R.id.event_list_list);
         addButton = findViewById(R.id.button_add_event);

@@ -13,6 +13,7 @@ import com.google.android.material.navigation.NavigationView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+
 /**
  * This class manages the drop down menu after long clicks on a QR code
  */

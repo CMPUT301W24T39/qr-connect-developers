@@ -30,7 +30,6 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
-
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,8 +93,6 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
             uploadQRCodeAndUpdateEvent(bitMapPromoQRCode, newEvent, fieldNamePromoteQRCode);
 
         }
-
-
 
         QRCodeImage.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -209,9 +206,4 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
             }
         });
     }
-
-
-
-
-
 }
