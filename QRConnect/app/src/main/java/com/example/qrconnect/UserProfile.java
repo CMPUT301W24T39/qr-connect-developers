@@ -2,17 +2,21 @@ package com.example.qrconnect;
 
 import android.graphics.Bitmap;
 
-public class UserProfiles {
+public class UserProfile {
     protected String userID;
     protected String firstName;
     protected String lastName;
     protected String pronouns;
     protected String email;
-    protected Integer phone;
+    protected String phone;
     protected Bitmap generatedProfilePicture;
     //uploaded profile picture
     protected Boolean isProfilePictureUploaded;
-    protected Boolean isLocationOn;
+    protected Boolean isLocationTracking;
+
+    public UserProfile(String userID) {
+        this.userID = userID;
+    }
 
     public String getUserID() {
         return userID;
@@ -54,11 +58,11 @@ public class UserProfiles {
         this.email = email;
     }
 
-    public Integer getPhone() {
+    public String getPhone() {
         return phone;
     }
 
-    public void setPhone(Integer phone) {
+    public void setPhone(String phone) {
         this.phone = phone;
     }
 
@@ -78,11 +82,11 @@ public class UserProfiles {
         isProfilePictureUploaded = profilePictureUploaded;
     }
 
-    public Boolean getLocationOn() {
-        return isLocationOn;
+    public Boolean getLocationTracking() {
+        return isLocationTracking;
     }
 
-    public void setLocationOn(Boolean locationOn) {
-        isLocationOn = locationOn;
+    public void setLocationTracking(Boolean locationTracking) {
+        isLocationTracking = locationTracking;
     }
 }

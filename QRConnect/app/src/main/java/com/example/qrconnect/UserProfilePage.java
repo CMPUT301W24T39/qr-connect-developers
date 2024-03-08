@@ -21,14 +21,17 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class UserProfilePage extends AppCompatActivity {
@@ -44,7 +47,7 @@ public class UserProfilePage extends AppCompatActivity {
     private TextInputEditText phoneEditText;
 
     private FirebaseFirestore db;
-    private User user;
+    private UserProfile user = new UserProfile("1");
     private CollectionReference usersRef;
 
     @Override
@@ -53,7 +56,6 @@ public class UserProfilePage extends AppCompatActivity {
         setContentView(R.layout.user_profile_page);
 
         profilePicture = findViewById(R.id.profile_picture);
-        profilePicture.setImageBitmap(generateAvatar());
 
         addPhotoButton = findViewById(R.id.add_photo_button);
         removePhotoButton = findViewById(R.id.remove_photo_button);
@@ -69,7 +71,28 @@ public class UserProfilePage extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         usersRef = db.collection("users");
-        firstNameEditText.setText("abc");
+        usersRef.document("1").get().addOnSuccessListener(
+                new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        user.setFirstName(documentSnapshot.getString("firstName"));
+                        user.setLastName(documentSnapshot.getString("lastName"));
+                        user.setPronouns(documentSnapshot.getString("pronouns"));
+                        user.setEmail(documentSnapshot.getString("email"));
+                        user.setPhone(documentSnapshot.getString("phone"));
+                        user.setLocationTracking(documentSnapshot.getBoolean("isLocationTrackingOn"));
+
+                        firstNameEditText.setText(user.getFirstName());
+                        lastNameEditText.setText(user.getLastName());
+                        pronounsEditText.setText(user.getPronouns());
+                        emailEditText.setText(user.getEmail());
+                        phoneEditText.setText(user.getPhone());
+                        locationSwitch.setChecked(user.getLocationTracking());
+
+                        profilePicture.setImageBitmap(generateAvatar());
+                    }
+                }
+        );
 
 
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -80,9 +103,31 @@ public class UserProfilePage extends AppCompatActivity {
                 String pronouns = pronounsEditText.getText().toString();
                 String email = emailEditText.getText().toString();
                 String phone = phoneEditText.getText().toString();
-
                 Boolean isLocationTrackingOn = locationSwitch.isChecked();
-                Log.d("switch", String.valueOf(isLocationTrackingOn));
+
+                user.setFirstName(firstName);
+                user.setLastName(lastName);
+                user.setPronouns(pronouns);
+                user.setEmail(email);
+                user.setPhone(phone);
+                user.setLocationTracking(isLocationTrackingOn);
+
+                HashMap<String, Object> data = new HashMap<>();
+                data.put("firstName", firstName);
+                data.put("lastName", lastName);
+                data.put("pronouns", pronouns);
+                data.put("email", email);
+                data.put("phone", phone);
+                data.put("isLocationTrackingOn", isLocationTrackingOn);
+
+                usersRef.document("1").set(data).addOnSuccessListener(
+                        new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.d("Firestore", "DocumentSnapshot successfully written");
+                            }
+                        }
+                );
 
                 /*
                 TODO: connect this to firebase
@@ -132,11 +177,15 @@ public class UserProfilePage extends AppCompatActivity {
      */
     private Bitmap generateAvatar() {
         // temporary. should get names from firebase
-        firstNameEditText = findViewById(R.id.first_name_edit);
-        lastNameEditText = findViewById(R.id.last_name_edit);
-        String firstName = firstNameEditText.getText().toString();
-        String lastName = lastNameEditText.getText().toString();
-        String name = firstName + " " + lastName;
+//        firstNameEditText = findViewById(R.id.first_name_edit);
+//        lastNameEditText = findViewById(R.id.last_name_edit);
+//        String firstName = firstNameEditText.getText().toString();
+//        String lastName = lastNameEditText.getText().toString();
+        String firstName = user.getFirstName();
+        String lastName = user.getLastName();
+        String userID = user.getUserID();
+
+        String name = firstName + " " + lastName + userID;
 
         try {
             // generate hash of user's name and convert to byte array
