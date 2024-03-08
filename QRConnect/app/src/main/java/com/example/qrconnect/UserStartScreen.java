@@ -25,12 +25,15 @@ public class UserStartScreen extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_start_screen);
+        // Obtain user ID using UserPreferences
+        String obtainedUserId = UserPreferences.getUserId(getApplicationContext());
 
         // Initialize the continue button and set a click listener
         continue_button = findViewById(R.id.newuser_continue_button);
         continue_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                UserPreferences.saveUserId(getApplicationContext(), obtainedUserId);
                 // Start the MainActivity when the continue button is clicked
                 startActivity(new Intent(UserStartScreen.this, MainActivity.class));
             }
