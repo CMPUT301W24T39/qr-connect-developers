@@ -35,6 +35,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 
+/**
+ * The UserProfilePage class is for the user profile page.
+ * Contains all of the information of a user such as name, pronouns, contact information (email and phone), and their profile picture.
+ * It extends AppCompatActivity.
+ */
 public class UserProfilePage extends AppCompatActivity {
     private static String USER_ID = "1";
     private static String COLLECTION_PATH = "users";
