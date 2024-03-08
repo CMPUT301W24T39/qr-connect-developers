@@ -151,7 +151,7 @@ public class MainActivityTest {
         onView(withId(R.id.nav_turn_right)).perform(click());
 
         Espresso.pressBack();
-        onView(withId(R.id.navigation_view)).check(matches(isDisplayed()));
+        intended(IntentMatchers.hasComponent(QRCodeGeneratesPage.class.getName()));
 
         Intents.release();
     }
