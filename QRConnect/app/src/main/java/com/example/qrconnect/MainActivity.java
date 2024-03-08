@@ -175,6 +175,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        ImageButton cameraButton = findViewById(R.id.qr_code_scanner_button);
+        cameraButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, QRCodeCheckInActivity.class));
+            }
+        });
     }
 
     /**
