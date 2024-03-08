@@ -76,7 +76,6 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
         String fieldNameCheckInQRCode = "checkInQRCodeImageUrl";
         String fieldNamePromoteQRCode = "promoQRCodeImageUrl";
 
-        // 初始化 ActivityResultLauncher
         selectEventLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -183,6 +182,9 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
      * @param event This is an Event object to be used to generate a unique QR code.
      * @param fieldName This is a reference in firebase database.
      * @param Id the id to be updated
+     * This upload a QR code to firebase storage and update the URL for QR code in firebase database
+     * @param event This is an Event object to be used to generate a unique QR code.
+     * @param fieldName This is a reference in firebase database.
      */
     private void updateEvent(Event event, String fieldName, String Id) {
 
