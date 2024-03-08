@@ -79,6 +79,7 @@ https://developer.android.com/training/basics/intents/sending
 public class MainActivity extends AppCompatActivity {
     private FloatingActionButton addButton;
     private ImageButton profileButton;
+    private ImageButton notificationButton;
     static ArrayList<Event> eventDataList = new ArrayList<Event>();
     ListView eventList;
     static boolean isAddButtonClicked = false;
@@ -100,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
         eventList = findViewById(R.id.event_list_list);
         addButton = findViewById(R.id.button_add_event);
         profileButton = findViewById(R.id.user_icon_button);
+        notificationButton = findViewById(R.id.notification_icon_button);
 
         EventAdapter eventAdapter = new EventAdapter(this, eventDataList);
         eventList.setAdapter(eventAdapter);
@@ -182,6 +184,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, UserProfilePage.class));
+            }
+        });
+        notificationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, AttendeeNotifications.class));
             }
         });
 
