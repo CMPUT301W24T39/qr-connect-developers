@@ -11,13 +11,13 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
- * This activity displays details of a specific event.
+ * The EventDetailsAcitivty class displays details of a specific event.
  * It allows users to navigate back, access the menu, and send notifications for the event.
+ * It extends AppCompatActivity.
  */
 public class EventDetailsActivity extends AppCompatActivity {
     /**
      * Called when the activity is first created. Responsible for initializing the activity.
-     *
      * @param savedInstanceState A Bundle containing the activity's previously frozen state, if there was one.
      */
     @Override
@@ -67,7 +67,5 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
 
         });
-
-
     }
 }

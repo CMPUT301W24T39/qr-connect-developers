@@ -29,6 +29,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * The UserProfilePage class is for the user profile page.
+ * Contains all of the information of a user such as name, pronouns, contact information (email and phone), and their profile picture.
+ * It extends AppCompatActivity.
+ */
 public class UserProfilePage extends AppCompatActivity {
     private ImageView profilePicture;
     private Button addPhotoButton;
@@ -40,7 +45,6 @@ public class UserProfilePage extends AppCompatActivity {
     private TextInputEditText pronounsEditText;
     private TextInputEditText emailEditText;
     private TextInputEditText phoneEditText;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,9 +121,9 @@ public class UserProfilePage extends AppCompatActivity {
     }
 
     /**
-     * This function returns a deterministically generated bitmap based on a hash of the user's name
-     * to be used as the user's profile picture if they do not upload one themselves
-     * @return Bitmap To be used as the profile picture
+     * This function returns a deterministically generated bitmap based on a hash of the user's name.
+     * to be used as the user's profile picture if they do not upload one themselves.
+     * @return Bitmap To be used as the profile picture.
      */
     private Bitmap generateAvatar() {
         // temporary. should get names from firebase
