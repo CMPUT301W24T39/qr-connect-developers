@@ -15,10 +15,13 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -43,14 +46,14 @@ import com.google.firebase.storage.UploadTask;
  * It extends AppCompatAcitivty.
  */
 public class QRCodeGeneratesPage extends AppCompatActivity {
-
-    private ImageView QRCodeImage;
+    public static ImageView QRCodeImage;
     private ImageView PromoQRCodeImage;
     private Bitmap bitMapQRCode;
     private Bitmap bitMapPromoQRCode;
     private ImageButton backButton1;
     private FirebaseFirestore db;
 
+    ActivityResultLauncher<Intent> selectEventLauncher;
     /**
      * This defines the functions in the QRCodeGeneratesPage Activity.
      * @param savedInstanceState If the activity is being re-initialized after
@@ -71,6 +74,18 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
         String fieldNameCheckInQRCode = "checkInQRCodeImageUrl";
         String fieldNamePromoteQRCode = "promoQRCodeImageUrl";
 
+        selectEventLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        String imageUrl = result.getData().getStringExtra("imageUrl");
+                        Glide.with(this)
+                                .load(imageUrl)
+                                .into(QRCodeImage);
+                    }
+                }
+        );
+
         if (!eventDataList.isEmpty()) {
 
             Event newEvent = eventDataList.get(eventDataList.size() - 1);
@@ -80,14 +95,19 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
             generateQRCode(eventCheckInId);
             generatePromoQRCode(eventPromoId);
 
-            newEvent.setQRCodeImage(QRCodeImage);
-            newEvent.setPromoQRCodeImage(PromoQRCodeImage);
+            newEvent.setQRCodeImage(bitMapQRCode);
+            newEvent.setPromoQRCodeImage(bitMapPromoQRCode);
+            newEvent.setEventCheckInId(eventCheckInId);
+            newEvent.setEventPromoId(eventPromoId);
 
             QRCodeImage.setImageBitmap(bitMapQRCode);
             PromoQRCodeImage.setImageBitmap(bitMapPromoQRCode);
 
-            uploadQRCodeAndUpdateEvent(bitMapQRCode, newEvent, fieldNameCheckInQRCode);
-            uploadQRCodeAndUpdateEvent(bitMapPromoQRCode, newEvent, fieldNamePromoteQRCode);
+            updateEvent(newEvent, fieldNameCheckInQRCode, eventCheckInId);
+            updateEvent(newEvent, fieldNamePromoteQRCode, eventPromoId);
+
+            uploadQRImages(bitMapQRCode, newEvent, fieldNameCheckInQRCode);
+            uploadQRImages(bitMapPromoQRCode, newEvent, fieldNamePromoteQRCode);
 
         }
 
@@ -150,14 +170,28 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
 
     }
 
+    public void launchSelectEventPage() {
+        Intent intent = new Intent(this, SelectEventPage.class);
+        selectEventLauncher.launch(intent);
+    }
 
     /**
      * This upload a QR code to firebase storage and update the URL for QR code in firebase database.
-     * @param bitmap This is a pixel to draw.
+     * @param event This is an Event object to be used to generate a unique QR code.
+     * @param fieldName This is a reference in firebase database.
+     * @param Id the id to be updated
+     * This upload a QR code to firebase storage and update the URL for QR code in firebase database
      * @param event This is an Event object to be used to generate a unique QR code.
      * @param fieldName This is a reference in firebase database.
      */
-    private void uploadQRCodeAndUpdateEvent(final Bitmap bitmap, final Event event, final String fieldName) {
+    private void updateEvent(Event event, String fieldName, String Id) {
+
+        db.collection("events")
+                .document(event.getEventId())
+                .update(fieldName, Id);
+    }
+
+    private void uploadQRImages(Bitmap bitmap, Event event, String fieldName){
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
 
@@ -171,35 +205,13 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-
                 Toast.makeText(QRCodeGeneratesPage.this, "Upload failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                qrCodeRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-
-                        String imageUrl = uri.toString();
-
-                        db.collection("events")
-                                .document(event.getEventId())
-                                .update(fieldName, imageUrl)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(QRCodeGeneratesPage.this, "Event updated with QR image URL.", Toast.LENGTH_SHORT).show();
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(QRCodeGeneratesPage.this, "Fail to update the event with QR image URL.", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                    }
-                });
+                Toast.makeText(QRCodeGeneratesPage.this, "Upload successful", Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -1,5 +1,6 @@
 package com.example.qrconnect;
 
+import android.graphics.Bitmap;
 import android.widget.ImageView;
 
 import java.sql.Time;
@@ -18,10 +19,10 @@ public class Event {
     private String location;
     private Integer capacity;
     private String announcement;
-    private ImageView QRCodeImage;
-    private ImageView PromoQRCodeImage;
-    private Integer eventCheckInId;
-    private Integer eventPromoId;
+    private Bitmap QRCodeImage;
+    private Bitmap PromoQRCodeImage;
+    private String eventCheckInId;
+    private String eventPromoId;
     private String eventId;
     protected ArrayList<Attendee> AttendeeList;
 
@@ -39,7 +40,7 @@ public class Event {
      * @param eventPromoId the id of the promotion QR code of an event.
      * @param eventId the id of an event.
      */
-    public Event(String eventTitle, Date date, Time time, String location, Integer capacity, String announcement, ImageView QRCodeImage, ImageView promoQRCodeImage, Integer eventCheckInId, Integer eventPromoId, String eventId) {
+    public Event(String eventTitle, Date date, Time time, String location, Integer capacity, String announcement, Bitmap QRCodeImage, Bitmap promoQRCodeImage, String eventCheckInId, String eventPromoId, String eventId) {
         this.eventTitle = eventTitle;
         this.date = date;
         this.time = time;
@@ -63,7 +64,7 @@ public class Event {
      * This method gets the QR code of an event.
      * @return Return a QR code image.
      */
-    public ImageView getQRCodeImage() {
+    public Bitmap getQRCodeImage() {
         return QRCodeImage;
     }
 
@@ -71,7 +72,7 @@ public class Event {
      * This method sets a QR code image to QRCodeImage attribute.
      * @param QRCodeImage the QR code of an event.
      */
-    public void setQRCodeImage(ImageView QRCodeImage) {
+    public void setQRCodeImage(Bitmap QRCodeImage) {
         this.QRCodeImage = QRCodeImage;
     }
 
@@ -79,7 +80,7 @@ public class Event {
      * This method gets the Promotion QR code of an event.
      * @return Return the promotion QR code image.
      */
-    public ImageView getPromoQRCodeImage() {
+    public Bitmap getPromoQRCodeImage() {
         return PromoQRCodeImage;
     }
 
@@ -87,7 +88,7 @@ public class Event {
      * This method sets a QR code image to QRCodeImage attribute.
      * @param promoQRCodeImage the promotion QR code of an event.
      */
-    public void setPromoQRCodeImage(ImageView promoQRCodeImage) {
+    public void setPromoQRCodeImage(Bitmap promoQRCodeImage) {
         PromoQRCodeImage = promoQRCodeImage;
     }
 
@@ -192,7 +193,7 @@ public class Event {
      * This method gets the eventCheckInId of an event.
      * @return  Return the eventCheckInId of an event.
      */
-    public Integer getEventCheckInId() {
+    public String getEventCheckInId() {
         return eventCheckInId;
     }
 
@@ -200,7 +201,7 @@ public class Event {
      * This method sets the eventCheckInId of an event.
      * @param eventCheckInId the eventCheckInId of an event.
      */
-    public void setEventCheckInId(Integer eventCheckInId) {
+    public void setEventCheckInId(String eventCheckInId) {
         this.eventCheckInId = eventCheckInId;
     }
 
@@ -208,7 +209,7 @@ public class Event {
      * This method gets the eventPromoId of an event.
      * @return  Return the eventPromoId of an event.
      */
-    public Integer getEventPromoId() {
+    public String getEventPromoId() {
         return eventPromoId;
     }
 
@@ -216,7 +217,7 @@ public class Event {
      * This method sets the eventPromoId of an event.
      * @param eventPromoId the eventPromoId of an event.
      */
-    public void setEventPromoId(Integer eventPromoId) {
+    public void setEventPromoId(String eventPromoId) {
         this.eventPromoId = eventPromoId;
     }
 
