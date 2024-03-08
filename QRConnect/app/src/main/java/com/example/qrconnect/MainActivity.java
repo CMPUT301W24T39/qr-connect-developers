@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -51,6 +52,7 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
 
     private FloatingActionButton addButton;
+    private ImageButton profileButton;
 
     static ArrayList<Event> eventDataList = new ArrayList<Event>();
 
@@ -74,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
         eventList = findViewById(R.id.event_list_list);
         addButton = findViewById(R.id.button_add_event);
+        profileButton = findViewById(R.id.user_icon_button);
 
         EventAdapter adapter = new EventAdapter(this, eventDataList);
         eventList.setAdapter(adapter);
@@ -149,6 +152,13 @@ public class MainActivity extends AppCompatActivity {
 
                 adapter.notifyDataSetChanged();
                 return true;
+            }
+        });
+
+        profileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, UserProfilePage.class));
             }
         });
 

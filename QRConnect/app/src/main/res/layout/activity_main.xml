@@ -25,6 +25,7 @@
                 android:layout_height="78dp"
                 android:layout_weight="1"
                 android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
                 android:src="@drawable/person_icon" />
 
             <!-- Menu Icon -->
