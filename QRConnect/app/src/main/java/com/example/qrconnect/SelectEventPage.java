@@ -32,7 +32,6 @@ public class SelectEventPage extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.select_existing_event_qr_code);
-
         backButton2 = findViewById(R.id.arrow_back_2);
 
         autoCompleteTextView = findViewById(R.id.auto_complete_textview);
@@ -48,18 +47,11 @@ public class SelectEventPage extends AppCompatActivity {
             }
         });
 
-
         backButton2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
         });
-
     }
-
-
-
-
-
 }
