@@ -2,8 +2,6 @@ package com.example.qrconnect;
 
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -29,9 +27,6 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.security.DigestException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
@@ -49,6 +44,9 @@ public class UserProfilePage extends AppCompatActivity {
     private TextInputEditText phoneEditText;
 
     private FirebaseFirestore db;
+
+    // Hardcoded to single user for now.
+    // TODO: allow multiple users.
     private UserProfile user = new UserProfile("1");
     private CollectionReference usersRef;
 
@@ -79,7 +77,7 @@ public class UserProfilePage extends AppCompatActivity {
         removePhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                profilePicture.setImageBitmap(generateAvatar());
+                profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
             }
         });
     }
@@ -94,7 +92,7 @@ public class UserProfilePage extends AppCompatActivity {
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         setUserData(documentSnapshot);
                         setEditTextData();
-                        profilePicture.setImageBitmap(generateAvatar());
+                        profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
                     }
                 }
         ).addOnFailureListener(new OnFailureListener() {
@@ -177,6 +175,8 @@ public class UserProfilePage extends AppCompatActivity {
         data.put("phone", phone);
         data.put("isLocationTrackingOn", isLocationTrackingOn);
 
+        // Hardcoded to single user for now.
+        // TODO: allow multiple users.
         usersRef.document("1").set(data).addOnSuccessListener(
                 new OnSuccessListener<Void>() {
                     @Override
@@ -223,70 +223,6 @@ public class UserProfilePage extends AppCompatActivity {
                         .build());
             }
         });
-    }
-
-    /**
-     * This function returns a deterministically generated bitmap based on a hash of the user's name
-     * to be used as the user's profile picture if they do not upload one themselves
-     * @return Bitmap To be used as the profile picture
-     */
-    private Bitmap generateAvatar() {
-        // This function should be moved to its own class
-        String firstName = user.getFirstName();
-        String lastName = user.getLastName();
-        String userID = user.getUserID();
-
-        String name = firstName + " " + lastName + userID;
-
-        try {
-            // generate hash of user's name and convert to byte array
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] sha = md.digest(name.getBytes());
-
-            // convert bytes to string of their binary representation
-            // pad with zeros to keep it 16x16. this pads on the wrong side but it doesn't make a difference
-            String binaryString = "";
-            for (byte b : sha) {
-                String s = Integer.toBinaryString(b & 0xFF);
-                while (s.length() < 8) {
-                    s += "0";
-                }
-                binaryString += s;
-            }
-
-            // create bitmap and then fill its pixels in with the values of the binary string
-            Bitmap bitmap = Bitmap.createBitmap(256, 256, Bitmap.Config.RGB_565);
-            for (int i=0; i<16; i++) {
-                for (int j=0; j<16; j++) {
-                    int pixel;
-                    if (binaryString.charAt(16*i + j) == '1') {
-                        pixel = 0xFFFFFF;
-                    } else {
-                        pixel = 0x000000;
-                    }
-                    // this sets each 16x16 grid in the 256x256 bitmap to the given pixel
-                    // same as scaling the image up, but without a loss in quality
-                    for (int ii = 16*i; ii < 16*i + 16; ii++) {
-                        for (int jj = 16*j; jj < 16*j + 16; jj++) {
-                            bitmap.setPixel(ii,jj,pixel);
-                        }
-                    }
-                    // alternative approach: a 16x16 grid of 16x16 bitmaps
-//                    for (int ii=0; ii<16; ii++) {
-//                        for (int jj=0; jj<16; jj++) {
-//                            bitmap.setPixel(ii*16 + i, jj*16+j,pixel);
-//                        }
-//                    }
-                    // just a 16x16 bitmap
-                    //bitmap.setPixel(i,j,pixel);
-                }
-            }
-            Log.d("byte array", Arrays.toString(sha));
-            return bitmap;
-        } catch (NoSuchAlgorithmException e){
-            Log.e("SHA error", "NoSuchAlgorithmException");
-        }
-        return null;
     }
 }
 
