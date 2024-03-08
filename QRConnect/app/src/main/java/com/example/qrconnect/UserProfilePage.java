@@ -22,6 +22,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.security.DigestException;
 import java.security.MessageDigest;
@@ -41,6 +43,9 @@ public class UserProfilePage extends AppCompatActivity {
     private TextInputEditText emailEditText;
     private TextInputEditText phoneEditText;
 
+    private FirebaseFirestore db;
+    private User user;
+    private CollectionReference usersRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +66,10 @@ public class UserProfilePage extends AppCompatActivity {
         pronounsEditText = findViewById(R.id.pronouns_edit);
         emailEditText = findViewById(R.id.email_edit);
         phoneEditText =  findViewById(R.id.phone_edit);
+
+        db = FirebaseFirestore.getInstance();
+        usersRef = db.collection("users");
+        firstNameEditText.setText("abc");
 
 
         saveButton.setOnClickListener(new View.OnClickListener() {
