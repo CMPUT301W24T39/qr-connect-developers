@@ -22,9 +22,7 @@ public class Event {
 
     private Bitmap QRCodeImage;
     private Bitmap PromoQRCodeImage;
-
     private String eventCheckInId;
-
     private String eventPromoId;
 
     private String eventId;
