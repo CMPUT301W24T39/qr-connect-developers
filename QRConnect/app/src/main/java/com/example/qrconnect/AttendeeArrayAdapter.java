@@ -13,11 +13,23 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The AttendeeArrayAdapter class provides a way to adapt an ArrayList of Attendee objects
+ * to be displayed in an AdapterView.
+ * It extends the ArrayAdapter<Attendee> Class.
+ */
 public class AttendeeArrayAdapter extends ArrayAdapter<Attendee> {
 
     private ArrayList<Attendee> attendees;
     private Context context;
     private Integer eventId;
+
+    /**
+     * Constructs an instance of the AttendeeArrayAdapter.
+     * @param context context for AttendeeArrayAdapter.
+     * @param attendees attendees for AttendeeArrayAdapter.
+     * @param eventId eventID for AttendeeArrayAdapter.
+     */
     public AttendeeArrayAdapter(Context context, ArrayList<Attendee> attendees, Integer eventId) {
         super(context, 0, attendees);
         this.attendees = attendees;
@@ -25,6 +37,13 @@ public class AttendeeArrayAdapter extends ArrayAdapter<Attendee> {
         this.eventId = eventId;
     }
 
+    /**
+     * Returns a view for each item in the AdapterView.
+     * @param position The position of the item within the adapter's data set of the item whose view we want.
+     * @param convertView The old view to reuse, if possible.
+     * @param parent The parent that this view will eventually be attached to.
+     * @return A View corresponding to the data at the specified position.
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent){
@@ -42,7 +61,5 @@ public class AttendeeArrayAdapter extends ArrayAdapter<Attendee> {
         attendeeCheckInCount.setText(String.valueOf(attendee.getCheckInCount(eventId)));
 
         return view;
-
     }
-
 }

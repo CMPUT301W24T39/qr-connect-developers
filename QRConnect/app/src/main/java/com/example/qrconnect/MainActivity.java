@@ -47,15 +47,13 @@ import java.util.Random;
 import java.util.UUID;
 
 /**
- * This class maintains the functions of the main activity
+ * The MainActivity class maintains the functions of the main activity.
+ * It extends AppCompatActivity.
  */
 public class MainActivity extends AppCompatActivity {
-
     private FloatingActionButton addButton;
     private ImageButton profileButton;
-
     static ArrayList<Event> eventDataList = new ArrayList<Event>();
-
     ListView eventList;
     static boolean isAddButtonClicked = false;
     private FirebaseFirestore db;
@@ -63,11 +61,10 @@ public class MainActivity extends AppCompatActivity {
     private static int numAddButtonClicked;
 
     /**
-     * This defines the functions in main activity
+     * This defines the functions in main activity.
      * @param savedInstanceState If the activity is being re-initialized after
      *     previously being shut down then this Bundle contains the data it most
-     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
-     *
+     *     recently supplied in {@link #onSaveInstanceState}. Otherwise it is null.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -185,8 +182,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * This adds a new event to firebase
-     * @param event This is a event that is added to firebase
+     * This adds a new event to firebase.
+     * @param event This is a event that is added to firebase.
      */
     private void addNewEvent(Event event) {
         HashMap<String, Object> data = new HashMap<>();
@@ -216,8 +213,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * This deletes an event from the firebase
-     * @param event This is the event to delete
+     * This deletes an event from the firebase.
+     * @param event This is the event to delete.
      */
     private void deleteEvent(Event event){
         eventsRef

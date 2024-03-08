@@ -11,11 +11,21 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 
+/**
+ * The AttendeeListActivity class represents an activity that displays a list of attendees.
+ * It extends the AppCompatActivity class.
+ */
 public class AttendeeListActivity extends AppCompatActivity {
     private ArrayList<Attendee> attendees;
     private AttendeeArrayAdapter adapter;
 
-
+    /**
+     * Called when the activity is starting. This is where most initialization should go.
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}. Otherwise it is null.
+     *
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,7 +47,11 @@ public class AttendeeListActivity extends AppCompatActivity {
             }
         });
     }
-    // Method to generate mock attendees
+
+    /**
+     * Generates mock attendees for testing purposes.
+     * @return the list of mock attendees.
+     */
     private ArrayList<Attendee> generateMockAttendees() {
         ArrayList<Attendee> mockAttendees = new ArrayList<>();
         // Add mock attendees
