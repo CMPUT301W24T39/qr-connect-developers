@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -197,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        ImageButton cameraButton = findViewById(R.id.qr_code_scanner_button);
+        Button cameraButton = findViewById(R.id.qr_code_scanner_button);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
