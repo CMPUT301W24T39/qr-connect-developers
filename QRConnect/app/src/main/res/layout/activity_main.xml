@@ -6,7 +6,7 @@
     android:id="@+id/main_activity"
     android:orientation="vertical">
 
-    <!-- First Toolbar -->
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_top"
         android:layout_width="match_parent"
@@ -19,7 +19,6 @@
             android:orientation="horizontal"
             android:weightSum="4">
 
-            <!-- User Icon -->
             <ImageButton
                 android:id="@+id/user_icon_button"
                 android:layout_width="match_parent"
@@ -29,7 +28,14 @@
                 android:clickable="true"
                 android:src="@drawable/person_icon" />
 
-            <!-- Menu Icon -->
+            <ImageButton
+                android:id="@+id/explore_event_button"
+                android:layout_width="match_parent"
+                android:layout_height="78dp"
+                android:layout_weight="1"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/travel_explore_icon" />
+
             <ImageButton
                 android:id="@+id/menu_icon_button"
                 android:layout_width="match_parent"
@@ -38,7 +44,6 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/menu_icon" />
 
-            <!-- Notification Icon -->
             <ImageButton
                 android:id="@+id/notification_icon_button"
                 android:layout_width="match_parent"
@@ -47,25 +52,17 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/notification_icon" />
 
-            <!-- QR Code Scanner -->
-            <ImageButton
-                android:id="@+id/qr_code_scanner_button"
-                android:layout_width="match_parent"
-                android:layout_height="74dp"
-                android:layout_weight="1"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/qr_code_scanner" />
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- Second Toolbar -->
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_search"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary">
 
-        <!-- Search Icon -->
+
         <ImageButton
             android:id="@+id/search_icon"
             android:layout_width="wrap_content"
@@ -74,17 +71,20 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:layout_gravity="start" />
 
-        <!-- Text Input -->
+        <Space
+            android:layout_width="26dp"
+            android:layout_height="wrap_content" />
+
         <TextView
             android:id="@+id/search_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Search Event ..."
+            android:layout_marginRight="23dp"
             android:padding="8dp"
             android:layout_gravity="center" />
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- Event List -->
     <ListView
         android:id="@+id/event_list_list"
         android:layout_width="match_parent"
@@ -92,15 +92,32 @@
         android:layout_weight="1"
         android:listSelector="@color/cardview_shadow_start_color" />
 
-    <!-- FAB Plus Icon -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/button_add_event"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_margin="20sp"
-        android:clickable="true"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        android:padding="16dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/qr_code_scanner_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="SCAN QR CODE"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp"/>
+        
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/button_add_event"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            app:srcCompat="@android:drawable/ic_input_add" />
+    </LinearLayout>
+
 </LinearLayout>
 
 

@@ -82,6 +82,20 @@ public class MainActivityTest {
     }
 
     /**
+     * Tests if the notification icon goes to the notification page.
+     */
+    @Test
+    public void testNotificationButton(){
+        onView(withId(R.id.notification_icon_button)).perform(click());
+        // Check if UI changed to AttendeeNotifications
+        ActivityScenario<AttendeeNotifications> activityScenario = ActivityScenario.launch(AttendeeNotifications.class);
+        activityScenario.onActivity(activity -> {
+            // Check if the current activity is AttendeeNotifications
+            assertThat(activity, instanceOf(AttendeeNotifications.class));
+        });
+    }
+
+    /**
      * Tests the add button, specifically the adding an event, functionality in the user homepage.
      */
     @Test
@@ -156,3 +170,4 @@ public class MainActivityTest {
         Intents.release();
     }
 }
+
