@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -78,6 +79,7 @@ https://developer.android.com/training/basics/intents/sending
 public class MainActivity extends AppCompatActivity {
     private FloatingActionButton addButton;
     private ImageButton profileButton;
+    private ImageButton notificationButton;
     static ArrayList<Event> eventDataList = new ArrayList<Event>();
     ListView eventList;
     static boolean isAddButtonClicked = false;
@@ -99,9 +101,10 @@ public class MainActivity extends AppCompatActivity {
         eventList = findViewById(R.id.event_list_list);
         addButton = findViewById(R.id.button_add_event);
         profileButton = findViewById(R.id.user_icon_button);
+        notificationButton = findViewById(R.id.notification_icon_button);
 
-        EventAdapter adapter = new EventAdapter(this, eventDataList);
-        eventList.setAdapter(adapter);
+        EventAdapter eventAdapter = new EventAdapter(this, eventDataList);
+        eventList.setAdapter(eventAdapter);
 
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
@@ -118,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                 Event newEvent = new Event();
 
                 eventDataList.add(newEvent);
-                adapter.notifyDataSetChanged();
+                eventAdapter.notifyDataSetChanged();
 
                 String uniqueID = UUID.randomUUID().toString();
                 newEvent.setEventTitle("New Event " + numAddButtonClicked);
@@ -144,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
                         eventDataList.add(new Event(eventTitle, null,null, null, null, null, null, null, null, null, eventId));
                         Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s %s %s) fetched", eventTitle, null,null, null, null, null, null, null, null, null, eventId));
                     }
-                    adapter.notifyDataSetChanged();
+                    eventAdapter.notifyDataSetChanged();
                 }
             }
         });
@@ -172,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
                 deleteEvent(eventDataList.get(position));
                 eventDataList.remove(eventDataList.get(position));
 
-                adapter.notifyDataSetChanged();
+                eventAdapter.notifyDataSetChanged();
                 return true;
             }
         });
@@ -183,21 +186,27 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, UserProfilePage.class));
             }
         });
+        notificationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, AttendeeNotifications.class));
+            }
+        });
 
         eventList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 try {
-                    //TODO:Event currentEvent = eventAdapter.getItem(position);
+                    Event currentEvent = eventAdapter.getItem(position);
                     Intent showIntent = new Intent(MainActivity.this, EventDetailsActivity.class);
-                    //TODO: showIntent.putExtra("EVENT", currentEvent );
+                    showIntent.putExtra("EVENT_ID", currentEvent.getEventId());
                     startActivity(showIntent);
                 } catch (Exception e) {
                     Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
-        ImageButton cameraButton = findViewById(R.id.qr_code_scanner_button);
+        Button cameraButton = findViewById(R.id.qr_code_scanner_button);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
