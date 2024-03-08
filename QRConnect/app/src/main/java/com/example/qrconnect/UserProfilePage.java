@@ -57,8 +57,8 @@ public class UserProfilePage extends AppCompatActivity {
 
     private FirebaseFirestore db;
     private CollectionReference usersRef;
-    FirebaseStorage storage;
-    StorageReference storageRef;
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
 
     // Hardcoded to single user for now.
     // TODO: allow multiple users.
