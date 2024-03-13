@@ -33,7 +33,6 @@
         android:orientation="vertical">
 
         <Button
-            android:id="@+id/return_user_cnntinue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Continue"
@@ -43,7 +42,6 @@
             >
         </Button>
         <Button
-            android:id="@+id/view_admin_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="View as Admin"
