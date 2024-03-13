@@ -1,7 +1,9 @@
 package com.example.qrconnect;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,19 +12,30 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +50,11 @@ public class EventDetailsActivity extends AppCompatActivity {
      * Called when the activity is first created. Responsible for initializing the activity.
      * @param savedInstanceState A Bundle containing the activity's previously frozen state, if there was one.
      */
+    private ActivityResultLauncher<Intent> activityResultLauncher;
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference storageRef = storage.getReference();
 
+    String fieldName = "eventPoster";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +69,8 @@ public class EventDetailsActivity extends AppCompatActivity {
         Switch limitCapacitySwitch = findViewById(R.id.switch_limit_capacity);
         Button shareEventButton = findViewById(R.id.share_event_button);
         Button saveChangesButton = findViewById(R.id.save_event_button);
+        Button uploadPosterButton = findViewById(R.id.upload_poster_button);
+        ImageView eventPoster = findViewById(R.id.event_image);
 
         // Initially disable the EditText if you want it to be disabled by default
         eventCapacity.setEnabled(false); // Default state;
@@ -60,8 +79,54 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference eventRef = db.collection("events").document(eventId);
-
+        StorageReference eventPosterRef = storageRef.child("eventposters/" + eventId + "_" + fieldName + ".jpg");
+        loadEventPosterWithGlide(eventPosterRef, eventPoster);
         loadEventData(eventRef, eventTitle, eventDescriptionEdit, eventDate, eventTime, eventLocation, eventCapacity, eventCurrentAttendance);
+
+        uploadPosterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("image/*");
+                activityResultLauncher.launch(intent);
+            }
+        });
+
+        activityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            Intent data = result.getData();
+                            if (data != null && data.getData() != null) {
+                                Uri selectedImageUri = data.getData();
+                                eventPoster.setImageURI(selectedImageUri);
+
+                                UploadTask uploadTask = eventPosterRef.putFile(selectedImageUri);
+                                uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                        taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                            @Override
+                                            public void onSuccess(Uri uri) {
+                                                String downloadUrl = uri.toString();
+
+                                                Log.d("Upload", "Image uploaded successfully: " + downloadUrl);
+                                            }
+                                        });
+                                        Toast.makeText(EventDetailsActivity.this, "Image uploaded successfully", Toast.LENGTH_SHORT).show();
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(EventDetailsActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
 
         // Set up a listener for the switch
         limitCapacitySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -105,6 +170,8 @@ public class EventDetailsActivity extends AppCompatActivity {
                     )
                     .addOnSuccessListener(aVoid -> Toast.makeText(EventDetailsActivity.this, "Event updated successfully", Toast.LENGTH_SHORT).show())
                     .addOnFailureListener(e -> Toast.makeText(EventDetailsActivity.this, "Error updating event", Toast.LENGTH_SHORT).show());
+
+
         });
 
         // initialize backButton
@@ -229,6 +296,22 @@ public class EventDetailsActivity extends AppCompatActivity {
                         }
                     });
                 }
+            }
+        });
+    }
+
+    private void loadEventPosterWithGlide(StorageReference eventPosterRef, ImageView eventPoster) {
+        eventPosterRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Glide.with(EventDetailsActivity.this)
+                        .load(uri)
+                        .into(eventPoster);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Log.e("EventDetailsActivity", "Error loading image: ", exception);
             }
         });
     }
