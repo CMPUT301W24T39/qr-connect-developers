@@ -3,6 +3,7 @@ package com.example.qrconnect;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
 
+import java.io.Serializable;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,19 +13,17 @@ import java.util.Date;
  * The Event class defines an event.
  * Contains details such as title, date, time, location, capacity, announcement, and associated QR codes.
  */
-public class Event {
+public class Event implements Serializable {
     private String eventTitle;
     private Date date;
     private Time time;
     private String location;
     private Integer capacity;
     private String announcement;
-
     private Bitmap QRCodeImage;
     private Bitmap PromoQRCodeImage;
     private String eventCheckInId;
     private String eventPromoId;
-
     private String eventId;
     protected ArrayList<Attendee> AttendeeList;
 
@@ -66,7 +65,6 @@ public class Event {
      * This method gets the QR code of an event.
      * @return Return a QR code image.
      */
-
     public Bitmap getQRCodeImage() {
         return QRCodeImage;
     }
@@ -83,7 +81,6 @@ public class Event {
      * This method gets the Promotion QR code of an event.
      * @return Return the promotion QR code image.
      */
-
     public Bitmap getPromoQRCodeImage() {
         return PromoQRCodeImage;
     }

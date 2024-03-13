@@ -46,8 +46,6 @@ import com.google.firebase.storage.UploadTask;
  * It extends AppCompatAcitivty.
  */
 public class QRCodeGeneratesPage extends AppCompatActivity {
-
-
     public static ImageView QRCodeImage;
     private ImageView PromoQRCodeImage;
     private Bitmap bitMapQRCode;
