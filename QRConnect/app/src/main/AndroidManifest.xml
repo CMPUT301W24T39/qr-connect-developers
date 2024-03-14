@@ -96,7 +96,13 @@
         <activity
             android:name=".UserProfilePage"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"></activity>
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        </activity>
+
+        <activity
+            android:name=".BarcodeScanningActivity"
+            android:exported="true" />
+
     </application>
 
 </manifest>
