@@ -204,6 +204,48 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         }
     }
 
+
+
+    /**
+     * Determines the appropriate action based on the scan result. This could involve navigating to an event details page
+     * or showing a check-in success dialog.
+     *
+     * @param scanResult The raw value obtained from scanning a barcode.
+     */
+    private void proceedWithAction(String scanResult) {
+        pauseCamera();
+        isValidEventId(scanResult, new EventIdCallback() {
+            @Override
+            public void onEventIdValidated(boolean isValid, String qrCodeIdentifier, EventIdType eventType) {
+                if (isValid) {
+                    switch (eventType) {
+                        case EVENT_DETAILS:
+                            Log.d(TAG, "Valid event ID: " + qrCodeIdentifier);
+                            Intent intent = new Intent(BarcodeScanningActivity.this, PromoDetailsActivity.class);
+                            intent.putExtra("EVENT_ID", qrCodeIdentifier);
+                            startActivity(intent);
+                            startCamera();
+                            break;
+                        case EVENT_CHECKIN:
+                            // Show check-in success dialog
+                            showSuccessDialog(qrCodeIdentifier);
+                            break;
+                        default:
+                            showFailureDialog("Scanned, but eventId issue");
+                            break;
+                    }
+                } else {
+                    showFailureDialog("Not Valid Code (not exists)");
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                handleQueryError();
+            }
+        });
+    }
+
     /**
      * Displays a dialog indicating a successful scan with options to confirm or reject the result.
      *
@@ -239,44 +281,20 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    /**
-     * Determines the appropriate action based on the scan result. This could involve navigating to an event details page
-     * or showing a check-in success dialog.
-     *
-     * @param scanResult The raw value obtained from scanning a barcode.
-     */
-    private void proceedWithAction(String scanResult) {
+    private void showFailureDialog(String errorMsg) {
         pauseCamera();
-        isValidEventId(scanResult, new EventIdCallback() {
-            @Override
-            public void onEventIdValidated(boolean isValid, String qrCodeIdentifier, EventIdType eventType) {
-                if (isValid) {
-                    switch (eventType) {
-                        case EVENT_DETAILS:
-                            Log.d(TAG, "Valid event ID: " + qrCodeIdentifier);
-                            Intent intent = new Intent(BarcodeScanningActivity.this, PromoDetailsActivity.class);
-                            intent.putExtra("EVENT_ID", qrCodeIdentifier);
-                            startActivity(intent);
-                            startCamera();
-                            break;
-                        case EVENT_CHECKIN:
-                            // Show check-in success dialog
-                            showSuccessDialog(qrCodeIdentifier);
-                            break;
-                        default:
-                            handleQRCodeNotFound();
-                            break;
-                    }
-                } else {
-                    handleQRCodeNotFound();
-                }
-            }
+        handleQRCodeNotFound(errorMsg);
 
-            @Override
-            public void onError(Exception e) {
-                handleQueryError();
-            }
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Scan Error");
+        builder.setMessage(errorMsg);
+        builder.setPositiveButton("Retry", (dialog, which) -> {
+            startCamera();
         });
+
+        builder.setCancelable(false);
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     /**
@@ -312,9 +330,9 @@ public class BarcodeScanningActivity extends AppCompatActivity {
      * Handles the scenario when a QR code is not found in the database. This method logs the event and
      * displays a toast message to the user indicating the QR code could not be located.
      */
-    private void handleQRCodeNotFound() {
-        Log.e(TAG, "Proceed QR code error");
-        Toast.makeText(this, "QR Code not found in the database.", Toast.LENGTH_LONG).show();
+    private void handleQRCodeNotFound(String msg) {
+        Log.e(TAG, "Proceed QR code error " + msg);
+        Toast.makeText(this, "QR Code not found in the database. "+msg, Toast.LENGTH_LONG).show();
     }
 
     /**
