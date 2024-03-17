@@ -1,4 +1,5 @@
 package com.example.qrconnect;
+
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -14,38 +15,23 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * The UserStartScreenTest class is responsible for testing functionalities in the user start page.
+ * The AttendeeBrowseEventsTest class is responsible for testing functionalities in the attendee browse events page.
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class UserStartScreenTest {
+public class AttendeeBrowseEventsTest {
     /**
-     * Tests if the continue goes to the user homescreen.
+     * Tests if the back button goes to the user homescreen page.
      */
     @Test
-    public void testContinueButton(){
-        ActivityScenario.launch(UserStartScreen.class);
-        onView(withId(R.id.newuser_continue_button)).perform(click());
+    public void testBackButton(){
+        ActivityScenario.launch(AttendeeBrowseEvents.class);
+        onView(withId(R.id.attendee_browse_events_back_button)).perform(click());
         // Check if UI changed to MainActivity
         ActivityScenario<MainActivity> activityScenario = ActivityScenario.launch(MainActivity.class);
         activityScenario.onActivity(activity -> {
             // Check if the current activity is MainActivity
             assertThat(activity, instanceOf(MainActivity.class));
-        });
-    }
-
-    /**
-     * Tests if the view as admin button goes to the admin QR code scan page.
-     */
-    @Test
-    public void testViewAsAdminButton(){
-        ActivityScenario.launch(UserStartScreen.class);
-        onView(withId(R.id.user_view_as_admin_button)).perform(click());
-        // Check if UI changed to AdminQRScan
-        ActivityScenario<AdminQRScan> activityScenario = ActivityScenario.launch(AdminQRScan.class);
-        activityScenario.onActivity(activity -> {
-            // Check if the current activity is AdminQRScan
-            assertThat(activity, instanceOf(AdminQRScan.class));
         });
     }
 }

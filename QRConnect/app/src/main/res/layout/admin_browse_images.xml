@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar_attendee_notifications"
+        android:id="@+id/toolbar_admin_browse_images"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary">
 
         <ImageButton
-            android:id="@+id/attendee_notifications_page_back_nav_button"
+            android:id="@+id/admin_browse_images_back_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/arrow_back_icon" />
 
         <TextView
-            android:id="@+id/attendee_notifications_page_title"
+            android:id="@+id/admin_browse_images_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Notifications"
+            android:text="Images"
             android:layout_gravity="center_horizontal"
             android:textAppearance="?attr/textAppearanceHeadline6"
             android:textColor="@android:color/white" />
@@ -29,8 +30,10 @@
     </androidx.appcompat.widget.Toolbar>
 
     <ListView
+        android:id="@+id/admin_browse_images_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-    </ListView>
+        android:layout_height="546dp"
+        android:layout_weight="1"
+        android:listSelector="@color/cardview_shadow_start_color" />
 
 </LinearLayout>
