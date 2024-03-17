@@ -103,6 +103,9 @@
             android:name=".BarcodeScanningActivity"
             android:exported="true" />
 
+        <activity android:name=".PromoDetailsActivity"
+            android:exported="true"/>
+
     </application>
 
 </manifest>
