@@ -96,6 +96,20 @@ public class MainActivityTest {
     }
 
     /**
+     * Tests if the browse event icon goes to the attendee browse event page.
+     */
+    @Test
+    public void testBrowseEventsButton(){
+        onView(withId(R.id.explore_event_button)).perform(click());
+        // Check if UI changed to AttendeeBrowseEvents
+        ActivityScenario<AttendeeBrowseEvents> activityScenario = ActivityScenario.launch(AttendeeBrowseEvents.class);
+        activityScenario.onActivity(activity -> {
+            // Check if the current activity is AttendeeBrowseEvents
+            assertThat(activity, instanceOf(AttendeeBrowseEvents.class));
+        });
+    }
+
+    /**
      * Tests the add button, specifically the adding an event, functionality in the user homepage.
      */
     @Test

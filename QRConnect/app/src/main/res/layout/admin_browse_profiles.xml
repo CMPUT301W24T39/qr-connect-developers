@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_admin_browse_profiles"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary">
+
+        <ImageButton
+            android:id="@+id/admin_browse_profiles_back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/arrow_back_icon" />
+
+        <TextView
+            android:id="@+id/admin_browse_profiles_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Profiles"
+            android:layout_gravity="center_horizontal"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            android:textColor="@android:color/white" />
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/admin_profiles_toolbar_search"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary">
+
+        <ImageButton
+            android:id="@+id/admin_profiles_search_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/search_icon"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_gravity="start" />
+
+        <Space
+            android:layout_width="26dp"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/admin_profiles_search_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Search Profiles ..."
+            android:layout_marginRight="23dp"
+            android:padding="8dp"
+            android:layout_gravity="center" />
+    </androidx.appcompat.widget.Toolbar>
+
+    <ListView
+        android:id="@+id/admin_browse_profiles_list"
+        android:layout_width="match_parent"
+        android:layout_height="546dp"
+        android:layout_weight="1"
+        android:listSelector="@color/cardview_shadow_start_color" />
+
+</LinearLayout>

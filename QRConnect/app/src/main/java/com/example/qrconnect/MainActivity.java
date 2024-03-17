@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton addButton;
     private ImageButton profileButton;
     private ImageButton notificationButton;
+    private ImageButton browseEventsButton;
     static ArrayList<Event> eventDataList = new ArrayList<Event>();
     ListView eventList;
     static boolean isAddButtonClicked = false;
@@ -102,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         addButton = findViewById(R.id.button_add_event);
         profileButton = findViewById(R.id.user_icon_button);
         notificationButton = findViewById(R.id.notification_icon_button);
+        browseEventsButton = findViewById(R.id.explore_event_button);
 
         EventAdapter eventAdapter = new EventAdapter(this, eventDataList);
         eventList.setAdapter(eventAdapter);
@@ -186,6 +188,16 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, UserProfilePage.class));
             }
         });
+
+        // User homepage browse events button
+        browseEventsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, AttendeeBrowseEvents.class));
+            }
+        });
+
+        // User homepage attendee notifications button
         notificationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -57,6 +57,7 @@
             >
         </Button>
         <Button
+            android:id="@+id/user_view_as_admin_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="View as Admin"
