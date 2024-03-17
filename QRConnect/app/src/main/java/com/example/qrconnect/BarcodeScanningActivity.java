@@ -45,6 +45,7 @@ import java.util.concurrent.ExecutionException;
 public class BarcodeScanningActivity extends AppCompatActivity {
     private ProcessCameraProvider cameraProvider;
     private String TAG = "BarcodeScanning";
+    private long lastActionTime = 0;// To prevent rapid multiple scans issue.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,7 +106,6 @@ public class BarcodeScanningActivity extends AppCompatActivity {
     */
     private void startCamera() {
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
-
         cameraProviderFuture.addListener(() -> {
             try {
                 cameraProvider = cameraProviderFuture.get();
@@ -214,6 +214,16 @@ public class BarcodeScanningActivity extends AppCompatActivity {
      */
     private void proceedWithAction(String scanResult) {
         pauseCamera();
+        // the time delay mechanism is to prevent ``Debounce or Throttle Calls``
+        // Referred from https://stackoverflow.com/questions/25991367/difference-between-throttling-and-debouncing-a-function
+        // Donal, Sept 23, 2024.
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastActionTime < 1000){
+            startCamera();
+            return;
+        }
+        lastActionTime = currentTime;
+
         isValidEventId(scanResult, new EventIdCallback() {
             @Override
             public void onEventIdValidated(boolean isValid, String qrCodeIdentifier, EventIdType eventType) {
