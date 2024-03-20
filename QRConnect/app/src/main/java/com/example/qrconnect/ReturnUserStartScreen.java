@@ -15,15 +15,18 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.NoSuchElementException;
+
 /**
  * The ReturnUserStartScreen class represents the screen that is displayed when a returning user launches the application.
  * It retrieves the user's information from Firestore based on the user ID and displays a welcome message.
  */
 public class ReturnUserStartScreen extends AppCompatActivity {
     // initialize button that allows the user to proceed to the main functionality of the application.
-    Button continue_button;
+    private Button continue_button;
     // Textview for welcome message
-    TextView welcomeBackTextView;
+    private TextView welcomeBackTextView;
 
     /**
      * Called when the activity is first created. Responsible for initializing the returning user start screen.
@@ -56,7 +59,7 @@ public class ReturnUserStartScreen extends AppCompatActivity {
      *
      * @param userId The user ID used to retrieve the user's information from Firestore.
      */
-    private void getUserInfoFromFirestore(String userId) {
+    protected void getUserInfoFromFirestore(String userId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // Get document reference for the user
@@ -75,8 +78,8 @@ public class ReturnUserStartScreen extends AppCompatActivity {
                     String welcomeMessage = "Welcome back, " + firstName + " " + lastName;
                     welcomeBackTextView.setText(welcomeMessage);
                 } else {
-                    // Document does not exist, log the event
-                    Log.d("Firestore", "User document does not exist for the specified user ID");
+                    // Document does not exist, throw NoSuchElementException
+                    throw new NoSuchElementException("User document not found for user ID: " + userId);
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
