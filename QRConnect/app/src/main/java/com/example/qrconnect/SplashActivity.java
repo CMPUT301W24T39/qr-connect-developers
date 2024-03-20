@@ -30,7 +30,7 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void run() {
                 // Check if the user is a returning user or a new user
-                boolean isReturningUser = checkIfReturningUser(); // Implement this method
+                boolean isReturningUser = checkIfReturningUser();
 
                 // Create an intent based on whether the user is returning or new
                 Intent intent;
@@ -49,7 +49,6 @@ public class SplashActivity extends AppCompatActivity {
         }, 3000); // 3000 milliseconds (3 seconds) delay
     }
 
-    // Placeholder method, you need to implement the logic to determine if the user is a returning user
     private boolean checkIfReturningUser() {
         // Check if there is a stored user ID locally
         String storedUserId = UserPreferences.getUserId(getApplicationContext());
