@@ -2,6 +2,8 @@ package com.example.qrconnect;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static com.google.zxing.integration.android.IntentIntegrator.REQUEST_CODE;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,6 +43,7 @@ import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -87,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
     public static int numAddButtonClicked;
+    private ActivityResultLauncher<Intent> eventDetailsInitializeActivity;
 
     /**
      * This defines the functions in main activity.
@@ -111,26 +115,32 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
 
+        eventDetailsInitializeActivity = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Event updatedEvent = (Event) result.getData().getSerializableExtra("UPDATED_EVENT");
+                        addNewEvent(updatedEvent);
+                    }
+                }
+        );
+
+
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Intent intent = new Intent(MainActivity.this, QRCodeGeneratesPage.class);
-                startActivity(intent);
-
                 isAddButtonClicked = true;
-                numAddButtonClicked += 1;
                 Event newEvent = new Event();
-
-                eventDataList.add(newEvent);
-                eventAdapter.notifyDataSetChanged();
+                numAddButtonClicked += 1;
 
                 String uniqueID = UUID.randomUUID().toString();
                 newEvent.setEventTitle("New Event " + numAddButtonClicked);
                 newEvent.setEventId(uniqueID);
+
+                eventDataList.add(newEvent);
+                eventAdapter.notifyDataSetChanged();
                 addNewEvent(newEvent);
-
-
+                startEventDetailsInitializeActivity(newEvent);
             }
         });
 
@@ -146,8 +156,16 @@ public class MainActivity extends AppCompatActivity {
                     for (QueryDocumentSnapshot doc: querySnapshots){
                         String eventId = doc.getId();
                         String eventTitle = doc.getString("title");
-                        eventDataList.add(new Event(eventTitle, null,null, null, null, null, null, null, null, null, eventId));
-                        Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s %s %s) fetched", eventTitle, null,null, null, null, null, null, null, null, null, eventId));
+                        String eventDate = doc.getString("date");
+                        String eventTime = doc.getString("time");
+                        String eventLocation = doc.getString("location");
+//                        if (doc.getString("capacity") != null){
+//                            Integer eventCapacity = Integer.parseInt(doc.getString("capacity"));}
+                        String eventAnnouncement = doc.getString("announcement");
+                        String checkInId = doc.getString("checkInQRCodeImageUrl");
+                        String promoId = doc.getString("promoQRCodeImageUrl");
+                        eventDataList.add(new Event(eventTitle, eventDate,eventTime, eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId));
+                        Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate,eventTime, eventLocation, 0, eventAnnouncement, checkInId, promoId, eventId));
                     }
                     eventAdapter.notifyDataSetChanged();
                 }
@@ -211,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     Event currentEvent = eventAdapter.getItem(position);
                     Intent showIntent = new Intent(MainActivity.this, EventDetailsActivity.class);
-                    showIntent.putExtra("EVENT_ID", currentEvent.getEventId());
+                    showIntent.putExtra("EVENT", currentEvent);
                     startActivity(showIntent);
                 } catch (Exception e) {
                     Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -240,13 +258,13 @@ public class MainActivity extends AppCompatActivity {
         data.put("location", event.getLocation());
         data.put("capacity", event.getCapacity());
         data.put("announcement", event.getAnnouncement());
-        data.put("QRCodeImage", event.getQRCodeImage());
-        data.put("PromoQRCodeImage", event.getPromoQRCodeImage());
-        data.put("eventCheckInId", event.getEventCheckInId());
-        data.put("eventPromoId", event.getEventPromoId());
+//        data.put("QRCodeImage", event.getQRCodeImage());
+//        data.put("PromoQRCodeImage", event.getPromoQRCodeImage());
+//        data.put("eventCheckInId", event.getEventCheckInId());
+//        data.put("eventPromoId", event.getEventPromoId());
         data.put("eventId", event.getEventId());
-        data.put("checkInQRCodeImageUrl", null);
-        data.put("promoQRCodeImageUrl", null);
+        data.put("checkInQRCodeImageUrl", event.getEventCheckInId());
+        data.put("promoQRCodeImageUrl", event.getEventPromoId());
 
         eventsRef
                 .document(event.getEventId())
@@ -280,6 +298,12 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+    }
+
+    private void startEventDetailsInitializeActivity(Event newEvent) {
+        Intent intent = new Intent(this, EventDetailsInitializeActivity.class);
+        intent.putExtra("EVENT", newEvent);
+        eventDetailsInitializeActivity.launch(intent);
     }
 
 }

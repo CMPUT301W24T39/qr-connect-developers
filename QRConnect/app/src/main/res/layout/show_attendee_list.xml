@@ -9,22 +9,34 @@
         android:layout_width="match_parent"
         android:layout_height="76dp"
         android:background="?attr/colorPrimary"
-        android:elevation="4dp">
+        android:elevation="4dp"
+        android:orientation="horizontal">
+
 
         <ImageButton
             android:id="@+id/attendee_list_back_nav_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:src="@drawable/arrow_back_icon"
-            android:background="?attr/selectableItemBackgroundBorderless" />
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/arrow_back_icon" />
+
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_marginLeft="110dp"
             android:text="Attendee List"
             android:textAppearance="?attr/textAppearanceHeadline6"
             android:textColor="@android:color/white" />
+
+        <ImageButton
+            android:id="@+id/attendee_list_share_nav_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="110dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_share" />
+
 
     </androidx.appcompat.widget.Toolbar>
 

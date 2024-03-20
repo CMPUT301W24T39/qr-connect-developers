@@ -1,5 +1,6 @@
 package com.example.qrconnect;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -32,10 +33,13 @@ public class AttendeeListActivity extends AppCompatActivity {
         setContentView(R.layout.show_attendee_list);
 
         attendees = generateMockAttendees();
+        Event currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
 
+//        System.out.println("The check in id is " +currentEvent.getEventId());
         ListView attendeeListView = findViewById(R.id.show_attendee_list_view);
 
         ImageButton backButton = findViewById(R.id.attendee_list_back_nav_button);
+        ImageButton shareButton = findViewById(R.id.attendee_list_share_nav_button);
 
         // Create adapter and set it to the ListView
         adapter = new AttendeeArrayAdapter(this, attendees, 000000);
@@ -44,6 +48,16 @@ public class AttendeeListActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 finish();
+            }
+        });
+
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent showIntent = new Intent(AttendeeListActivity.this, ShareQRCodeActivity.class);
+                showIntent.putExtra("EVENT", currentEvent);
+                startActivity(showIntent);
+
             }
         });
     }

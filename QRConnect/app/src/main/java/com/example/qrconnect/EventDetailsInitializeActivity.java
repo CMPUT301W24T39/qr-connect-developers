@@ -2,12 +2,10 @@ package com.example.qrconnect;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -29,7 +27,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -40,12 +37,7 @@ import com.google.firebase.storage.UploadTask;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * The EventDetailsAcitivty class displays details of a specific event.
- * It allows users to navigate back, access the menu, and send notifications for the event.
- * It extends AppCompatActivity.
- */
-public class EventDetailsActivity extends AppCompatActivity {
+public class EventDetailsInitializeActivity extends AppCompatActivity {
     /**
      * Called when the activity is first created. Responsible for initializing the activity.
      * @param savedInstanceState A Bundle containing the activity's previously frozen state, if there was one.
@@ -55,22 +47,24 @@ public class EventDetailsActivity extends AppCompatActivity {
     StorageReference storageRef = storage.getReference();
 
     String fieldName = "eventPoster";
+    private ActivityResultLauncher<Intent> qrCodeGeneratesPage;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.event_details);
-        EditText eventTitle = findViewById(R.id.event_title_edittext);
-        EditText eventDescriptionEdit = findViewById(R.id.event_description_edit);
-        EditText eventDate = findViewById(R.id.event_date);
-        EditText eventTime = findViewById(R.id.event_time);
-        EditText eventLocation = findViewById(R.id.event_location);
-        EditText eventCapacity = findViewById(R.id.event_capacity);
-        TextView eventCurrentAttendance = findViewById(R.id.event_current_attendance);
-        Switch limitCapacitySwitch = findViewById(R.id.switch_limit_capacity);
-        Button shareEventButton = findViewById(R.id.share_event_button);
-        Button saveChangesButton = findViewById(R.id.save_event_button);
-        Button uploadPosterButton = findViewById(R.id.upload_poster_button);
-        ImageView eventPoster = findViewById(R.id.event_image);
+        setContentView(R.layout.event_details_initialize_activity);
+
+        EditText eventTitle = findViewById(R.id.init_event_title_edittext);
+        EditText eventDescriptionEdit = findViewById(R.id.init_event_description_edit);
+        EditText eventDate = findViewById(R.id.init_event_date);
+        EditText eventTime = findViewById(R.id.init_event_time);
+        EditText eventLocation = findViewById(R.id.init_event_location);
+        EditText eventCapacity = findViewById(R.id.init_event_capacity);
+        TextView eventCurrentAttendance = findViewById(R.id.init_event_current_attendance);
+        Switch limitCapacitySwitch = findViewById(R.id.init_switch_limit_capacity);
+        Button nextButton = findViewById(R.id.next_button);
+        Button uploadPosterButton = findViewById(R.id.init_upload_poster_button);
+        ImageView eventPoster = findViewById(R.id.init_event_image);
+
 
         // Initially disable the EditText if you want it to be disabled by default
         eventCapacity.setEnabled(false); // Default state;
@@ -83,8 +77,6 @@ public class EventDetailsActivity extends AppCompatActivity {
         loadEventPoster(eventPosterRef, eventPoster);
         loadEventData(eventRef, eventTitle, eventDescriptionEdit, eventDate, eventTime, eventLocation, eventCapacity, eventCurrentAttendance);
 
-
-
         uploadPosterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,6 +85,17 @@ public class EventDetailsActivity extends AppCompatActivity {
                 activityResultLauncher.launch(intent);
             }
         });
+
+        qrCodeGeneratesPage = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                        }
+                    }
+                }
+        );
 
         activityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -117,12 +120,12 @@ public class EventDetailsActivity extends AppCompatActivity {
                                                 Log.d("Upload", "Image uploaded successfully: " + downloadUrl);
                                             }
                                         });
-                                        Toast.makeText(EventDetailsActivity.this, "Image uploaded successfully", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(EventDetailsInitializeActivity.this, "Image uploaded successfully", Toast.LENGTH_SHORT).show();
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(EventDetailsActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(EventDetailsInitializeActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                     }
                                 });
                             }
@@ -146,8 +149,7 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         });
 
-
-        saveChangesButton.setOnClickListener(v -> {
+        nextButton.setOnClickListener(v -> {
             // Gather data from UI components
             String title = eventTitle.getText().toString();
             String description = eventDescriptionEdit.getText().toString();
@@ -171,12 +173,15 @@ public class EventDetailsActivity extends AppCompatActivity {
                             "location", location,
                             "capacity", capacity
                     )
-                    .addOnSuccessListener(aVoid -> Toast.makeText(EventDetailsActivity.this, "Event updated successfully", Toast.LENGTH_SHORT).show())
-                    .addOnFailureListener(e -> Toast.makeText(EventDetailsActivity.this, "Error updating event", Toast.LENGTH_SHORT).show());
+                    .addOnSuccessListener(aVoid -> Toast.makeText(EventDetailsInitializeActivity.this, "Event updated successfully", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(EventDetailsInitializeActivity.this, "Error updating event", Toast.LENGTH_SHORT).show());
+
+            startQRCodeGeneratesActivity(currentEvent);
+
         });
 
         // initialize backButton
-        ImageButton backButton = findViewById(R.id.event_details_back_nav_button);
+        ImageButton backButton = findViewById(R.id.init_event_details_back_nav_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -184,57 +189,7 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         });
 
-        // initialize menu button
-        ImageButton menuButton = findViewById(R.id.event_details_menu_icon_button);
 
-        menuButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                try {
-                    Intent showIntent = new Intent(EventDetailsActivity.this, AttendeeListActivity.class);
-                    //TODO: showIntent.putExtra("EVENT", event);
-                    showIntent.putExtra("EVENT", currentEvent);
-                    startActivity(showIntent);
-                } catch (Exception e) {
-                    Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-        });
-
-        // initialize send notification button
-        ImageButton sendNotificationsButton = findViewById(R.id.event_details_send_notifications);
-
-        sendNotificationsButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                try {
-                    Intent showIntent = new Intent(EventDetailsActivity.this, SendNotificationsActivity.class);
-                    //TODO: showIntent.putExtra("EVENT", event);
-                    startActivity(showIntent);
-                } catch (Exception e) {
-                    Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-        });
-
-        // Event details map locations button
-        ImageButton mapLocationsButton = findViewById(R.id.event_details_map_icon_button);
-        mapLocationsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(EventDetailsActivity.this, MapLocations.class));
-            }
-        });
-
-        // Share event button
-        shareEventButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(EventDetailsActivity.this, ShareQRCode.class));
-            }
-        });
 
     }
     // Refer from answered Nov 17, 2017 at 13:48 Grimthorr
@@ -286,7 +241,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(EventDetailsActivity.this, "No such document", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(EventDetailsInitializeActivity.this, "No such document", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -294,7 +249,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(EventDetailsActivity.this, "Failed to load event", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EventDetailsInitializeActivity.this, "Failed to load event", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -306,7 +261,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         eventPosterRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
-                Glide.with(EventDetailsActivity.this)
+                Glide.with(EventDetailsInitializeActivity.this)
                         .load(uri)
                         .into(eventPoster);
             }
@@ -318,5 +273,9 @@ public class EventDetailsActivity extends AppCompatActivity {
         });
     }
 
-
+    private void startQRCodeGeneratesActivity(Event currentEvent) {
+        Intent intent = new Intent(this, QRCodeGeneratesPage.class);
+        intent.putExtra("EVENT", currentEvent);
+        qrCodeGeneratesPage.launch(intent);
+    }
 }
