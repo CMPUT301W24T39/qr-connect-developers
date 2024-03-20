@@ -19,8 +19,8 @@ import java.util.UUID;
 
 /**
  * The UserStartScreen class represents the screen that is displayed when a new user launches the application.
- * It provides an option for the user to continue, leading to the main functionality of the application in MainActivity.
- * It extends AppCompatActivity.
+ * It provides an option for the user to continue, leading to the main functionality of the application in MainActivity, or
+ * go to the admin authentication page.
  */
 public class UserStartScreen extends AppCompatActivity {
 
@@ -39,7 +39,7 @@ public class UserStartScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_start_screen);
 
-        // set buttons
+        // set UI buttons
         firstNameEditText = findViewById(R.id.first_name_editText);
         lastNameEditText = findViewById(R.id.last_name_editText);
         // Initialize the continue button and set a click listener
@@ -51,15 +51,13 @@ public class UserStartScreen extends AppCompatActivity {
                 String generatedUserId = generateRandomUserId();
                 // save id in userPreferences
                 UserPreferences.saveUserId(getApplicationContext(), generatedUserId);
+
                 // Retrieve first and last names
                 String firstName = firstNameEditText.getText().toString().trim();
                 String lastName = lastNameEditText.getText().toString().trim();
 
                 // save user info to Firestore
                 storeUserInFirestore(generatedUserId, firstName, lastName);
-
-                // Start the MainActivity when the continue button is clicked
-                startActivity(new Intent(UserStartScreen.this, MainActivity.class));
             }
         });
 
@@ -73,20 +71,30 @@ public class UserStartScreen extends AppCompatActivity {
         });
 
     }
-
+    /**
+     * Generates a random user ID.
+     *
+     * @return A randomly generated user ID.
+     */
     private String generateRandomUserId() {
-        // generate random uid
         return UUID.randomUUID().toString();
     }
-
+    /**
+     * Stores user information in Firestore.
+     *
+     * @param userId    The user ID.
+     * @param firstName The first name of the user.
+     * @param lastName  The last name of the user.
+     */
     private void storeUserInFirestore(String userId, String firstName, String lastName) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // Create a new user data map
         Map<String, Object> userData = new HashMap<>();
         userData.put("userId", userId);
-        userData.put("firstName", firstName.isEmpty() ? null : firstName); // Store null if first name is empty
-        userData.put("lastName", lastName.isEmpty() ? null : lastName); // Store null if last name is empty
+        // Store name of the user in firestore database. Store null if the first/last names are empty.
+        userData.put("firstName", firstName.isEmpty() ? null : firstName);
+        userData.put("lastName", lastName.isEmpty() ? null : lastName);
 
         // Add a new document with a generated ID to the "users" collection
         db.collection("users")
@@ -99,7 +107,8 @@ public class UserStartScreen extends AppCompatActivity {
                         Toast.makeText(UserStartScreen.this, "User information saved successfully", Toast.LENGTH_SHORT).show();
                         // Start the MainActivity
                         startActivity(new Intent(UserStartScreen.this, MainActivity.class));
-                        finish(); // Close the current activity
+                        // Close the current activity
+                        finish();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
