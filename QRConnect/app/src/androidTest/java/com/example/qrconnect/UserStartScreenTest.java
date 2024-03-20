@@ -33,4 +33,19 @@ public class UserStartScreenTest {
             assertThat(activity, instanceOf(MainActivity.class));
         });
     }
+
+    /**
+     * Tests if the view as admin button goes to the admin QR code scan page.
+     */
+    @Test
+    public void testViewAsAdminButton(){
+        ActivityScenario.launch(UserStartScreen.class);
+        onView(withId(R.id.user_view_as_admin_button)).perform(click());
+        // Check if UI changed to AdminQRScan
+        ActivityScenario<AdminQRScan> activityScenario = ActivityScenario.launch(AdminQRScan.class);
+        activityScenario.onActivity(activity -> {
+            // Check if the current activity is AdminQRScan
+            assertThat(activity, instanceOf(AdminQRScan.class));
+        });
+    }
 }

@@ -152,6 +152,23 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         });
 
+        // Event details map locations button
+        ImageButton mapLocationsButton = findViewById(R.id.event_details_map_icon_button);
+        mapLocationsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(EventDetailsActivity.this, MapLocations.class));
+            }
+        });
+
+        // Share event button
+        shareEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(EventDetailsActivity.this, ShareQRCode.class));
+            }
+        });
+
     }
     // Refer from answered Nov 17, 2017 at 13:48 Grimthorr
     //https://stackoverflow.com/questions/47350129/about-the-firestore-query-data-documentation-specifically-documentsnapshot

@@ -13,6 +13,10 @@ public class UserProfile {
     protected String pronouns;
     protected String userID;
 
+    public UserProfile(String userID) {
+        this.userID = userID;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -75,10 +79,6 @@ public class UserProfile {
 
     public void setPronouns(String pronouns) {
         this.pronouns = pronouns;
-    }
-
-    public UserProfile(String userID) {
-        this.userID = userID;
     }
 
     public String getUserID() {

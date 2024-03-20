@@ -47,10 +47,48 @@
             android:exported="true"></activity>
         <activity
             android:name=".AttendeeListActivity"
-            android:exported="true"></activity>
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".AttendeeNotifications"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".AttendeeBrowseEvents"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".AdminQRScan"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".AdminMenu"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".AdminBrowseEvents"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".AdminBrowseImages"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".AdminBrowseProfiles"
+            android:exported="true">
+        </activity>
         <activity
             android:name=".SendNotificationsActivity"
-            android:exported="true"></activity>
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".MapLocations"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".ShareQRCode"
+            android:exported="true">
+        </activity>
         <activity
             android:name=".QRCodeCheckInActivity"
             android:parentActivityName=".QRCodeGeneratesPage"

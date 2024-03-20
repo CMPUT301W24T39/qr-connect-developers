@@ -16,6 +16,7 @@ public class UserStartScreen extends AppCompatActivity {
 
     // initialize button that allows the user to proceed to the main functionality of the application.
     Button continue_button;
+    Button view_as_admin_button;
 
     /**
      * Called when the activity is first created. Responsible for initializing the user start screen.
@@ -36,6 +37,15 @@ public class UserStartScreen extends AppCompatActivity {
                 UserPreferences.saveUserId(getApplicationContext(), obtainedUserId);
                 // Start the MainActivity when the continue button is clicked
                 startActivity(new Intent(UserStartScreen.this, MainActivity.class));
+            }
+        });
+
+        // Initialize the view as admin button and set a click listener
+        view_as_admin_button = findViewById(R.id.user_view_as_admin_button);
+        view_as_admin_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(UserStartScreen.this, AdminQRScan.class));
             }
         });
 
