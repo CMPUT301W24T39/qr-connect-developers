@@ -237,13 +237,6 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         });
 
-        // Share event button
-        shareEventButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(EventDetailsActivity.this, ShareQRCode.class));
-            }
-        });
 
     }
     // Refer from answered Nov 17, 2017 at 13:48 Grimthorr
