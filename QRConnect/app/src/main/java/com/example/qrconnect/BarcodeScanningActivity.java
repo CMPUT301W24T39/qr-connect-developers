@@ -45,6 +45,7 @@ import java.util.concurrent.ExecutionException;
 public class BarcodeScanningActivity extends AppCompatActivity {
     private ProcessCameraProvider cameraProvider;
     private String TAG = "BarcodeScanning";
+    private boolean usingFrontCamera = false;
     private long lastActionTime = 0;// To prevent rapid multiple scans issue.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +54,10 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         startCamera();
         initializeScanningLine();
         setUpBackButton();
+
+        ImageButton switchCameraButton = findViewById(R.id.switch_camera_button);
+        switchCameraButton.setOnClickListener(v -> switchCamera());
+
     }
 
     private void initializeScanningLine() {
@@ -110,9 +115,8 @@ public class BarcodeScanningActivity extends AppCompatActivity {
             try {
                 cameraProvider = cameraProviderFuture.get();
                 Preview preview = new Preview.Builder().build();
-
-                CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
-
+                CameraSelector cameraSelector = usingFrontCamera ?
+                        CameraSelector.DEFAULT_FRONT_CAMERA : CameraSelector.DEFAULT_BACK_CAMERA;
                 ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
                 ImageAnalyzer analyzer = new ImageAnalyzer();
                 imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), analyzer);
@@ -395,6 +399,12 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    private void switchCamera(){
+        usingFrontCamera = !usingFrontCamera;
+        pauseCamera();
+        startCamera();
     }
 
 }

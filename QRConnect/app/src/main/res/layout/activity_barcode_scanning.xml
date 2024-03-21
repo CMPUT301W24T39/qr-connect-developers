@@ -38,6 +38,16 @@
         android:layout_centerInParent="true"
         android:background="#55FFFFFF" />
 
+    <ImageButton
+        android:id="@+id/switch_camera_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+
+        android:src="@drawable/camera_switch_icon"/>
+
 
 
 </RelativeLayout>
