@@ -146,6 +146,15 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         });
 
+        shareEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent showIntent = new Intent(EventDetailsActivity.this, ShareQRCodeActivity.class);
+                showIntent.putExtra("EVENT", currentEvent);
+                startActivity(showIntent);
+
+            }
+        });
 
         saveChangesButton.setOnClickListener(v -> {
             // Gather data from UI components
@@ -185,9 +194,9 @@ public class EventDetailsActivity extends AppCompatActivity {
         });
 
         // initialize menu button
-        ImageButton menuButton = findViewById(R.id.event_details_menu_icon_button);
+        Button viewAttendeeListButton = findViewById(R.id.view_attendee_list_button);
 
-        menuButton.setOnClickListener(new View.OnClickListener(){
+        viewAttendeeListButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 try {

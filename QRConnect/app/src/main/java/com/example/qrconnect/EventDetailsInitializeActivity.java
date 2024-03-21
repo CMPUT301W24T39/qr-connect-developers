@@ -43,11 +43,12 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
      * @param savedInstanceState A Bundle containing the activity's previously frozen state, if there was one.
      */
     private ActivityResultLauncher<Intent> activityResultLauncher;
-    FirebaseStorage storage = FirebaseStorage.getInstance();
-    StorageReference storageRef = storage.getReference();
+    private FirebaseStorage storage = FirebaseStorage.getInstance();
+    private StorageReference storageRef = storage.getReference();
 
     String fieldName = "eventPoster";
     private ActivityResultLauncher<Intent> qrCodeGeneratesPage;
+    Event updatedEvent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +93,7 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
                     @Override
                     public void onActivityResult(ActivityResult result) {
                         if (result.getResultCode() == Activity.RESULT_OK) {
+                            updatedEvent = (Event) result.getData().getSerializableExtra("UPDATED_EVENT");
                         }
                     }
                 }
@@ -185,6 +187,58 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                DocumentReference docRef = db.collection("events").document(currentEvent.getEventId());
+
+//                if(updatedEvent != null && currentEvent.getEventCheckInId() == null && currentEvent.getEventPromoId() == null){
+//                    docRef.delete()
+//                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                @Override
+//                                public void onSuccess(Void aVoid) {
+//                                    Log.d("Firestore", "DocumentSnapshot successfully deleted!");
+//                                    Toast.makeText(getApplicationContext(), "Document successfully deleted!", Toast.LENGTH_SHORT).show();
+//                                }
+//                            })
+//                            .addOnFailureListener(new OnFailureListener() {
+//                                @Override
+//                                public void onFailure(@NonNull Exception e) {
+//                                    Log.w("Firestore", "Error deleting document", e);
+//                                    Toast.makeText(getApplicationContext(), "Error deleting document", Toast.LENGTH_SHORT).show();
+//                                }
+//                            });
+//                    MainActivity.eventDataList.remove(currentEvent);
+//                }
+//                else {
+//                    Intent resultIntent = new Intent();
+//                    resultIntent.putExtra("UPDATED_EVENT", updatedEvent);
+//                    setResult(Activity.RESULT_OK, resultIntent);
+//                }
+//                finish();
+                if (updatedEvent != null) {
+                    Intent resultIntent = new Intent();
+                    resultIntent.putExtra("UPDATED_EVENT", updatedEvent);
+                    setResult(Activity.RESULT_OK, resultIntent);
+
+                }
+                else {
+                    if(currentEvent.getEventCheckInId() == null && currentEvent.getEventPromoId() == null){
+                        docRef.delete()
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d("Firestore", "DocumentSnapshot successfully deleted!");
+                                    Toast.makeText(getApplicationContext(), "Document successfully deleted!", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w("Firestore", "Error deleting document", e);
+                                    Toast.makeText(getApplicationContext(), "Error deleting document", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                    MainActivity.eventDataList.remove(currentEvent);
+                    }
+                }
                 finish();
             }
         });

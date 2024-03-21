@@ -39,7 +39,6 @@ public class AttendeeListActivity extends AppCompatActivity {
         ListView attendeeListView = findViewById(R.id.show_attendee_list_view);
 
         ImageButton backButton = findViewById(R.id.attendee_list_back_nav_button);
-        ImageButton shareButton = findViewById(R.id.attendee_list_share_nav_button);
 
         // Create adapter and set it to the ListView
         adapter = new AttendeeArrayAdapter(this, attendees, 000000);
@@ -51,15 +50,6 @@ public class AttendeeListActivity extends AppCompatActivity {
             }
         });
 
-        shareButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent showIntent = new Intent(AttendeeListActivity.this, ShareQRCodeActivity.class);
-                showIntent.putExtra("EVENT", currentEvent);
-                startActivity(showIntent);
-
-            }
-        });
     }
 
     /**

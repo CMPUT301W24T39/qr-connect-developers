@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
     private CollectionReference eventsRef;
     public static int numAddButtonClicked;
     private ActivityResultLauncher<Intent> eventDetailsInitializeActivity;
+    private EventAdapter eventAdapter;
 
     /**
      * This defines the functions in main activity.
@@ -109,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
         notificationButton = findViewById(R.id.notification_icon_button);
         browseEventsButton = findViewById(R.id.explore_event_button);
 
-        EventAdapter eventAdapter = new EventAdapter(this, eventDataList);
+        eventAdapter = new EventAdapter(this, eventDataList);
         eventList.setAdapter(eventAdapter);
 
         db = FirebaseFirestore.getInstance();
@@ -121,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                         Event updatedEvent = (Event) result.getData().getSerializableExtra("UPDATED_EVENT");
                         addNewEvent(updatedEvent);
+                        eventAdapter.notifyDataSetChanged();
                     }
                 }
         );
@@ -244,6 +246,11 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, BarcodeScanningActivity.class));
             }
         });
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        eventAdapter.notifyDataSetChanged();
     }
 
     /**

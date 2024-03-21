@@ -52,6 +52,7 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
     private Bitmap bitMapPromoQRCode;
     private ImageButton backButton1;
     private FirebaseFirestore db;
+    Event currentEvent;
 
     ActivityResultLauncher<Intent> selectEventLauncher;
     /**
@@ -67,7 +68,7 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
 
         backButton1 = findViewById(R.id.arrow_back_1);
         db = FirebaseFirestore.getInstance();
-        Event currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
+        currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
         QRCodeImage = findViewById(R.id.qr_code_image);
         PromoQRCodeImage = findViewById(R.id.promo_qr_code_image);
 
