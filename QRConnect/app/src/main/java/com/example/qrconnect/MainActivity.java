@@ -222,7 +222,8 @@ public class MainActivity extends AppCompatActivity {
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, QRCodeCheckInActivity.class));
+                //startActivity(new Intent(MainActivity.this, QRCodeCheckInActivity.class));
+                startActivity(new Intent(MainActivity.this, BarcodeScanningActivity.class));
             }
         });
     }

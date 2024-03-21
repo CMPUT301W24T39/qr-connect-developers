@@ -94,17 +94,15 @@ public class EventDetailsActivity extends AppCompatActivity {
                 Log.d("EventDetailsActivity", "Capacity is not a valid number, defaulting to 0");
             }
 
-            // Create or update event object
-            Map<String, Object> event = new HashMap<>();
-            event.put("title", title);
-            event.put("description", description);
-            event.put("date", date);
-            event.put("time", time);
-            event.put("location", location);
-            event.put("capacity", capacity);
-
             // Save or update the event in Firestore
-            eventRef.set(event)
+            eventRef.update(
+                            "title", title,
+                            "description", description,
+                            "date", date,
+                            "time", time,
+                            "location", location,
+                            "capacity", capacity
+                    )
                     .addOnSuccessListener(aVoid -> Toast.makeText(EventDetailsActivity.this, "Event updated successfully", Toast.LENGTH_SHORT).show())
                     .addOnFailureListener(e -> Toast.makeText(EventDetailsActivity.this, "Error updating event", Toast.LENGTH_SHORT).show());
         });
