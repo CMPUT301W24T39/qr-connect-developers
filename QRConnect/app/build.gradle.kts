@@ -61,6 +61,7 @@ dependencies {
     implementation("androidx.camera:camera-view:1.3.1")
     implementation("androidx.navigation:navigation-fragment:2.7.7")
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.mockito:mockito-core:2.2.28")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation(platform("com.google.firebase:firebase-bom:32.7.1"))
