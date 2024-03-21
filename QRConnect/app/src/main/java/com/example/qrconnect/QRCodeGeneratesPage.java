@@ -52,6 +52,7 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
     private Bitmap bitMapPromoQRCode;
     private ImageButton backButton1;
     private FirebaseFirestore db;
+    Event currentEvent;
 
     ActivityResultLauncher<Intent> selectEventLauncher;
     /**
@@ -67,7 +68,7 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
 
         backButton1 = findViewById(R.id.arrow_back_1);
         db = FirebaseFirestore.getInstance();
-
+        currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
         QRCodeImage = findViewById(R.id.qr_code_image);
         PromoQRCodeImage = findViewById(R.id.promo_qr_code_image);
 
@@ -88,26 +89,26 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
 
         if (!eventDataList.isEmpty()) {
 
-            Event newEvent = eventDataList.get(eventDataList.size() - 1);
 
-            String eventCheckInId = newEvent.getEventId() + "_" + fieldNameCheckInQRCode + ".jpg";
-            String eventPromoId = newEvent.getEventId() + "_" + fieldNamePromoteQRCode + ".jpg";
+            String eventCheckInId = currentEvent.getEventId() + "_" + fieldNameCheckInQRCode + ".jpg";
+            String eventPromoId = currentEvent.getEventId() + "_" + fieldNamePromoteQRCode + ".jpg";
             generateQRCode(eventCheckInId);
             generatePromoQRCode(eventPromoId);
 
-            newEvent.setQRCodeImage(bitMapQRCode);
-            newEvent.setPromoQRCodeImage(bitMapPromoQRCode);
-            newEvent.setEventCheckInId(eventCheckInId);
-            newEvent.setEventPromoId(eventPromoId);
+//            newEvent.setQRCodeImage(bitMapQRCode);
+//            newEvent.setPromoQRCodeImage(bitMapPromoQRCode);
+            currentEvent.setEventCheckInId(eventCheckInId);
+            currentEvent.setEventPromoId(eventPromoId);
+
 
             QRCodeImage.setImageBitmap(bitMapQRCode);
             PromoQRCodeImage.setImageBitmap(bitMapPromoQRCode);
 
-            updateEvent(newEvent, fieldNameCheckInQRCode, eventCheckInId);
-            updateEvent(newEvent, fieldNamePromoteQRCode, eventPromoId);
+            updateEvent(currentEvent, fieldNameCheckInQRCode, eventCheckInId);
+            updateEvent(currentEvent, fieldNamePromoteQRCode, eventPromoId);
 
-            uploadQRImages(bitMapQRCode, newEvent, fieldNameCheckInQRCode);
-            uploadQRImages(bitMapPromoQRCode, newEvent, fieldNamePromoteQRCode);
+            uploadQRImages(bitMapQRCode, currentEvent, fieldNameCheckInQRCode);
+            uploadQRImages(bitMapPromoQRCode, currentEvent, fieldNamePromoteQRCode);
 
         }
 
@@ -124,7 +125,7 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
         backButton1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                returnUpdatedEvent(currentEvent);
             }
         });
 
@@ -214,5 +215,12 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
                 Toast.makeText(QRCodeGeneratesPage.this, "Upload successful", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void returnUpdatedEvent(Event updatedEvent) {
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("UPDATED_EVENT", updatedEvent);
+        setResult(RESULT_OK, returnIntent);
+        finish();
     }
 }

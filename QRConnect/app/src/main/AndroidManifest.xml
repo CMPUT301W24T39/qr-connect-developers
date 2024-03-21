@@ -21,6 +21,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.QRConnect"
+        android:enableOnBackInvokedCallback="true"
         tools:targetApi="31">
         <activity
             android:name=".ReturnUserStartScreen"
@@ -102,9 +103,25 @@
         <activity
             android:name=".BarcodeScanningActivity"
             android:exported="true" />
-
         <activity android:name=".PromoDetailsActivity"
             android:exported="true"/>
+        <activity
+            android:name=".ShareQRCodeActivity"
+            android:exported="true"/>
+
+        <activity
+            android:name=".EventDetailsInitializeActivity">
+        </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.qrconnect.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
 
     </application>
 
