@@ -10,7 +10,6 @@ import android.os.Handler;
  * The SplashActivity class represents the initial screen displayed when the application is launched.
  * It serves as a splash screen that appears for a specific duration before transitioning to the
  * UserStartScreen activity.
- * It extends AppCompatActivity.
  */
 public class SplashActivity extends AppCompatActivity {
 
@@ -49,6 +48,10 @@ public class SplashActivity extends AppCompatActivity {
         }, 3000); // 3000 milliseconds (3 seconds) delay
     }
 
+    /**
+     * Checks if current user is already registered in the app
+     * @return true if user is already registered; false otherwise
+     */
     private boolean checkIfReturningUser() {
         // Check if there is a stored user ID locally
         String storedUserId = UserPreferences.getUserId(getApplicationContext());
