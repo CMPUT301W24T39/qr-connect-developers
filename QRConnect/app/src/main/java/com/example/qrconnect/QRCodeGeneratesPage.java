@@ -81,9 +81,11 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                         Event updatedEvent = (Event) result.getData().getSerializableExtra("UPDATED_EVENT");
                         String imageUrl = result.getData().getStringExtra("imageUrl");
-                        Glide.with(this)
-                                .load(imageUrl)
-                                .into(QRCodeImage);
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                            Glide.with(this)
+                                    .load(imageUrl)
+                                    .into(QRCodeImage);
+                        }
 
                         if (updatedEvent != null) {
                             this.currentEvent = updatedEvent;

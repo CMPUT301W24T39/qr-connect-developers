@@ -81,7 +81,7 @@ https://developer.android.com/training/basics/intents/sending
  * The MainActivity class maintains the functions of the main activity.
  * It extends AppCompatActivity.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DeleteEventFragment.DeleteEventDialogListener{
     private FloatingActionButton addButton;
     private ImageButton profileButton;
     private ImageButton notificationButton;
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
     static boolean isAddButtonClicked = false;
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
-    public static int numAddButtonClicked;
+
     private ActivityResultLauncher<Intent> eventDetailsInitializeActivity;
     private EventAdapter eventAdapter;
 
@@ -135,10 +135,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 isAddButtonClicked = true;
                 Event newEvent = new Event();
-                numAddButtonClicked += 1;
 
                 String uniqueID = UUID.randomUUID().toString();
-                newEvent.setEventTitle("New Event " + numAddButtonClicked);
+                newEvent.setEventTitle("New Event " + (eventDataList.size() +1));
                 newEvent.setEventId(uniqueID);
 
                 eventDataList.add(newEvent);
@@ -176,30 +175,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        eventsRef.get().addOnCompleteListener(task -> {
-            int count = 0;
-            if (task.isSuccessful()) {
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    count++;
-                }
-                Log.d(TAG, "Document count: " + count);
-
-            } else {
-                Log.d(TAG, "Error getting documents: ", task.getException());
-            }
-            numAddButtonClicked = count;
-
-        });
 
 
         eventList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
-                deleteEvent(eventDataList.get(position));
-                eventDataList.remove(eventDataList.get(position));
-
-                eventAdapter.notifyDataSetChanged();
+                new DeleteEventFragment(eventDataList.get(position)).show(getSupportFragmentManager(), "Delete Event");
                 return true;
             }
         });
@@ -290,9 +272,10 @@ public class MainActivity extends AppCompatActivity {
      * This deletes an event from the firebase.
      * @param event This is the event to delete.
      */
-    private void deleteEvent(Event event){
+    public void deleteEvent(Event event){
 
-
+        eventDataList.remove(event);
+        eventAdapter.notifyDataSetChanged();
         eventsRef
                 .document(event.getEventId())
                 .delete()
