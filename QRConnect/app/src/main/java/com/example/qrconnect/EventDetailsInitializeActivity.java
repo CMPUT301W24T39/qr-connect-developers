@@ -189,30 +189,6 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
             public void onClick(View view) {
                 DocumentReference docRef = db.collection("events").document(currentEvent.getEventId());
 
-//                if(updatedEvent != null && currentEvent.getEventCheckInId() == null && currentEvent.getEventPromoId() == null){
-//                    docRef.delete()
-//                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                @Override
-//                                public void onSuccess(Void aVoid) {
-//                                    Log.d("Firestore", "DocumentSnapshot successfully deleted!");
-//                                    Toast.makeText(getApplicationContext(), "Document successfully deleted!", Toast.LENGTH_SHORT).show();
-//                                }
-//                            })
-//                            .addOnFailureListener(new OnFailureListener() {
-//                                @Override
-//                                public void onFailure(@NonNull Exception e) {
-//                                    Log.w("Firestore", "Error deleting document", e);
-//                                    Toast.makeText(getApplicationContext(), "Error deleting document", Toast.LENGTH_SHORT).show();
-//                                }
-//                            });
-//                    MainActivity.eventDataList.remove(currentEvent);
-//                }
-//                else {
-//                    Intent resultIntent = new Intent();
-//                    resultIntent.putExtra("UPDATED_EVENT", updatedEvent);
-//                    setResult(Activity.RESULT_OK, resultIntent);
-//                }
-//                finish();
                 if (updatedEvent != null) {
                     Intent resultIntent = new Intent();
                     resultIntent.putExtra("UPDATED_EVENT", updatedEvent);

@@ -36,6 +36,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -289,6 +291,8 @@ public class MainActivity extends AppCompatActivity {
      * @param event This is the event to delete.
      */
     private void deleteEvent(Event event){
+
+
         eventsRef
                 .document(event.getEventId())
                 .delete()
@@ -305,12 +309,36 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+        if (event.getEventCheckInId() != null && event.getEventPromoId() != null){
+            String qrCodeFilePath = "qrcodes/" + event.getEventCheckInId();
+            String promoQrCodeFilePath = "qrcodes/" + event.getEventPromoId();
+            deleteQRCodesFromStorage(qrCodeFilePath);
+            deleteQRCodesFromStorage(promoQrCodeFilePath);
+        }
+
     }
 
     private void startEventDetailsInitializeActivity(Event newEvent) {
         Intent intent = new Intent(this, EventDetailsInitializeActivity.class);
         intent.putExtra("EVENT", newEvent);
         eventDetailsInitializeActivity.launch(intent);
+    }
+
+    private void deleteQRCodesFromStorage(String filePath) {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference fileRef = storage.getReference().child(filePath);
+
+        fileRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("Storage", "File successfully deleted!");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w("Storage", "Error deleting file", e);
+            }
+        });
     }
 
 }

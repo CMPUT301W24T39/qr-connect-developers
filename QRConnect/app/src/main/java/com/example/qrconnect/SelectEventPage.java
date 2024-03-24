@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 //import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -30,6 +31,8 @@ public class SelectEventPage extends AppCompatActivity {
     AutoCompleteTextView autoCompleteTextView;
 
     private ImageButton backButton2;
+    Event currentEvent;
+    private FirebaseFirestore db;
 
     /**
      * This class defines the functions of SelectEventPage activity.
@@ -45,13 +48,17 @@ public class SelectEventPage extends AppCompatActivity {
 
         autoCompleteTextView = findViewById(R.id.auto_complete_textview);
         EventAdapter adapter = new EventAdapter(this, eventDataList);
+        db = FirebaseFirestore.getInstance();
         autoCompleteTextView.setAdapter(adapter);
 
         autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Event selectedEvent = (Event) parent.getItemAtPosition(position);
-                Event newEvent = eventDataList.get(eventDataList.size() - 1);
+                currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
+
+                String fieldNameCheckInQRCode = "checkInQRCodeImageUrl";
+                String fieldNamePromoteQRCode = "promoQRCodeImageUrl";
 
                 FirebaseStorage storage = FirebaseStorage.getInstance();
                 StorageReference storageRef = storage.getReference();
@@ -65,15 +72,33 @@ public class SelectEventPage extends AppCompatActivity {
 
                 });
 
+                currentEvent.setEventCheckInId(selectedEvent.getEventCheckInId());
+                currentEvent.setEventPromoId(selectedEvent.getEventPromoId());
+
+                updateEvent(currentEvent, fieldNameCheckInQRCode, selectedEvent.getEventCheckInId());
+                updateEvent(currentEvent, fieldNamePromoteQRCode, selectedEvent.getEventPromoId());
             }
         });
 
         backButton2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                returnUpdatedEvent(currentEvent);
             }
         });
+    }
+
+    private void returnUpdatedEvent(Event updatedEvent) {
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("UPDATED_EVENT", updatedEvent);
+        setResult(RESULT_OK, returnIntent);
+        finish();
+    }
+    private void updateEvent(Event event, String fieldName, String Id) {
+
+        db.collection("events")
+                .document(event.getEventId())
+                .update(fieldName, Id);
     }
 
 
