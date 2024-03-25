@@ -293,8 +293,8 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                 });
 
         if (event.getEventCheckInId() != null && event.getEventPromoId() != null){
-            String qrCodeFilePath = "qrcodes/" + event.getEventCheckInId();
-            String promoQrCodeFilePath = "qrcodes/" + event.getEventPromoId();
+            String qrCodeFilePath = "qrcodes/" + event.getEventId() + "_" + "checkInQRCodeImageUrl" + ".jpg";
+            String promoQrCodeFilePath = "qrcodes/" + event.getEventId() + "_" + "promoQRCodeImageUrl" + ".jpg";
             deleteQRCodesFromStorage(qrCodeFilePath);
             deleteQRCodesFromStorage(promoQrCodeFilePath);
         }

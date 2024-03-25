@@ -45,7 +45,7 @@ public class SelectEventPage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.select_existing_event_qr_code);
         backButton2 = findViewById(R.id.arrow_back_2);
-
+        currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
         autoCompleteTextView = findViewById(R.id.auto_complete_textview);
         EventAdapter adapter = new EventAdapter(this, eventDataList);
         db = FirebaseFirestore.getInstance();
@@ -55,7 +55,7 @@ public class SelectEventPage extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Event selectedEvent = (Event) parent.getItemAtPosition(position);
-                currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
+
 
                 String fieldNameCheckInQRCode = "checkInQRCodeImageUrl";
                 String fieldNamePromoteQRCode = "promoQRCodeImageUrl";
