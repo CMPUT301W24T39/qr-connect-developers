@@ -39,7 +39,17 @@
                 android:id="@+id/arrow_back_3"
                 android:layout_width="65dp"
                 android:layout_height="55dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/arrow_back_icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="65dp"
+                android:text="Share Event"
+                android:textAppearance="?attr/textAppearanceHeadline6"
+                android:textColor="@android:color/white" />
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 

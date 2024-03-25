@@ -79,10 +79,17 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Event updatedEvent = (Event) result.getData().getSerializableExtra("UPDATED_EVENT");
                         String imageUrl = result.getData().getStringExtra("imageUrl");
-                        Glide.with(this)
-                                .load(imageUrl)
-                                .into(QRCodeImage);
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                            Glide.with(this)
+                                    .load(imageUrl)
+                                    .into(QRCodeImage);
+                        }
+
+                        if (updatedEvent != null) {
+                            this.currentEvent = updatedEvent;
+                        }
                     }
                 }
         );
@@ -173,6 +180,7 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
 
     public void launchSelectEventPage() {
         Intent intent = new Intent(this, SelectEventPage.class);
+        intent.putExtra("EVENT", currentEvent);
         selectEventLauncher.launch(intent);
     }
 

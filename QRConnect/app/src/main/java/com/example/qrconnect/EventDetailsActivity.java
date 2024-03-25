@@ -315,6 +315,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
+                eventPoster.setImageResource(R.drawable.ic_android);
                 Log.e("EventDetailsActivity", "Error loading image: ", exception);
             }
         });
