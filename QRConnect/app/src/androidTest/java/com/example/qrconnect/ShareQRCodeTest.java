@@ -24,7 +24,7 @@ public class ShareQRCodeTest {
      */
     @Test
     public void testBackButton(){
-        ActivityScenario.launch(ShareQRCode.class);
+        ActivityScenario.launch(ShareQRCodeActivity.class);
         onView(withId(R.id.share_qrcode_back_button)).perform(click());
         // Check if UI changed to EventDetailsActivity
         ActivityScenario<EventDetailsActivity> activityScenario = ActivityScenario.launch(EventDetailsActivity.class);
