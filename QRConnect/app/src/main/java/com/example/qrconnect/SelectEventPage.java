@@ -60,6 +60,12 @@ public class SelectEventPage extends AppCompatActivity {
                 String fieldNameCheckInQRCode = "checkInQRCodeImageUrl";
                 String fieldNamePromoteQRCode = "promoQRCodeImageUrl";
 
+                currentEvent.setEventCheckInId(selectedEvent.getEventCheckInId());
+                currentEvent.setEventPromoId(selectedEvent.getEventPromoId());
+
+                updateEvent(currentEvent, fieldNameCheckInQRCode, selectedEvent.getEventCheckInId());
+                updateEvent(currentEvent, fieldNamePromoteQRCode, selectedEvent.getEventPromoId());
+
                 FirebaseStorage storage = FirebaseStorage.getInstance();
                 StorageReference storageRef = storage.getReference();
                 StorageReference pathReference = storageRef.child("qrcodes/" + selectedEvent.getEventId() + "_" + "checkInQRCodeImageUrl" + ".jpg");
@@ -67,16 +73,11 @@ public class SelectEventPage extends AppCompatActivity {
                     Intent resultIntent = new Intent();
                     resultIntent.putExtra("imageUrl", uri.toString());
                     setResult(RESULT_OK, resultIntent);
-                    finish();
+                    returnUpdatedEvent(currentEvent);
                 }).addOnFailureListener(exception -> {
 
                 });
 
-                currentEvent.setEventCheckInId(selectedEvent.getEventCheckInId());
-                currentEvent.setEventPromoId(selectedEvent.getEventPromoId());
-
-                updateEvent(currentEvent, fieldNameCheckInQRCode, selectedEvent.getEventCheckInId());
-                updateEvent(currentEvent, fieldNamePromoteQRCode, selectedEvent.getEventPromoId());
             }
         });
 
