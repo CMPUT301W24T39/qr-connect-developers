@@ -139,6 +139,8 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                 String uniqueID = UUID.randomUUID().toString();
                 newEvent.setEventTitle("New Event " + (eventDataList.size() +1));
                 newEvent.setEventId(uniqueID);
+                String hostId = UserPreferences.getUserId(getApplicationContext());
+                newEvent.setHostId(hostId);
 
                 eventDataList.add(newEvent);
                 eventAdapter.notifyDataSetChanged();
@@ -167,7 +169,9 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                         String eventAnnouncement = doc.getString("announcement");
                         String checkInId = doc.getString("checkInQRCodeImageUrl");
                         String promoId = doc.getString("promoQRCodeImageUrl");
-                        eventDataList.add(new Event(eventTitle, eventDate,eventTime, eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId));
+                        String hostId = doc.getString("hostId");
+                        HashMap<String, Long> attendeeList = (HashMap<String, Long>) doc.get("attendeeList");
+                        eventDataList.add(new Event(eventTitle, eventDate,eventTime, eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId, hostId, attendeeList));
                         Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate,eventTime, eventLocation, 0, eventAnnouncement, checkInId, promoId, eventId));
                     }
                     eventAdapter.notifyDataSetChanged();
@@ -256,6 +260,8 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         data.put("eventId", event.getEventId());
         data.put("checkInQRCodeImageUrl", event.getEventCheckInId());
         data.put("promoQRCodeImageUrl", event.getEventPromoId());
+        data.put("hostId", event.getHostId());
+        data.put("attendeeList", event.getAttendeeList());
 
         eventsRef
                 .document(event.getEventId())
