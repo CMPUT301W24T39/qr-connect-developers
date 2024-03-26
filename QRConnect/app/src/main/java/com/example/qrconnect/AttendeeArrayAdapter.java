@@ -22,7 +22,7 @@ public class AttendeeArrayAdapter extends ArrayAdapter<Attendee> {
 
     private ArrayList<Attendee> attendees;
     private Context context;
-    private Integer eventId;
+    private String eventId;
 
     /**
      * Constructs an instance of the AttendeeArrayAdapter.
@@ -30,7 +30,7 @@ public class AttendeeArrayAdapter extends ArrayAdapter<Attendee> {
      * @param attendees attendees for AttendeeArrayAdapter.
      * @param eventId eventID for AttendeeArrayAdapter.
      */
-    public AttendeeArrayAdapter(Context context, ArrayList<Attendee> attendees, Integer eventId) {
+    public AttendeeArrayAdapter(Context context, ArrayList<Attendee> attendees, String eventId) {
         super(context, 0, attendees);
         this.attendees = attendees;
         this.context = context;
@@ -53,7 +53,6 @@ public class AttendeeArrayAdapter extends ArrayAdapter<Attendee> {
         }
 
         Attendee attendee = attendees.get(position);
-
         TextView attendeeName = view.findViewById(R.id.attendee_name_text);
         TextView attendeeCheckInCount = view.findViewById(R.id.attendee_sign_in_count);
 

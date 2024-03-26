@@ -72,9 +72,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         Button uploadPosterButton = findViewById(R.id.upload_poster_button);
         ImageView eventPoster = findViewById(R.id.event_image);
 
-        // Initially disable the EditText if you want it to be disabled by default
         eventCapacity.setEnabled(false); // Default state;
-
         Event currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -82,8 +80,6 @@ public class EventDetailsActivity extends AppCompatActivity {
         StorageReference eventPosterRef = storageRef.child("eventposters/" + currentEvent.getEventId() + "_" + fieldName + ".jpg");
         loadEventPoster(eventPosterRef, eventPoster);
         loadEventData(eventRef, eventTitle, eventDescriptionEdit, eventDate, eventTime, eventLocation, eventCapacity, eventCurrentAttendance);
-
-
 
         uploadPosterButton.setOnClickListener(new View.OnClickListener() {
             @Override

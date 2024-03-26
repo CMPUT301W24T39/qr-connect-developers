@@ -1,13 +1,7 @@
 package com.example.qrconnect;
 
-import android.graphics.Bitmap;
-import android.widget.ImageView;
-
 import java.io.Serializable;
-import java.sql.Time;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
+import java.util.HashMap;
 
 /**
  * The Event class defines an event.
@@ -25,7 +19,10 @@ public class Event implements Serializable {
     private String checkInQRCodeImageUrl;
     private String promoQRCodeImageUrl;
     private String eventId;
-    protected ArrayList<Attendee> AttendeeList;
+    private String hostId;
+    private HashMap<String, Long> attendeeListIdToCheckInTimes;
+
+    private HashMap<String, String> attendeeListIdToName;
 
     /**
      * Constructs an Event object with the specified details.
@@ -38,8 +35,14 @@ public class Event implements Serializable {
      * @param checkInQRCodeImageUrl the id of the QR code of an event.
      * @param promoQRCodeImageUrl the id of the promotion QR code of an event.
      * @param eventId the id of an event.
+     * @param hostId the id of an event organizer.
+     * @param attendeeListIdToCheckInTimes the hashMap with userId and check-in#.
      */
-    public Event(String eventTitle, String date, String time, String location, Integer capacity, String announcement, String checkInQRCodeImageUrl, String promoQRCodeImageUrl, String eventId) {
+    public Event(String eventTitle, String date, String time, String location,
+                 Integer capacity, String announcement, String checkInQRCodeImageUrl,
+                 String promoQRCodeImageUrl, String eventId, String hostId,
+                 HashMap<String, Long> attendeeListIdToCheckInTimes,
+                 HashMap<String, String> attendeeListIdToName) {
         this.eventTitle = eventTitle;
         this.date = date;
         this.time = time;
@@ -51,7 +54,9 @@ public class Event implements Serializable {
         this.checkInQRCodeImageUrl = checkInQRCodeImageUrl;
         this.promoQRCodeImageUrl = promoQRCodeImageUrl;
         this.eventId = eventId;
-        this.AttendeeList = new ArrayList<>();
+        this.hostId = hostId;
+        this.attendeeListIdToCheckInTimes = attendeeListIdToCheckInTimes == null ? new HashMap<>() : attendeeListIdToCheckInTimes;
+        this.attendeeListIdToName = attendeeListIdToName == null ? new HashMap<>() : attendeeListIdToName;
     }
 
     /**
@@ -247,9 +252,45 @@ public class Event implements Serializable {
 
     /**
      * Adds an attendee to the list of attendees for this event.
-     * @param attendee the attendee to add.
+     * If the attendee is already in the list, their check-in time is incremented.
+     * @param attendeeUserId The ID of the attendee to add.
      */
-    public void addAttendee(Attendee attendee) {
-        AttendeeList.add(attendee);
+    public void addAttendee(String attendeeUserId, String userName) {
+        long checkInTime = this.attendeeListIdToCheckInTimes.getOrDefault(attendeeUserId, 0L);
+        this.attendeeListIdToCheckInTimes.put(attendeeUserId, checkInTime + 1);
+        if (!this.attendeeListIdToName.containsKey(attendeeUserId)){
+            this.attendeeListIdToName.put(attendeeUserId, userName);
+        }
     }
+
+    /**
+     * Retrieves the attendee list for this event.
+     * @return A hashmap containing attendee IDs as keys and their corresponding check-in times as values.
+     */
+    public HashMap<String, Long> getAttendeeListIdToCheckInTimes() { return this.attendeeListIdToCheckInTimes; }
+
+    public HashMap<String, String> getAttendeeListIdToName() { return this.attendeeListIdToName; }
+
+
+    /**
+     * Checks if a given user ID is in the list of attendees for this event.
+     * @param checkUserId The user ID to check.
+     * @return True if the user is in the attendee list, false otherwise.
+     */
+    public boolean isAttendeeInThisEvent(String checkUserId){
+        return this.attendeeListIdToCheckInTimes.containsKey(checkUserId);
+    }
+
+    /**
+     * Retrieves the host ID for this event.
+     * @return The host ID.
+     */
+    public String getHostId(){ return this.hostId; }
+
+    /**
+     * Sets the host ID for this event.
+     * @param hostId The host ID to set.
+     */
+    public void setHostId(String hostId) { this.hostId = hostId; }
+
 }
