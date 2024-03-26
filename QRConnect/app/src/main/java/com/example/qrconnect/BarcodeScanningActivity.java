@@ -327,29 +327,67 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         DocumentReference eventRef = db.collection("events")
                 .document(targetEvent.getEventId());
         String currentUserId = UserPreferences.getUserId(getApplicationContext());
-        targetEvent.addAttendee(currentUserId);
-        eventRef.update("attendeeList", targetEvent.getAttendeeList())
-                .addOnSuccessListener( v -> {
-                    Log.d(TAG, "Event updated successfully");
-                    showCheckInSuccessfullyDialog();
+
+        DocumentReference userRef = db.collection("users").document(currentUserId);
+
+        userRef.get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String firstName = documentSnapshot.getString("firstName");
+                        String lastName = documentSnapshot.getString("lastName");
+                        String currentUserName = firstName + " " + lastName;
+                        targetEvent.addAttendee(currentUserId, currentUserName);
+                        Log.d(TAG, "User's name: " + currentUserName);
+                        updateEventAttendeeLists(eventRef);
+                    } else {
+                        Log.d(TAG, "User document does not exist");
+                    }
                 })
-                .addOnFailureListener( e -> {
-                    Log.e(TAG, "Error updating event", e);
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error fetching user document", e);
+                });
+    }
+
+    private void updateEventAttendeeLists(DocumentReference eventRef) {
+        eventRef.update("attendeeListIdToTimes", targetEvent.getAttendeeListIdToCheckInTimes())
+                .addOnSuccessListener(v -> {
+                    Log.d(TAG, "Event updated attendeeListIdToTimes successfully");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error updating event attendeeListIdToTimes", e);
                 });
 
+        eventRef.update("attendeeListIdToName", targetEvent.getAttendeeListIdToName())
+                .addOnSuccessListener(v -> {
+                    Log.d(TAG, "Event updated attendeeListIdToName successfully");
+                    showCheckInSuccessfullyDialog();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error updating event attendeeListIdToName", e);
+                });
+
+        eventRef.update("currentAttendance", targetEvent.getAttendeeListIdToName().size())
+                .addOnSuccessListener(v -> {
+                    Log.d(TAG, "Event updated currentAttendance successfully");
+                    showCheckInSuccessfullyDialog();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error updating event currentAttendance", e);
+                });
     }
+
 
     private void showCheckInSuccessfullyDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Check-In Successful");
-        builder.setMessage("Check-in was successful. What would you like to do?");
+        builder.setMessage("Check-in was successful. What would you like to do next?");
         builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 finish();
             }
         });
 
-        builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("Back", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 // Resume using the camera
                 startCamera();
@@ -388,7 +426,6 @@ public class BarcodeScanningActivity extends AppCompatActivity {
 
         String qrCodeIdentifier = scanResult.split("_")[0];
         String qrCodeType = scanResult.split("_")[1];
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         EventIdType eventType = determineEventType(qrCodeType); // Determine event type
 
         db.collection("events").whereEqualTo("eventId", qrCodeIdentifier)
@@ -489,12 +526,14 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         String checkInQRCodeImageUrl = documentSnapshot.getString("checkInQRCodeImageUrl");
         String promoQRCodeImageUrl = documentSnapshot.getString("promoQRCodeImageUrl");
         String hostId = documentSnapshot.getString("hostId");
-        HashMap<String, Long> attendeeList =
-                (HashMap<String, Long>) documentSnapshot.get("attendeeList");
-
+        HashMap<String, Long> attendeeListIdToTimes =
+                (HashMap<String, Long>) documentSnapshot.get("attendeeListIdToTimes");
+        HashMap<String, String> attendeeListIdToName =
+                (HashMap<String, String>) documentSnapshot.get("attendeeListIdToName");
         // Create the Event object manually
         return new Event(eventTitle, date, time, location, capacity, announcement,
-                checkInQRCodeImageUrl, promoQRCodeImageUrl, eventId, hostId, attendeeList);
+                checkInQRCodeImageUrl, promoQRCodeImageUrl, eventId, hostId,
+                attendeeListIdToTimes, attendeeListIdToName);
     }
 
 }

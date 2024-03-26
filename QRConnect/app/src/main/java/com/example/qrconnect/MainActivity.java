@@ -1,6 +1,4 @@
 package com.example.qrconnect;
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-import static com.google.zxing.integration.android.IntentIntegrator.REQUEST_CODE;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -9,47 +7,29 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.firestore.AggregateQuery;
-import com.google.firebase.firestore.AggregateQuerySnapshot;
-import com.google.firebase.firestore.AggregateSource;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
-import com.journeyapps.barcodescanner.BarcodeEncoder;
 
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.UUID;
 /*
 https://developer.android.com/media/camera/camera-deprecated/photobasics
@@ -170,8 +150,11 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                         String checkInId = doc.getString("checkInQRCodeImageUrl");
                         String promoId = doc.getString("promoQRCodeImageUrl");
                         String hostId = doc.getString("hostId");
-                        HashMap<String, Long> attendeeList = (HashMap<String, Long>) doc.get("attendeeList");
-                        eventDataList.add(new Event(eventTitle, eventDate,eventTime, eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId, hostId, attendeeList));
+                        HashMap<String, Long> attendeeListIdToTimes = (HashMap<String, Long>) doc.get("attendeeListIdToTimes");
+                        HashMap<String, String> attendeeListIdToName = (HashMap<String, String>) doc.get("attendeeListIdToName");
+                        eventDataList.add(new Event(eventTitle, eventDate,eventTime,
+                                eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
+                                hostId, attendeeListIdToTimes, attendeeListIdToName));
                         Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate,eventTime, eventLocation, 0, eventAnnouncement, checkInId, promoId, eventId));
                     }
                     eventAdapter.notifyDataSetChanged();
@@ -261,8 +244,9 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         data.put("checkInQRCodeImageUrl", event.getEventCheckInId());
         data.put("promoQRCodeImageUrl", event.getEventPromoId());
         data.put("hostId", event.getHostId());
-        data.put("attendeeList", event.getAttendeeList());
-
+        data.put("attendeeListIdToTimes", event.getAttendeeListIdToCheckInTimes());
+        data.put("attendeeListIdToName", event.getAttendeeListIdToName());
+        data.put("currentAttendance", event.getAttendeeListIdToName().size());
         eventsRef
                 .document(event.getEventId())
                 .set(data)

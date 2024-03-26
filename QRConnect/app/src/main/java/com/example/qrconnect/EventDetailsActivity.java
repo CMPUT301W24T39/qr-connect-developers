@@ -81,8 +81,6 @@ public class EventDetailsActivity extends AppCompatActivity {
         loadEventPoster(eventPosterRef, eventPoster);
         loadEventData(eventRef, eventTitle, eventDescriptionEdit, eventDate, eventTime, eventLocation, eventCapacity, eventCurrentAttendance);
 
-
-
         uploadPosterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
