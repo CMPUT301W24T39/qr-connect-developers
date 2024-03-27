@@ -70,6 +70,9 @@ public class ReturnUserStartScreen extends AppCompatActivity {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
+                    /**
+                     * NEED TO ADD CASE FOR NULL ENTRIES
+                     */
                     // Document exists, retrieve first and last names
                     String firstName = documentSnapshot.getString("firstName");
                     String lastName = documentSnapshot.getString("lastName");
