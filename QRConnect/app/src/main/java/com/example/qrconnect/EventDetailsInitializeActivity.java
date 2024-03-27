@@ -212,7 +212,7 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
                                     Toast.makeText(getApplicationContext(), "Error deleting document", Toast.LENGTH_SHORT).show();
                                 }
                             });
-                    MainActivity.eventDataList.remove(currentEvent);
+                        MainActivity.eventDataList.remove(currentEvent);
                     }
                 }
                 finish();

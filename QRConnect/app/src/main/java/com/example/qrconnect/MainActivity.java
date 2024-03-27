@@ -167,8 +167,16 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         eventList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Event currentEvent = eventDataList.get(position);
+                String userId = UserPreferences.getUserId(getApplicationContext());
+                String hostId = currentEvent.getHostId();
+                if (userId.equals(hostId)) {
 
-                new DeleteEventFragment(eventDataList.get(position)).show(getSupportFragmentManager(), "Delete Event");
+                    new DeleteEventFragment(currentEvent).show(getSupportFragmentManager(), "Delete Event");
+                } else {
+
+                    Toast.makeText(MainActivity.this, "You are not the host of this event.", Toast.LENGTH_SHORT).show();
+                }
                 return true;
             }
         });
@@ -201,8 +209,17 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 try {
                     Event currentEvent = eventAdapter.getItem(position);
-                    Intent showIntent = new Intent(MainActivity.this, EventDetailsActivity.class);
-                    showIntent.putExtra("EVENT", currentEvent);
+                    String userId = UserPreferences.getUserId(getApplicationContext());
+                    String hostId = currentEvent.getHostId();
+                    Intent showIntent;
+                    if (userId.equals(hostId)){
+                        showIntent = new Intent(MainActivity.this, EventDetailsActivity.class);
+                        showIntent.putExtra("EVENT", currentEvent);
+                    }
+                    else{
+                        showIntent = new Intent(MainActivity.this, PromoDetailsActivity.class);
+                        showIntent.putExtra("EVENT_ID", currentEvent.getEventId());
+                    }
                     startActivity(showIntent);
                 } catch (Exception e) {
                     Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -246,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         data.put("hostId", event.getHostId());
         data.put("attendeeListIdToTimes", event.getAttendeeListIdToCheckInTimes());
         data.put("attendeeListIdToName", event.getAttendeeListIdToName());
-        data.put("currentAttendance", event.getAttendeeListIdToName().size());
+        data.put("currentAttendance", 0L);
         eventsRef
                 .document(event.getEventId())
                 .set(data)
