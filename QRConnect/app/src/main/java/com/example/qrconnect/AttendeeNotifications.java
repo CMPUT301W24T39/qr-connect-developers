@@ -19,6 +19,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 
 /**
@@ -87,6 +89,13 @@ public class AttendeeNotifications extends AppCompatActivity {
                         Notification notification = new Notification(event, title, description, date);
                         notificationsDataList.add(notification);
                     }
+                    // Sort notificationsDataList by date so most recent is at the top
+                    Collections.sort(notificationsDataList, new Comparator<Notification>() {
+                        @Override
+                        public int compare(Notification n1, Notification n2) {
+                            return n2.getNotificationDate().compareTo(n1.getNotificationDate());
+                        }
+                    });
                     notificationArrayAdapter.notifyDataSetChanged();
                 }
             })
