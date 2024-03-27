@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         data.put("hostId", event.getHostId());
         data.put("attendeeListIdToTimes", event.getAttendeeListIdToCheckInTimes());
         data.put("attendeeListIdToName", event.getAttendeeListIdToName());
-        data.put("currentAttendance", event.getAttendeeListIdToName().size());
+        data.put("currentAttendance", 0L);
         eventsRef
                 .document(event.getEventId())
                 .set(data)
