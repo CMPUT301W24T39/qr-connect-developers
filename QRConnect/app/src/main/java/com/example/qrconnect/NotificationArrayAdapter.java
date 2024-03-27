@@ -53,11 +53,13 @@ public class NotificationArrayAdapter extends ArrayAdapter<Notification> {
 
         // Get event, title, and description for the notification view
         TextView notificationEvent = view.findViewById(R.id.notification_event);
+        TextView notificationDate = view.findViewById(R.id.notification_date);
         TextView notificationTitle = view.findViewById(R.id.notification_title);
         TextView notificationDescription = view.findViewById(R.id.notification_description);
 
         // Set event, title, and description for the notification view
         notificationEvent.setText("From: " + notification.getNotificationEvent());
+        notificationDate.setText("Date: " + notification.getNotificationDate());
         notificationTitle.setText(notification.getNotificationTitle());
         notificationDescription.setText(notification.getNotificationDescription());
 

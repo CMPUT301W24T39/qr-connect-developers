@@ -19,6 +19,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * The AttendeeNotifications class manages the attendee notifications page.
@@ -82,7 +83,8 @@ public class AttendeeNotifications extends AppCompatActivity {
                         String event = documentSnapshot.getString("notificationEvent");
                         String title = documentSnapshot.getString("notificationTitle");
                         String description = documentSnapshot.getString("notificationDescription");
-                        Notification notification = new Notification(event, title, description);
+                        String date = documentSnapshot.getString("notificationDate");
+                        Notification notification = new Notification(event, title, description, date);
                         notificationsDataList.add(notification);
                     }
                     notificationArrayAdapter.notifyDataSetChanged();

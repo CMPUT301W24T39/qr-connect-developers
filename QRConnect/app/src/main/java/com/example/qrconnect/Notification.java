@@ -1,5 +1,7 @@
 package com.example.qrconnect;
 
+import java.util.Date;
+
 /**
  * The Notification class defines a notification.
  * Contains details such as event, title, and description.
@@ -8,6 +10,7 @@ public class Notification{
     private String event;
     private String title;
     private String description;
+    private String date;
 
     /**
      * Constructs a Notification object with the specified details.
@@ -15,12 +18,14 @@ public class Notification{
      * @param title the title of the notification.
      * @param description the description of the notification.
      */
-    Notification(String event, String title, String description){
+    Notification(String event, String title, String description, String date){
         this.event = event;
         this.title = title;
         this.description = description;
+        this.date = date;
     }
 
+    // Notification getters
     /**
      * Getter for the notification event.
      * @return the name of the event of the notification.
@@ -46,6 +51,15 @@ public class Notification{
     }
 
     /**
+     * Getter for the notification date.
+     * @return the date of the notification.
+     */
+    public String getNotificationDate(){
+        return this.date;
+    }
+
+    // Notification setters
+    /**
      * Setter for the notification event.
      * @param event the name of the event of the notification.
      */
@@ -68,4 +82,13 @@ public class Notification{
     public void setNotificationDescription(String description){
         this.description = description;
     }
+
+    /**
+     * Setter for the notification date.
+     * @param date the description of the notification.
+     */
+    public void setNotificationDate(String date){
+        this.date = date;
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.example.qrconnect;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.util.Log;
@@ -18,6 +19,10 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 /**
  * The SendNotificationsActivity class manages the functionality to send notifications.
@@ -86,10 +91,25 @@ public class SendNotificationsActivity extends AppCompatActivity {
         // Convert title and description edit text fields to strings
         String title = titleEditText.getText().toString().trim();
         String description = descriptionEditText.getText().toString().trim();
+        // Get the date and time when the notification is sent
+        DateTimeFormatter dtf = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
+        }
+        LocalDateTime date = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            date = LocalDateTime.now();
+        }
+        String date_string = "N/A";
+        if (date != null){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                date_string = dtf.format(date);
+            }
+        }
 
         if (!title.isEmpty()) {
             // Create a new notification object
-            Notification notification = new Notification(eventTitle, title, description);
+            Notification notification = new Notification(eventTitle, title, description, date_string);
 
             // Add the notification to Firestore
             notificationsRef.add(notification)

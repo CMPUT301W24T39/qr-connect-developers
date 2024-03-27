@@ -212,7 +212,6 @@ public class EventDetailsActivity extends AppCompatActivity {
         sendNotificationsButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Log.d("EventDetailsActivity", "Event ID: " + currentEvent);
                 Intent showIntent = new Intent(EventDetailsActivity.this, SendNotificationsActivity.class);
                 // Send the event to the send notifications page
                 showIntent.putExtra("event", currentEvent);
