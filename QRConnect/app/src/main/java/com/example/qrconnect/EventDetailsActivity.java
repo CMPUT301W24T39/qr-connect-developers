@@ -209,19 +209,15 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         // initialize send notification button
         ImageButton sendNotificationsButton = findViewById(R.id.event_details_send_notifications);
-
         sendNotificationsButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                try {
-                    Intent showIntent = new Intent(EventDetailsActivity.this, SendNotificationsActivity.class);
-                    //TODO: showIntent.putExtra("EVENT", event);
-                    startActivity(showIntent);
-                } catch (Exception e) {
-                    Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
+                Log.d("EventDetailsActivity", "Event ID: " + currentEvent);
+                Intent showIntent = new Intent(EventDetailsActivity.this, SendNotificationsActivity.class);
+                // Send the event to the send notifications page
+                showIntent.putExtra("event", currentEvent);
+                startActivity(showIntent);
             }
-
         });
 
         // Event details map locations button
@@ -232,8 +228,6 @@ public class EventDetailsActivity extends AppCompatActivity {
                 startActivity(new Intent(EventDetailsActivity.this, MapLocations.class));
             }
         });
-
-
     }
     // Refer from answered Nov 17, 2017 at 13:48 Grimthorr
     //https://stackoverflow.com/questions/47350129/about-the-firestore-query-data-documentation-specifically-documentsnapshot

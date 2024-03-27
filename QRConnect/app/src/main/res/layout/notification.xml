@@ -13,7 +13,7 @@
         android:layout_marginLeft="30dp"
         android:layout_marginTop="30dp"
         android:layout_marginRight="30dp"
-        android:background="@drawable/rouned_top_corners"
+        android:background="@drawable/rounded_top_corners"
         android:paddingLeft="10sp"
         android:paddingTop="10sp"
         android:paddingRight="10sp"

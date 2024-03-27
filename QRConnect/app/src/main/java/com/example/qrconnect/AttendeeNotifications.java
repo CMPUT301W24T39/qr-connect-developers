@@ -60,7 +60,7 @@ public class AttendeeNotifications extends AppCompatActivity {
         notificationsDataList = new ArrayList<>();
         notificationArrayAdapter = new NotificationArrayAdapter(this, notificationsDataList);
         notificationsList.setAdapter(notificationArrayAdapter);
-        fetchNotifications();
+        receiveNotifications();
 
         // Set up item click listener for the notification ListView
         notificationsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -69,16 +69,19 @@ public class AttendeeNotifications extends AppCompatActivity {
             }
         });
     }
-    // Fetch notifications from Firestore Database and update the notifications ListView
-    private void fetchNotifications() {
+
+    /**
+     * Receive notifications from Firestore Database and update the notifications ListView
+     */
+    private void receiveNotifications() {
         notificationsRef.get()
             .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                 @Override
                 public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                     for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                        String event = documentSnapshot.getString("event");
-                        String title = documentSnapshot.getString("title");
-                        String description = documentSnapshot.getString("description");
+                        String event = documentSnapshot.getString("notificationEvent");
+                        String title = documentSnapshot.getString("notificationTitle");
+                        String description = documentSnapshot.getString("notificationDescription");
                         Notification notification = new Notification(event, title, description);
                         notificationsDataList.add(notification);
                     }
@@ -88,7 +91,7 @@ public class AttendeeNotifications extends AppCompatActivity {
             .addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Log.e("Firestore", "Error fetching notifications: " + e.getMessage());
+                    Log.e("Firestore", "Error receiving notifications: " + e.getMessage());
                 }
             });
     }
