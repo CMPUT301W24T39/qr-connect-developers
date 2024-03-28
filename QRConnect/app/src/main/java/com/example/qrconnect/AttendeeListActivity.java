@@ -16,7 +16,7 @@ import java.util.ArrayList;
  * It extends the AppCompatActivity class.
  */
 public class AttendeeListActivity extends AppCompatActivity {
-    private ArrayList<Attendee> attendees;
+    private ArrayList<User> attendees;
     private AttendeeArrayAdapter adapter;
 
     /**
@@ -52,19 +52,19 @@ public class AttendeeListActivity extends AppCompatActivity {
      * Generates mock attendees for testing purposes.
      * @return the list of mock attendees.
      */
-    private ArrayList<Attendee> generateMockAttendees() {
-        ArrayList<Attendee> mockAttendees = new ArrayList<>();
+    private ArrayList<User> generateMockAttendees() {
+        ArrayList<User> mockAttendees = new ArrayList<>();
         // Add mock attendees
-        mockAttendees.add(new Attendee("1", "John Doe", null));
-        mockAttendees.add(new Attendee("2", "Jane Smith", null));
-        mockAttendees.add(new Attendee("3", "Alice Johnson", null));
-        mockAttendees.add(new Attendee("4", "Bob Brown", null));
-        mockAttendees.add(new Attendee("5", "Emma Wilson", null));
-        mockAttendees.add(new Attendee("6", "Michael Davis", null));
-        mockAttendees.add(new Attendee("7", "Emily Anderson", null));
-        mockAttendees.add(new Attendee("8", "David Miller", null));
-        mockAttendees.add(new Attendee("9", "Sarah Garcia", null));
-        mockAttendees.add(new Attendee("10", "Ryan Martinez", null));
+        mockAttendees.add(new User("1", "John Doe", null));
+        mockAttendees.add(new User("2", "Jane Smith", null));
+        mockAttendees.add(new User("3", "Alice Johnson", null));
+        mockAttendees.add(new User("4", "Bob Brown", null));
+        mockAttendees.add(new User("5", "Emma Wilson", null));
+        mockAttendees.add(new User("6", "Michael Davis", null));
+        mockAttendees.add(new User("7", "Emily Anderson", null));
+        mockAttendees.add(new User("8", "David Miller", null));
+        mockAttendees.add(new User("9", "Sarah Garcia", null));
+        mockAttendees.add(new User("10", "Ryan Martinez", null));
         // Add more attendees as needed
         return mockAttendees;
     }

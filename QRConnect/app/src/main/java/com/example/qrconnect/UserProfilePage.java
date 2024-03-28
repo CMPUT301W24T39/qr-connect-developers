@@ -62,7 +62,7 @@ public class UserProfilePage extends AppCompatActivity {
 
     // Hardcoded to single user for now.
     // TODO: allow multiple users.
-    private UserProfile user = new UserProfile(USER_ID);
+    private User user = new User(USER_ID, "", "");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,6 +143,7 @@ public class UserProfilePage extends AppCompatActivity {
         user.setPhone(documentSnapshot.getString("phone"));
         user.setPronouns(documentSnapshot.getString("pronouns"));
         user.setProfilePictureURL(documentSnapshot.getString("profilePictureURL"));
+        Log.d("user", user.getLastName());
     }
 
     /**
@@ -154,6 +155,7 @@ public class UserProfilePage extends AppCompatActivity {
         pronounsEditText.setText(user.getPronouns());
         emailEditText.setText(user.getEmail());
         phoneEditText.setText(user.getPhone());
+        Log.d("here", "here");
         locationSwitch.setChecked(user.getLocationTracking());
     }
 

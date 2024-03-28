@@ -25,7 +25,7 @@ public class Event implements Serializable {
     private String eventCheckInId;
     private String eventPromoId;
     private String eventId;
-    protected ArrayList<Attendee> AttendeeList;
+    protected ArrayList<User> AttendeeList;
 
     /**
      * Constructs an Event object with the specified details.
@@ -251,7 +251,7 @@ public class Event implements Serializable {
      * Adds an attendee to the list of attendees for this event.
      * @param attendee the attendee to add.
      */
-    public void addAttendee(Attendee attendee) {
+    public void addAttendee(User attendee) {
         AttendeeList.add(attendee);
     }
 }

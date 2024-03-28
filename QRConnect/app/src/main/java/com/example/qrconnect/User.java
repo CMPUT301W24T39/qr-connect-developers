@@ -1,88 +1,122 @@
 package com.example.qrconnect;
 
-import com.google.common.collect.Sets;
+import java.util.HashMap;
 
-/**
- * This is the User class.
- * Abstract base class for users in the event management system.
- * Defines common attributes and operations for all user types, including organizers, attendees,
- * and administrators. Subclasses are responsible for implementing abstract methods to support
- * specific user interactions like profile management.
- */
-abstract class User {
+public class User {
+    private HashMap<Integer, Integer> eventCheckInCount;
+
+    protected String email;
+    protected String firstName;
+    protected Boolean isLocationTracking;
+    protected Boolean isProfilePictureUploaded;
+    protected String lastName;
+    protected String phone;
+    protected String profilePictureURL;
+    protected String pronouns;
     protected String userID;
-    protected String name;
-    protected String contactInformation;
 
-    /**
-     * This is a constructor for the User Class to initialize user information.
-     * @param userID the ID of the user.
-     * @param name the name of the user.
-     * @param contactInformation the contact information of the user.
-     */
-    public User(String userID, String name, String contactInformation) {
+    public User(String userID, String firstName, String lastName) {
         this.userID = userID;
-        this.name = name;
-        this.contactInformation = contactInformation;// Optional, can be null for Administrators
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
-    /**
-     * Abstract method to upload a profile picture.
-     * @param imagePath path to the image.
-     */
-    public abstract void uploadProfilePicture(String imagePath);
+    public String getEmail() {
+        return email;
+    }
 
-    /**
-     * Abstract method to remove an uploaded profile picture (go back to the default profile picture).
-     */
-    public abstract void removeProfilePicture();
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
+    public String getFirstName() {
+        return firstName;
+    }
 
-    /**
-     * Returns the ID of the user.
-     * @return the ID of the user.
-     */
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public Boolean getLocationTracking() {
+        return isLocationTracking;
+    }
+
+    public void setLocationTracking(Boolean locationTracking) {
+        isLocationTracking = locationTracking;
+    }
+
+    public boolean getProfilePictureUploaded() {
+        return isProfilePictureUploaded;
+    }
+
+    public void setProfilePictureUploaded(Boolean profilePictureUploaded) {
+        isProfilePictureUploaded = profilePictureUploaded;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getProfilePictureURL() {
+        return profilePictureURL;
+    }
+
+    public void setProfilePictureURL(String profilePictureURL) {
+        this.profilePictureURL = profilePictureURL;
+    }
+
+    public String getPronouns() {
+        return pronouns;
+    }
+
+    public void setPronouns(String pronouns) {
+        this.pronouns = pronouns;
+    }
+
     public String getUserID() {
         return userID;
     }
 
-    /**
-    * Sets the ID of the user to a given ID.
-    * @param userID ID of the user.
-    */
     public void setUserID(String userID) {
         this.userID = userID;
     }
 
     /**
-     * Returns name of the user.
-     * @return name of the user.
+     * Increments the number of times an attendee has checked into an event.
+     * @param eventID The ID of the event.
      */
-    public String getName() {
-        return name;
+    public void checkInEvent(int eventID) {
+        if (eventCheckInCount.containsKey(eventID)) {
+            int count = eventCheckInCount.get(eventID);
+            eventCheckInCount.put(eventID, count + 1);
+        } else {
+            eventCheckInCount.put(eventID, 1);
+        }
     }
 
     /**
-     * Sets the name of the user.
-     * @param name name of the user.
+     * Gets the number of times an attendee has checked into an event.
+     * Throws an exception if the event ID does not exist.
+     * @param eventID The ID of the event.
+     * @return The number of times an attendee has checked into an event.
+     * @throws IllegalArgumentException If the eventID is null.
      */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Get the contact information of the user.
-     * @return contact information of the user.
-     */
-    public String getContactInformation() {
-        return contactInformation;
-    }
-
-    /**
-     * Set the contact information of the user.
-     * @param contactInformation contact information of the user.
-     */
-    public void setContactInformation(String contactInformation) {
-        this.contactInformation = contactInformation;
+    public int getCheckInCount(Integer eventID) {
+        if (eventID == null) {
+            throw new IllegalArgumentException("EventID cannot be null.");
+        }
+        return eventCheckInCount.getOrDefault(eventID, 0);
     }
 }

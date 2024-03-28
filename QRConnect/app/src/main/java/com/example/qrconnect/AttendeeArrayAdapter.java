@@ -18,9 +18,9 @@ import java.util.List;
  * to be displayed in an AdapterView.
  * It extends the ArrayAdapter Class.
  */
-public class AttendeeArrayAdapter extends ArrayAdapter<Attendee> {
+public class AttendeeArrayAdapter extends ArrayAdapter<User> {
 
-    private ArrayList<Attendee> attendees;
+    private ArrayList<User> attendees;
     private Context context;
     private Integer eventId;
 
@@ -30,7 +30,7 @@ public class AttendeeArrayAdapter extends ArrayAdapter<Attendee> {
      * @param attendees attendees for AttendeeArrayAdapter.
      * @param eventId eventID for AttendeeArrayAdapter.
      */
-    public AttendeeArrayAdapter(Context context, ArrayList<Attendee> attendees, Integer eventId) {
+    public AttendeeArrayAdapter(Context context, ArrayList<User> attendees, Integer eventId) {
         super(context, 0, attendees);
         this.attendees = attendees;
         this.context = context;
@@ -52,12 +52,12 @@ public class AttendeeArrayAdapter extends ArrayAdapter<Attendee> {
             view = LayoutInflater.from(context).inflate(R.layout.attendee_content, parent,false);
         }
 
-        Attendee attendee = attendees.get(position);
+        User attendee = attendees.get(position);
 
         TextView attendeeName = view.findViewById(R.id.attendee_name_text);
         TextView attendeeCheckInCount = view.findViewById(R.id.attendee_sign_in_count);
 
-        attendeeName.setText(attendee.getName());
+        attendeeName.setText(attendee.getFirstName() + attendee.getLastName());
         attendeeCheckInCount.setText(String.valueOf(attendee.getCheckInCount(eventId)));
 
         return view;

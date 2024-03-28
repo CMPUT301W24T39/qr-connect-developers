@@ -17,7 +17,7 @@ public class AvatarGenerator {
      * @param user UserProfile from which the name and ID is used as the seed for generating the bitmap.
      * @return Bitmap To be used as the profile picture
      */
-    public static Bitmap generateAvatar(UserProfile user) {
+    public static Bitmap generateAvatar(User user) {
         String firstName = user.getFirstName();
         String lastName = user.getLastName();
         String userID = user.getUserID();

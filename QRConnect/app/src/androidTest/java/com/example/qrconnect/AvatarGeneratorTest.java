@@ -20,16 +20,16 @@ import org.junit.runner.RunWith;
 public class AvatarGeneratorTest {
 
     /**
-     * Creates a mock UserProfile to generate an avatar for
+     * Creates a mock User to generate an avatar for
      * @param firstName String, user's first name
      * @param lastName String, user's first name
      * @param userID String, user's ID
-     * @return UserProfile
+     * @return User
      */
-    private UserProfile mockUser(String firstName, String lastName, String userID) {
-        UserProfile user = new UserProfile(userID);
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
+    private User mockUser(String firstName, String lastName, String userID) {
+        User user = new User(userID, firstName, lastName);
+//        user.setFirstName(firstName);
+//        user.setLastName(lastName);
         return user;
     }
 
@@ -38,8 +38,8 @@ public class AvatarGeneratorTest {
      */
     @Test
     public void testDifferentUsers() {
-        UserProfile user1 = mockUser("John", "Doe", "1");
-        UserProfile user2 = mockUser("John", "Doe", "2");
+        User user1 = mockUser("John", "Doe", "1");
+        User user2 = mockUser("John", "Doe", "2");
         Bitmap avatar1 = AvatarGenerator.generateAvatar(user1);
         Bitmap avatar2 = AvatarGenerator.generateAvatar(user2);
         assertFalse(avatar1.sameAs(avatar2));
@@ -50,7 +50,7 @@ public class AvatarGeneratorTest {
      */
     @Test
     public void testSameUser() {
-        UserProfile user = mockUser("John", "Doe", "1");
+        User user = mockUser("John", "Doe", "1");
         Bitmap avatar1 = AvatarGenerator.generateAvatar(user);
         Bitmap avatar2 = AvatarGenerator.generateAvatar(user);
         assertTrue(avatar1.sameAs(avatar2));
@@ -61,7 +61,7 @@ public class AvatarGeneratorTest {
      */
     @Test
     public void testNoNamedUser() {
-        UserProfile user = mockUser(null, null, "1");
+        User user = mockUser(null, null, "1");
         Bitmap avatar = AvatarGenerator.generateAvatar(user);
         assertNotNull(avatar);
     }
