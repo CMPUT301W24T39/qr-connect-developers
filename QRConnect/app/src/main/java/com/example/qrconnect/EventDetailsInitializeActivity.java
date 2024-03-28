@@ -1,18 +1,25 @@
 package com.example.qrconnect;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
@@ -34,7 +41,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class EventDetailsInitializeActivity extends AppCompatActivity {
@@ -45,7 +54,8 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> activityResultLauncher;
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private StorageReference storageRef = storage.getReference();
-
+    private DatePickerDialog.OnDateSetListener mDateSetListener;
+    private TimePickerDialog.OnTimeSetListener mTimeSetListener;
     String fieldName = "eventPoster";
     private ActivityResultLauncher<Intent> qrCodeGeneratesPage;
     Event updatedEvent;
@@ -65,10 +75,19 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
         Button nextButton = findViewById(R.id.next_button);
         Button uploadPosterButton = findViewById(R.id.init_upload_poster_button);
         ImageView eventPoster = findViewById(R.id.init_event_image);
+        ImageButton calenderButton = findViewById(R.id.init_calender_button);
+        ImageButton timeButton = findViewById(R.id.init_time_button);
 
 
         // Initially disable the EditText if you want it to be disabled by default
         eventCapacity.setEnabled(false); // Default state;
+        eventDate.setFocusable(false);
+        eventDate.setFocusableInTouchMode(false);
+        eventDate.setOnClickListener(null);
+
+        eventTime.setFocusable(false);
+        eventTime.setFocusableInTouchMode(false);
+        eventTime.setOnClickListener(null);
 
         Event currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
 
@@ -151,6 +170,51 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
             }
         });
 
+        calenderButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar cal = Calendar.getInstance();
+                int year = cal.get(Calendar.YEAR);
+                int month = cal.get(Calendar.MONTH);
+                int day = cal.get(Calendar.DAY_OF_MONTH);
+                DatePickerDialog dialog = new DatePickerDialog(
+                        EventDetailsInitializeActivity.this,
+                        android.R.style.Theme_Holo_Light_Dialog_MinWidth,
+                        mDateSetListener,
+                        year,month,day);
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.show();
+            }
+        });
+
+        mDateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                month = month + 1;
+                eventDate.setText(month + "/" + day + "/" + year);
+            }
+        };
+
+        timeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar calendar = Calendar.getInstance();
+                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                int minute = calendar.get(Calendar.MINUTE);
+                TimePickerDialog timePickerDialog = new TimePickerDialog(EventDetailsInitializeActivity.this, android.R.style.Theme_Holo_Light_Dialog_MinWidth, mTimeSetListener, hour, minute, true);
+                timePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                timePickerDialog.show();
+            }
+        });
+
+        mTimeSetListener = new TimePickerDialog.OnTimeSetListener(){
+            @Override
+            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                eventTime.setText(String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute));
+
+            }
+        };
+
         nextButton.setOnClickListener(v -> {
             // Gather data from UI components
             String title = eventTitle.getText().toString();
@@ -159,6 +223,7 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
             String time = eventTime.getText().toString();
             String location = eventLocation.getText().toString();
             int capacity = 0;
+
             try {
                 // Attempt to parse capacity and currentAttendance from EditText inputs
                 capacity = Integer.parseInt(eventCapacity.getText().toString());
@@ -177,6 +242,13 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
                     )
                     .addOnSuccessListener(aVoid -> Toast.makeText(EventDetailsInitializeActivity.this, "Event updated successfully", Toast.LENGTH_SHORT).show())
                     .addOnFailureListener(e -> Toast.makeText(EventDetailsInitializeActivity.this, "Error updating event", Toast.LENGTH_SHORT).show());
+
+            currentEvent.setEventTitle(title);
+            currentEvent.setAnnouncement(description);
+            currentEvent.setDate(date);
+            currentEvent.setTime(time);
+            currentEvent.setLocation(location);
+            currentEvent.setCapacity(capacity);
 
             startQRCodeGeneratesActivity(currentEvent);
 
@@ -212,7 +284,6 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
                                     Toast.makeText(getApplicationContext(), "Error deleting document", Toast.LENGTH_SHORT).show();
                                 }
                             });
-                        MainActivity.eventDataList.remove(currentEvent);
                     }
                 }
                 finish();

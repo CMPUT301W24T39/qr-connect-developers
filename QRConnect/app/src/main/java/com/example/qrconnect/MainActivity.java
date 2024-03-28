@@ -55,6 +55,8 @@ https://www.youtube.com/watch?v=MCeWm8qu0sw
 https://stackoverflow.com/questions/44676579/how-to-make-option-menu-appear-on-bottom-of-the-screen
 https://stackoverflow.com/questions/72713837/redirecting-user-to-menu-section-after-button-click-by-popping-up-nav-bar-from
 https://developer.android.com/training/basics/intents/sending
+https://www.youtube.com/watch?v=hwe1abDO2Ag
+https://www.youtube.com/watch?v=c6c1giRekB4
  */
 
 /**
@@ -103,7 +105,10 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                 result -> {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                         Event updatedEvent = (Event) result.getData().getSerializableExtra("UPDATED_EVENT");
-                        addNewEvent(updatedEvent);
+                        if(updatedEvent.getEventPromoId() != null && updatedEvent.getEventCheckInId() != null){
+                            eventDataList.add(updatedEvent);
+                            addNewEvent(updatedEvent);
+                        }
                         eventAdapter.notifyDataSetChanged();
                     }
                 }
@@ -121,8 +126,6 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                 newEvent.setEventId(uniqueID);
                 String hostId = UserPreferences.getUserId(getApplicationContext());
                 newEvent.setHostId(hostId);
-
-                eventDataList.add(newEvent);
                 eventAdapter.notifyDataSetChanged();
                 addNewEvent(newEvent);
                 startEventDetailsInitializeActivity(newEvent);

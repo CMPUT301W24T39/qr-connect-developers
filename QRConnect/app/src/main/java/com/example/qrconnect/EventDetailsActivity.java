@@ -1,7 +1,11 @@
 package com.example.qrconnect;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,11 +14,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
@@ -37,7 +43,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -53,6 +61,8 @@ public class EventDetailsActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> activityResultLauncher;
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageRef = storage.getReference();
+    private DatePickerDialog.OnDateSetListener mDateSetListener;
+    private TimePickerDialog.OnTimeSetListener mTimeSetListener;
 
     String fieldName = "eventPoster";
     @Override
@@ -72,7 +82,17 @@ public class EventDetailsActivity extends AppCompatActivity {
         Button uploadPosterButton = findViewById(R.id.upload_poster_button);
         ImageView eventPoster = findViewById(R.id.event_image);
 
+        ImageButton calenderButton = findViewById(R.id.calender_button);
+        ImageButton timeButton = findViewById(R.id.time_button);
+
         eventCapacity.setEnabled(false); // Default state;
+        eventDate.setFocusable(false);
+        eventDate.setFocusableInTouchMode(false);
+        eventDate.setOnClickListener(null);
+
+        eventTime.setFocusable(false);
+        eventTime.setFocusableInTouchMode(false);
+        eventTime.setOnClickListener(null);
         Event currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -152,6 +172,51 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         });
 
+        calenderButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar cal = Calendar.getInstance();
+                int year = cal.get(Calendar.YEAR);
+                int month = cal.get(Calendar.MONTH);
+                int day = cal.get(Calendar.DAY_OF_MONTH);
+                DatePickerDialog dialog = new DatePickerDialog(
+                        EventDetailsActivity.this,
+                        android.R.style.Theme_Holo_Light_Dialog_MinWidth,
+                        mDateSetListener,
+                        year,month,day);
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.show();
+            }
+        });
+
+        mDateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                month = month + 1;
+                eventDate.setText(month + "/" + day + "/" + year);
+            }
+        };
+
+        timeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar calendar = Calendar.getInstance();
+                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                int minute = calendar.get(Calendar.MINUTE);
+                TimePickerDialog timePickerDialog = new TimePickerDialog(EventDetailsActivity.this, android.R.style.Theme_Holo_Light_Dialog_MinWidth, mTimeSetListener, hour, minute, true);
+                timePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                timePickerDialog.show();
+            }
+        });
+
+        mTimeSetListener = new TimePickerDialog.OnTimeSetListener(){
+            @Override
+            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                eventTime.setText(String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute));
+
+            }
+        };
+
         saveChangesButton.setOnClickListener(v -> {
             // Gather data from UI components
             String title = eventTitle.getText().toString();
@@ -178,6 +243,13 @@ public class EventDetailsActivity extends AppCompatActivity {
                     )
                     .addOnSuccessListener(aVoid -> Toast.makeText(EventDetailsActivity.this, "Event updated successfully", Toast.LENGTH_SHORT).show())
                     .addOnFailureListener(e -> Toast.makeText(EventDetailsActivity.this, "Error updating event", Toast.LENGTH_SHORT).show());
+
+            currentEvent.setEventTitle(title);
+            currentEvent.setAnnouncement(description);
+            currentEvent.setDate(date);
+            currentEvent.setTime(time);
+            currentEvent.setLocation(location);
+            currentEvent.setCapacity(capacity);
         });
 
         // initialize backButton
