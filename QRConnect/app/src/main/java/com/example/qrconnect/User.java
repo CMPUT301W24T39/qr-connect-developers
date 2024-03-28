@@ -3,7 +3,7 @@ package com.example.qrconnect;
 import java.util.HashMap;
 
 public class User {
-    private HashMap<Integer, Integer> eventCheckInCount;
+    private HashMap<String, Long> eventCheckInCount;
 
     protected String email;
     protected String firstName;
@@ -94,16 +94,12 @@ public class User {
     }
 
     /**
-     * Increments the number of times an attendee has checked into an event.
-     * @param eventID The ID of the event.
+     * Updates the check-in count for a specific event.
+     * @param eventId The ID of the event.
+     * @param checkInCount The updated check-in count for the event.
      */
-    public void checkInEvent(int eventID) {
-        if (eventCheckInCount.containsKey(eventID)) {
-            int count = eventCheckInCount.get(eventID);
-            eventCheckInCount.put(eventID, count + 1);
-        } else {
-            eventCheckInCount.put(eventID, 1);
-        }
+    public void updateCheckInCount(String eventId, long checkInCount) {
+        this.eventCheckInCount.put(eventId, checkInCount);
     }
 
     /**
@@ -112,11 +108,15 @@ public class User {
      * @param eventID The ID of the event.
      * @return The number of times an attendee has checked into an event.
      * @throws IllegalArgumentException If the eventID is null.
+     * @throws IllegalArgumentException If the eventID is not found.
      */
-    public int getCheckInCount(Integer eventID) {
+    public long getCheckInCount(String eventID) {
         if (eventID == null) {
             throw new IllegalArgumentException("EventID cannot be null.");
         }
-        return eventCheckInCount.getOrDefault(eventID, 0);
+        if (!eventCheckInCount.containsKey(eventID)){
+            throw new IllegalArgumentException("EventID not found in the check-in count map.");
+        }
+        return this.eventCheckInCount.getOrDefault(eventID, 0L);
     }
 }
