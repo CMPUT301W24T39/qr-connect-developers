@@ -7,6 +7,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -63,14 +64,8 @@ public class AttendeeNotifications extends AppCompatActivity {
         notificationsDataList = new ArrayList<>();
         notificationArrayAdapter = new NotificationArrayAdapter(this, notificationsDataList);
         notificationsList.setAdapter(notificationArrayAdapter);
-        receiveNotifications();
 
-        // Set up item click listener for the notification ListView
-        notificationsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            }
-        });
+        receiveNotifications();
     }
 
     /**
@@ -86,24 +81,25 @@ public class AttendeeNotifications extends AppCompatActivity {
                         String title = documentSnapshot.getString("notificationTitle");
                         String description = documentSnapshot.getString("notificationDescription");
                         String date = documentSnapshot.getString("notificationDate");
-                        Notification notification = new Notification(event, title, description, date);
+                        boolean read = documentSnapshot.getBoolean("notificationRead");
+                        Notification notification = new Notification(event, title, description, date, read);
                         notificationsDataList.add(notification);
                     }
-                    // Sort notificationsDataList by date so most recent is at the top
-                    Collections.sort(notificationsDataList, new Comparator<Notification>() {
-                        @Override
-                        public int compare(Notification n1, Notification n2) {
-                            return n2.getNotificationDate().compareTo(n1.getNotificationDate());
-                        }
-                    });
-                    notificationArrayAdapter.notifyDataSetChanged();
-                }
-            })
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.e("Firestore", "Error receiving notifications: " + e.getMessage());
+                    sortNotifications();
                 }
             });
+    }
+
+    /**
+     * Sort notificationsDataList by date so most recent is at the top.
+     */
+    private void sortNotifications(){
+        Collections.sort(notificationsDataList, new Comparator<Notification>() {
+            @Override
+            public int compare(Notification n1, Notification n2) {
+                return n2.getNotificationDate().compareTo(n1.getNotificationDate());
+            }
+        });
+        notificationArrayAdapter.notifyDataSetChanged();
     }
 }

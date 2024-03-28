@@ -1,5 +1,6 @@
 package com.example.qrconnect;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputFilter;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,6 +22,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -47,7 +50,6 @@ public class SendNotificationsActivity extends AppCompatActivity {
 
         // Get event from the event details page
         Event event = (Event) getIntent().getSerializableExtra("event");
-        Log.d("SendNotifications", "Event ID received: " + event);
 
         // Send notification database initialization with Firebase
         db = FirebaseFirestore.getInstance();
@@ -88,9 +90,11 @@ public class SendNotificationsActivity extends AppCompatActivity {
     private void sendNotification(Event event) {
         // Get title field from the event object
         String eventTitle = event.getEventTitle();
+
         // Convert title and description edit text fields to strings
         String title = titleEditText.getText().toString().trim();
         String description = descriptionEditText.getText().toString().trim();
+
         // Get the date and time when the notification is sent
         DateTimeFormatter dtf = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -107,9 +111,13 @@ public class SendNotificationsActivity extends AppCompatActivity {
             }
         }
 
+        // Default read to false (unread)
+        boolean read = false;
+
+        // Able to send a notification without a description
         if (!title.isEmpty()) {
             // Create a new notification object
-            Notification notification = new Notification(eventTitle, title, description, date_string);
+            Notification notification = new Notification(eventTitle, title, description, date_string, read);
 
             // Add the notification to Firestore
             notificationsRef.add(notification)
@@ -131,6 +139,7 @@ public class SendNotificationsActivity extends AppCompatActivity {
                     });
         }
         else {
+            // If nothing entered and tried to send a notification
             Toast.makeText(SendNotificationsActivity.this, "Please enter a title and a description.", Toast.LENGTH_SHORT).show();
         }
     };

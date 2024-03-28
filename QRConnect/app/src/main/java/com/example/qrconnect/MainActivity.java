@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,17 +15,22 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -61,7 +67,7 @@ https://developer.android.com/training/basics/intents/sending
  * The MainActivity class maintains the functions of the main activity.
  * It extends AppCompatActivity.
  */
-public class MainActivity extends AppCompatActivity implements DeleteEventFragment.DeleteEventDialogListener{
+public class MainActivity extends AppCompatActivity implements DeleteEventFragment.DeleteEventDialogListener {
     private FloatingActionButton addButton;
     private ImageButton profileButton;
     private ImageButton notificationButton;
@@ -71,9 +77,10 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
     static boolean isAddButtonClicked = false;
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
-
+    private static CollectionReference notificationsRef;
     private ActivityResultLauncher<Intent> eventDetailsInitializeActivity;
     private EventAdapter eventAdapter;
+    private NotificationListener notificationListener;
 
     /**
      * This defines the functions in main activity.
@@ -86,17 +93,27 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Start the notification listener to check notifications in real time and update the UI accordingly
+        notificationListener = new NotificationListener(this);
+        notificationListener.startListening();
+
+        // Initialize buttons
         eventList = findViewById(R.id.event_list_list);
         addButton = findViewById(R.id.button_add_event);
         profileButton = findViewById(R.id.user_icon_button);
         notificationButton = findViewById(R.id.notification_icon_button);
         browseEventsButton = findViewById(R.id.explore_event_button);
 
+        // Initialize adapters
         eventAdapter = new EventAdapter(this, eventDataList);
         eventList.setAdapter(eventAdapter);
 
+        // Initialize database
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
+        notificationsRef = db.collection("notifications");
+
+        //checkNotifications();
 
         eventDetailsInitializeActivity = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -162,8 +179,6 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
             }
         });
 
-
-
         eventList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -192,7 +207,10 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         notificationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, AttendeeNotifications.class));
+                Intent intent = new Intent(MainActivity.this, AttendeeNotifications.class);
+                startActivity(intent);
+                // When this activity is launched, mark all the notifications as read
+                markNotificationsAsRead();
             }
         });
 
@@ -246,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         data.put("hostId", event.getHostId());
         data.put("attendeeListIdToTimes", event.getAttendeeListIdToCheckInTimes());
         data.put("attendeeListIdToName", event.getAttendeeListIdToName());
-        data.put("currentAttendance", event.getAttendeeListIdToName().size());
+        data.put("currentAttendance", 0L);
         eventsRef
                 .document(event.getEventId())
                 .set(data)
@@ -314,4 +332,63 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         });
     }
 
+    /**
+     * Checks if the notifications are read or unread.
+     * If all notifications are read, make the alert on the notification bell invisible.
+     * If not all the notifications are read, make the alert on the notification bell visible.
+     */
+    public void checkNotifications() {
+        notificationsRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                boolean allRead = true;
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    boolean notificationRead = document.getBoolean("notificationRead");
+                    if (!notificationRead) {
+                        allRead = false;
+                        break;
+                    }
+                }
+                // If all the notifications are read (notificationRead == true) then change alert to invisible
+                if (allRead) {
+                    findViewById(R.id.notification_alert).setVisibility(View.INVISIBLE);
+                }
+                // If not all the notifications are read then change alert to visible
+                else {
+                    findViewById(R.id.notification_alert).setVisibility(View.VISIBLE);
+                }
+            }
+        });
+    }
+
+    /**
+     * When the attendee notification page is opened, marks all notifications as read.
+     * Changes the boolean notificationRead to true for all notifications in the database.
+     */
+    private void markNotificationsAsRead() {
+        // For notificationRead that are false
+        notificationsRef.whereEqualTo("notificationRead", false)
+            .get()
+            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            // Change notificationRead to true
+                            notificationsRef.document(document.getId()).update("notificationRead", true);
+                        }
+                    }
+                }
+            });
+    }
+
+    /**
+     * Stops the notification listener.
+     */
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (notificationListener != null) {
+            notificationListener.stopListening();
+        }
+    }
 }

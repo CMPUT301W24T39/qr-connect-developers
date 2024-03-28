@@ -11,6 +11,7 @@ public class Notification{
     private String title;
     private String description;
     private String date;
+    private boolean read;
 
     /**
      * Constructs a Notification object with the specified details.
@@ -18,11 +19,12 @@ public class Notification{
      * @param title the title of the notification.
      * @param description the description of the notification.
      */
-    Notification(String event, String title, String description, String date){
+    Notification(String event, String title, String description, String date, boolean read){
         this.event = event;
         this.title = title;
         this.description = description;
         this.date = date;
+        this.read = read;
     }
 
     // Notification getters
@@ -58,6 +60,14 @@ public class Notification{
         return this.date;
     }
 
+    /**
+     * Getter for the notification read status.
+     * @return the read status of the notification.
+     */
+    public boolean getNotificationRead(){
+        return this.read;
+    }
+
     // Notification setters
     /**
      * Setter for the notification event.
@@ -91,4 +101,9 @@ public class Notification{
         this.date = date;
     }
 
+    /**
+     * Setter for the notification read status.
+     * @param read the read status of the notification.
+     */
+    public void setNotificationRead(boolean read){ this.read = read; }
 }
