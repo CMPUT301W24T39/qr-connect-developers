@@ -19,6 +19,12 @@ public class User {
         this.userID = userID;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.email = "";
+        this.isLocationTracking = false;
+        this.isProfilePictureUploaded = false;
+        this.phone = "";
+        this.profilePictureURL = "";
+        this.pronouns = "";
     }
 
     public String getEmail() {
