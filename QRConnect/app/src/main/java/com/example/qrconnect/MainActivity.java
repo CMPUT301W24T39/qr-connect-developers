@@ -1,50 +1,35 @@
 package com.example.qrconnect;
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-import static com.google.zxing.integration.android.IntentIntegrator.REQUEST_CODE;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.firestore.AggregateQuery;
-import com.google.firebase.firestore.AggregateQuerySnapshot;
-import com.google.firebase.firestore.AggregateSource;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
-import com.journeyapps.barcodescanner.BarcodeEncoder;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
-import java.sql.Time;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.UUID;
 /*
 https://developer.android.com/media/camera/camera-deprecated/photobasics
@@ -76,7 +61,7 @@ https://developer.android.com/training/basics/intents/sending
  * The MainActivity class maintains the functions of the main activity.
  * It extends AppCompatActivity.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DeleteEventFragment.DeleteEventDialogListener{
     private FloatingActionButton addButton;
     private ImageButton profileButton;
     private ImageButton notificationButton;
@@ -86,7 +71,9 @@ public class MainActivity extends AppCompatActivity {
     static boolean isAddButtonClicked = false;
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
-    public static int numAddButtonClicked;
+
+    private ActivityResultLauncher<Intent> eventDetailsInitializeActivity;
+    private EventAdapter eventAdapter;
 
     /**
      * This defines the functions in main activity.
@@ -105,32 +92,40 @@ public class MainActivity extends AppCompatActivity {
         notificationButton = findViewById(R.id.notification_icon_button);
         browseEventsButton = findViewById(R.id.explore_event_button);
 
-        EventAdapter eventAdapter = new EventAdapter(this, eventDataList);
+        eventAdapter = new EventAdapter(this, eventDataList);
         eventList.setAdapter(eventAdapter);
 
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
 
+        eventDetailsInitializeActivity = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Event updatedEvent = (Event) result.getData().getSerializableExtra("UPDATED_EVENT");
+                        addNewEvent(updatedEvent);
+                        eventAdapter.notifyDataSetChanged();
+                    }
+                }
+        );
+
+
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Intent intent = new Intent(MainActivity.this, QRCodeGeneratesPage.class);
-                startActivity(intent);
-
                 isAddButtonClicked = true;
-                numAddButtonClicked += 1;
                 Event newEvent = new Event();
+
+                String uniqueID = UUID.randomUUID().toString();
+                newEvent.setEventTitle("New Event " + (eventDataList.size() +1));
+                newEvent.setEventId(uniqueID);
+                String hostId = UserPreferences.getUserId(getApplicationContext());
+                newEvent.setHostId(hostId);
 
                 eventDataList.add(newEvent);
                 eventAdapter.notifyDataSetChanged();
-
-                String uniqueID = UUID.randomUUID().toString();
-                newEvent.setEventTitle("New Event " + numAddButtonClicked);
-                newEvent.setEventId(uniqueID);
                 addNewEvent(newEvent);
-
-
+                startEventDetailsInitializeActivity(newEvent);
             }
         });
 
@@ -146,38 +141,34 @@ public class MainActivity extends AppCompatActivity {
                     for (QueryDocumentSnapshot doc: querySnapshots){
                         String eventId = doc.getId();
                         String eventTitle = doc.getString("title");
-                        eventDataList.add(new Event(eventTitle, null,null, null, null, null, null, null, null, null, eventId));
-                        Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s %s %s) fetched", eventTitle, null,null, null, null, null, null, null, null, null, eventId));
+                        String eventDate = doc.getString("date");
+                        String eventTime = doc.getString("time");
+                        String eventLocation = doc.getString("location");
+//                        if (doc.getString("capacity") != null){
+//                            Integer eventCapacity = Integer.parseInt(doc.getString("capacity"));}
+                        String eventAnnouncement = doc.getString("announcement");
+                        String checkInId = doc.getString("checkInQRCodeImageUrl");
+                        String promoId = doc.getString("promoQRCodeImageUrl");
+                        String hostId = doc.getString("hostId");
+                        HashMap<String, Long> attendeeListIdToTimes = (HashMap<String, Long>) doc.get("attendeeListIdToTimes");
+                        HashMap<String, String> attendeeListIdToName = (HashMap<String, String>) doc.get("attendeeListIdToName");
+                        eventDataList.add(new Event(eventTitle, eventDate,eventTime,
+                                eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
+                                hostId, attendeeListIdToTimes, attendeeListIdToName));
+                        Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate,eventTime, eventLocation, 0, eventAnnouncement, checkInId, promoId, eventId));
                     }
                     eventAdapter.notifyDataSetChanged();
                 }
             }
         });
 
-        eventsRef.get().addOnCompleteListener(task -> {
-            int count = 0;
-            if (task.isSuccessful()) {
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    count++;
-                }
-                Log.d(TAG, "Document count: " + count);
-
-            } else {
-                Log.d(TAG, "Error getting documents: ", task.getException());
-            }
-            numAddButtonClicked = count;
-
-        });
 
 
         eventList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
-                deleteEvent(eventDataList.get(position));
-                eventDataList.remove(eventDataList.get(position));
-
-                eventAdapter.notifyDataSetChanged();
+                new DeleteEventFragment(eventDataList.get(position)).show(getSupportFragmentManager(), "Delete Event");
                 return true;
             }
         });
@@ -211,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     Event currentEvent = eventAdapter.getItem(position);
                     Intent showIntent = new Intent(MainActivity.this, EventDetailsActivity.class);
-                    showIntent.putExtra("EVENT_ID", currentEvent.getEventId());
+                    showIntent.putExtra("EVENT", currentEvent);
                     startActivity(showIntent);
                 } catch (Exception e) {
                     Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -227,6 +218,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        eventAdapter.notifyDataSetChanged();
+    }
 
     /**
      * This adds a new event to firebase.
@@ -240,14 +236,17 @@ public class MainActivity extends AppCompatActivity {
         data.put("location", event.getLocation());
         data.put("capacity", event.getCapacity());
         data.put("announcement", event.getAnnouncement());
-        data.put("QRCodeImage", event.getQRCodeImage());
-        data.put("PromoQRCodeImage", event.getPromoQRCodeImage());
-        data.put("eventCheckInId", event.getEventCheckInId());
-        data.put("eventPromoId", event.getEventPromoId());
+//        data.put("QRCodeImage", event.getQRCodeImage());
+//        data.put("PromoQRCodeImage", event.getPromoQRCodeImage());
+//        data.put("eventCheckInId", event.getEventCheckInId());
+//        data.put("eventPromoId", event.getEventPromoId());
         data.put("eventId", event.getEventId());
-        data.put("checkInQRCodeImageUrl", null);
-        data.put("promoQRCodeImageUrl", null);
-
+        data.put("checkInQRCodeImageUrl", event.getEventCheckInId());
+        data.put("promoQRCodeImageUrl", event.getEventPromoId());
+        data.put("hostId", event.getHostId());
+        data.put("attendeeListIdToTimes", event.getAttendeeListIdToCheckInTimes());
+        data.put("attendeeListIdToName", event.getAttendeeListIdToName());
+        data.put("currentAttendance", 0L);
         eventsRef
                 .document(event.getEventId())
                 .set(data)
@@ -263,7 +262,10 @@ public class MainActivity extends AppCompatActivity {
      * This deletes an event from the firebase.
      * @param event This is the event to delete.
      */
-    private void deleteEvent(Event event){
+    public void deleteEvent(Event event){
+
+        eventDataList.remove(event);
+        eventAdapter.notifyDataSetChanged();
         eventsRef
                 .document(event.getEventId())
                 .delete()
@@ -280,6 +282,36 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+        if (event.getEventCheckInId() != null && event.getEventPromoId() != null){
+            String qrCodeFilePath = "qrcodes/" + event.getEventId() + "_" + "checkInQRCodeImageUrl" + ".jpg";
+            String promoQrCodeFilePath = "qrcodes/" + event.getEventId() + "_" + "promoQRCodeImageUrl" + ".jpg";
+            deleteQRCodesFromStorage(qrCodeFilePath);
+            deleteQRCodesFromStorage(promoQrCodeFilePath);
+        }
+
+    }
+
+    private void startEventDetailsInitializeActivity(Event newEvent) {
+        Intent intent = new Intent(this, EventDetailsInitializeActivity.class);
+        intent.putExtra("EVENT", newEvent);
+        eventDetailsInitializeActivity.launch(intent);
+    }
+
+    private void deleteQRCodesFromStorage(String filePath) {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference fileRef = storage.getReference().child(filePath);
+
+        fileRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("Storage", "File successfully deleted!");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w("Storage", "Error deleting file", e);
+            }
+        });
     }
 
 }

@@ -24,13 +24,6 @@
             android:textAppearance="?attr/textAppearanceHeadline6"
             android:textColor="@android:color/white" />
 
-        <ImageButton
-            android:id="@+id/event_details_menu_icon_button"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="end"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/menu_icon" />
 
         <ImageButton
             android:id="@+id/event_details_map_icon_button"
@@ -262,6 +255,12 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:text="SHARE EVENT" />
+                <Button
+                    android:id="@+id/view_attendee_list_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="VIEW ATTENDEE LIST"/>
 
         </LinearLayout>
 

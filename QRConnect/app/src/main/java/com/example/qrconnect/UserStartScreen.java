@@ -47,6 +47,9 @@ public class UserStartScreen extends AppCompatActivity {
         continue_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Disable the continue button to prevent multiple clicks
+                continue_button.setEnabled(false);
+
                 // Generate random user ID
                 String generatedUserId = generateRandomUserId();
                 // save id in userPreferences
@@ -116,6 +119,8 @@ public class UserStartScreen extends AppCompatActivity {
                     public void onFailure(Exception e) {
                         // Handle errors
                         Toast.makeText(UserStartScreen.this, "Error saving user information", Toast.LENGTH_SHORT).show();
+                        // Re-enable the continue button
+                        continue_button.setEnabled(true);
                     }
                 });
     }

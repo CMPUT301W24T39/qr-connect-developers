@@ -33,6 +33,8 @@ import androidx.core.content.ContextCompat;
 import androidx.camera.view.PreviewView;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.mlkit.vision.barcode.common.Barcode;
@@ -41,12 +43,16 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.common.InputImage;
 
+import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 public class BarcodeScanningActivity extends AppCompatActivity {
     private ProcessCameraProvider cameraProvider;
     private String TAG = "BarcodeScanning";
     private boolean usingFrontCamera = false;
     private long lastActionTime = 0;// To prevent rapid multiple scans issue.
+    private Event targetEvent;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    //private String currentUserId = UserPreferences.getUserId(getApplicationContext());
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +60,6 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         startCamera();
         initializeScanningLine();
         setUpBackButton();
-
         ImageButton switchCameraButton = findViewById(R.id.switch_camera_button);
         switchCameraButton.setOnClickListener(v -> switchCamera());
 
@@ -193,7 +198,8 @@ public class BarcodeScanningActivity extends AppCompatActivity {
     }
 
     /**
-     * Defines behavior for analyzing images. This analyzer extracts {@link Image} data from an {@link ImageProxy},
+     * Defines behavior for analyzing images. This analyzer extracts {@link Image} data
+     * from an {@link ImageProxy},
      * creates an {@link InputImage}, and initiates barcode scanning.
      */
     private class ImageAnalyzer implements ImageAnalysis.Analyzer {
@@ -202,7 +208,8 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         public void analyze(@NonNull ImageProxy imageProxy) {
             Image mediaImage = imageProxy.getImage();
             if (mediaImage != null) {
-                InputImage image = InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
+                InputImage image = InputImage.fromMediaImage(mediaImage,
+                        imageProxy.getImageInfo().getRotationDegrees());
                 scanBarcodes(image, imageProxy);
             }
         }
@@ -211,7 +218,8 @@ public class BarcodeScanningActivity extends AppCompatActivity {
 
 
     /**
-     * Determines the appropriate action based on the scan result. This could involve navigating to an event details page
+     * Determines the appropriate action based on the scan result.
+     * This could involve navigating to an event details page
      * or showing a check-in success dialog.
      *
      * @param scanResult The raw value obtained from scanning a barcode.
@@ -230,19 +238,20 @@ public class BarcodeScanningActivity extends AppCompatActivity {
 
         isValidEventId(scanResult, new EventIdCallback() {
             @Override
-            public void onEventIdValidated(boolean isValid, String qrCodeIdentifier, EventIdType eventType) {
+            public void onEventIdValidated(boolean isValid, String qrCodeIdentifier,
+                                           EventIdType eventType) {
                 if (isValid) {
                     switch (eventType) {
                         case EVENT_DETAILS:
                             Log.d(TAG, "Valid event ID: " + qrCodeIdentifier);
-                            Intent intent = new Intent(BarcodeScanningActivity.this, PromoDetailsActivity.class);
+                            Intent intent = new Intent(BarcodeScanningActivity.this,
+                                    PromoDetailsActivity.class);
                             intent.putExtra("EVENT_ID", qrCodeIdentifier);
                             startActivity(intent);
                             startCamera();
                             break;
                         case EVENT_CHECKIN:
-                            // Show check-in success dialog
-                            showSuccessDialog(qrCodeIdentifier);
+                            readEventFromDatabase(qrCodeIdentifier);
                             break;
                         default:
                             showFailureDialog("Scanned, but eventId issue");
@@ -260,28 +269,47 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         });
     }
 
+    private void readEventFromDatabase(String eventId) {
+        DocumentReference eventRef = db.collection("events").document(eventId);
+        eventRef.get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        try{
+                            targetEvent = createEventFromDocumentSnapshot(documentSnapshot, eventId);
+                            showSuccessDialog();
+                        } catch (Exception ex){
+                            showFailureDialog(ex.getMessage());
+                        }
+                    } else {
+                        showFailureDialog("Event not found");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error reading event from database", e);
+                    handleQueryError();
+                });
+    }
+
     /**
      * Displays a dialog indicating a successful scan with options to confirm or reject the result.
-     *
-     * @param scanResult The result of the barcode scan to be displayed in the dialog.
      */
-    private void showSuccessDialog(String scanResult) {
+    private void showSuccessDialog() {
         pauseCamera();
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_scan_success, null);
 
         TextView textViewSuccessMessage = dialogView.findViewById(R.id.textViewSuccessMessage);
-        textViewSuccessMessage.setText("Scanning Successful! Do you want to Check In?");
+        textViewSuccessMessage.setText("Scanning Successful! Do you want to Check-in?");
 
         // Set the scan result in the TextView
         TextView textViewScanResult = dialogView.findViewById(R.id.textViewScanResult);
-        textViewScanResult.setText("Scan Result: " + scanResult);
+        textViewScanResult.setText("Event: " + targetEvent.getEventTitle());
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(dialogView)
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        //proceedWithConfirmAction(scanResult);
+                        proceedWithConfirmAction();
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -294,6 +322,83 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+    private void proceedWithConfirmAction() {
+        DocumentReference eventRef = db.collection("events")
+                .document(targetEvent.getEventId());
+        String currentUserId = UserPreferences.getUserId(getApplicationContext());
+
+        DocumentReference userRef = db.collection("users").document(currentUserId);
+
+        userRef.get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String firstName = documentSnapshot.getString("firstName");
+                        String lastName = documentSnapshot.getString("lastName");
+                        String currentUserName = firstName + " " + lastName;
+                        targetEvent.addAttendee(currentUserId, currentUserName);
+                        Log.d(TAG, "User's name: " + currentUserName);
+                        updateEventAttendeeLists(eventRef);
+                    } else {
+                        Log.d(TAG, "User document does not exist");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error fetching user document", e);
+                });
+    }
+
+    private void updateEventAttendeeLists(DocumentReference eventRef) {
+        eventRef.update("attendeeListIdToTimes", targetEvent.getAttendeeListIdToCheckInTimes())
+                .addOnSuccessListener(v -> {
+                    Log.d(TAG, "Event updated attendeeListIdToTimes successfully");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error updating event attendeeListIdToTimes", e);
+                });
+
+        eventRef.update("attendeeListIdToName", targetEvent.getAttendeeListIdToName())
+                .addOnSuccessListener(v -> {
+                    Log.d(TAG, "Event updated attendeeListIdToName successfully");
+                    showCheckInSuccessfullyDialog();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error updating event attendeeListIdToName", e);
+                });
+
+        eventRef.update("currentAttendance", targetEvent.getAttendeeListIdToName().size())
+                .addOnSuccessListener(v -> {
+                    Log.d(TAG, "Event updated currentAttendance successfully");
+                    showCheckInSuccessfullyDialog();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error updating event currentAttendance", e);
+                });
+    }
+
+
+    private void showCheckInSuccessfullyDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Check-In Successful");
+        builder.setMessage("Check-in was successful. What would you like to do next?");
+        builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+
+        builder.setNegativeButton("Back", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                // Resume using the camera
+                startCamera();
+            }
+        });
+
+        // Create and show the AlertDialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
 
     private void showFailureDialog(String errorMsg) {
         pauseCamera();
@@ -321,7 +426,6 @@ public class BarcodeScanningActivity extends AppCompatActivity {
 
         String qrCodeIdentifier = scanResult.split("_")[0];
         String qrCodeType = scanResult.split("_")[1];
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         EventIdType eventType = determineEventType(qrCodeType); // Determine event type
 
         db.collection("events").whereEqualTo("eventId", qrCodeIdentifier)
@@ -332,7 +436,8 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                         if (querySnapshot != null && !querySnapshot.isEmpty()) {
                             callback.onEventIdValidated(true, qrCodeIdentifier, eventType);
                         } else {
-                            callback.onEventIdValidated(false, qrCodeIdentifier, EventIdType.UNKNOWN);
+                            callback.onEventIdValidated(false, qrCodeIdentifier,
+                                    EventIdType.UNKNOWN);
                         }
                     } else {
                         callback.onError(task.getException());
@@ -346,7 +451,8 @@ public class BarcodeScanningActivity extends AppCompatActivity {
      */
     private void handleQRCodeNotFound(String msg) {
         Log.e(TAG, "Proceed QR code error " + msg);
-        Toast.makeText(this, "QR Code not found in the database. "+msg, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "QR Code not found in the database. "+msg,
+                Toast.LENGTH_LONG).show();
     }
 
     /**
@@ -405,6 +511,29 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         usingFrontCamera = !usingFrontCamera;
         pauseCamera();
         startCamera();
+    }
+
+    private Event createEventFromDocumentSnapshot(DocumentSnapshot documentSnapshot,
+                                                  String eventId) {
+        // Extract data from the document snapshot
+        String eventTitle = documentSnapshot.getString("title");
+        String date = documentSnapshot.getString("date");
+        String time = documentSnapshot.getString("time");
+        String location = documentSnapshot.getString("location");
+        Long capacityLong = documentSnapshot.getLong("capacity");
+        Integer capacity = capacityLong != null ? capacityLong.intValue() : 0;
+        String announcement = documentSnapshot.getString("announcement");
+        String checkInQRCodeImageUrl = documentSnapshot.getString("checkInQRCodeImageUrl");
+        String promoQRCodeImageUrl = documentSnapshot.getString("promoQRCodeImageUrl");
+        String hostId = documentSnapshot.getString("hostId");
+        HashMap<String, Long> attendeeListIdToTimes =
+                (HashMap<String, Long>) documentSnapshot.get("attendeeListIdToTimes");
+        HashMap<String, String> attendeeListIdToName =
+                (HashMap<String, String>) documentSnapshot.get("attendeeListIdToName");
+        // Create the Event object manually
+        return new Event(eventTitle, date, time, location, capacity, announcement,
+                checkInQRCodeImageUrl, promoQRCodeImageUrl, eventId, hostId,
+                attendeeListIdToTimes, attendeeListIdToName);
     }
 
 }

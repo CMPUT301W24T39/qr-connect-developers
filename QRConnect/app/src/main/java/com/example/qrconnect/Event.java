@@ -1,13 +1,7 @@
 package com.example.qrconnect;
 
-import android.graphics.Bitmap;
-import android.widget.ImageView;
-
 import java.io.Serializable;
-import java.sql.Time;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
+import java.util.HashMap;
 
 /**
  * The Event class defines an event.
@@ -15,17 +9,20 @@ import java.util.Date;
  */
 public class Event implements Serializable {
     private String eventTitle;
-    private Date date;
-    private Time time;
+    private String date;
+    private String time;
     private String location;
     private Integer capacity;
     private String announcement;
-    private Bitmap QRCodeImage;
-    private Bitmap PromoQRCodeImage;
-    private String eventCheckInId;
-    private String eventPromoId;
+//    private Bitmap QRCodeImage;
+//    private Bitmap PromoQRCodeImage;
+    private String checkInQRCodeImageUrl;
+    private String promoQRCodeImageUrl;
     private String eventId;
-    protected ArrayList<User> AttendeeList;
+    private String hostId;
+    private HashMap<String, Long> attendeeListIdToCheckInTimes;
+
+    private HashMap<String, String> attendeeListIdToName;
 
     /**
      * Constructs an Event object with the specified details.
@@ -35,25 +32,31 @@ public class Event implements Serializable {
      * @param location the location of an event.
      * @param capacity the capacity of an event.
      * @param announcement the announcement of an event.
-     * @param QRCodeImage the QR code of an event.
-     * @param promoQRCodeImage the promotion QR code of an event.
-     * @param eventCheckInId the id of the QR code of an event.
-     * @param eventPromoId the id of the promotion QR code of an event.
+     * @param checkInQRCodeImageUrl the id of the QR code of an event.
+     * @param promoQRCodeImageUrl the id of the promotion QR code of an event.
      * @param eventId the id of an event.
+     * @param hostId the id of an event organizer.
+     * @param attendeeListIdToCheckInTimes the hashMap with userId and check-in#.
      */
-    public Event(String eventTitle, Date date, Time time, String location, Integer capacity, String announcement, Bitmap QRCodeImage, Bitmap promoQRCodeImage, String eventCheckInId, String eventPromoId, String eventId) {
+    public Event(String eventTitle, String date, String time, String location,
+                 Integer capacity, String announcement, String checkInQRCodeImageUrl,
+                 String promoQRCodeImageUrl, String eventId, String hostId,
+                 HashMap<String, Long> attendeeListIdToCheckInTimes,
+                 HashMap<String, String> attendeeListIdToName) {
         this.eventTitle = eventTitle;
         this.date = date;
         this.time = time;
         this.location = location;
         this.capacity = capacity;
         this.announcement = announcement;
-        this.QRCodeImage = QRCodeImage;
-        this.PromoQRCodeImage = promoQRCodeImage;
-        this.eventCheckInId = eventCheckInId;
-        this.eventPromoId = eventPromoId;
+//        this.QRCodeImage = QRCodeImage;
+//        this.PromoQRCodeImage = promoQRCodeImage;
+        this.checkInQRCodeImageUrl = checkInQRCodeImageUrl;
+        this.promoQRCodeImageUrl = promoQRCodeImageUrl;
         this.eventId = eventId;
-        this.AttendeeList = new ArrayList<>();
+        this.hostId = hostId;
+        this.attendeeListIdToCheckInTimes = attendeeListIdToCheckInTimes == null ? new HashMap<>() : attendeeListIdToCheckInTimes;
+        this.attendeeListIdToName = attendeeListIdToName == null ? new HashMap<>() : attendeeListIdToName;
     }
 
     /**
@@ -61,37 +64,37 @@ public class Event implements Serializable {
      */
     public Event(){};
 
-    /**
-     * This method gets the QR code of an event.
-     * @return Return a QR code image.
-     */
-    public Bitmap getQRCodeImage() {
-        return QRCodeImage;
-    }
+//    /**
+//     * This method gets the QR code of an event.
+//     * @return Return a QR code image.
+//     */
+//    public Bitmap getQRCodeImage() {
+//        return QRCodeImage;
+//    }
 
-    /**
-     * This method sets a QR code image to QRCodeImage attribute.
-     * @param QRCodeImage the QR code of an event.
-     */
-    public void setQRCodeImage(Bitmap QRCodeImage) {
-        this.QRCodeImage = QRCodeImage;
-    }
-
-    /**
-     * This method gets the Promotion QR code of an event.
-     * @return Return the promotion QR code image.
-     */
-    public Bitmap getPromoQRCodeImage() {
-        return PromoQRCodeImage;
-    }
-
-    /**
-     * This method sets a QR code image to QRCodeImage attribute.
-     * @param promoQRCodeImage the promotion QR code of an event.
-     */
-    public void setPromoQRCodeImage(Bitmap promoQRCodeImage) {
-        PromoQRCodeImage = promoQRCodeImage;
-    }
+//    /**
+//     * This method sets a QR code image to QRCodeImage attribute.
+//     * @param QRCodeImage the QR code of an event.
+//     */
+//    public void setQRCodeImage(Bitmap QRCodeImage) {
+//        this.QRCodeImage = QRCodeImage;
+//    }
+//
+//    /**
+//     * This method gets the Promotion QR code of an event.
+//     * @return Return the promotion QR code image.
+//     */
+//    public Bitmap getPromoQRCodeImage() {
+//        return PromoQRCodeImage;
+//    }
+//
+//    /**
+//     * This method sets a QR code image to QRCodeImage attribute.
+//     * @param promoQRCodeImage the promotion QR code of an event.
+//     */
+//    public void setPromoQRCodeImage(Bitmap promoQRCodeImage) {
+//        PromoQRCodeImage = promoQRCodeImage;
+//    }
 
     /**
      * This method gets the title of an event.
@@ -113,7 +116,7 @@ public class Event implements Serializable {
      * This method gets the date of an event.
      * @return Return the date of an event.
      */
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
@@ -121,7 +124,7 @@ public class Event implements Serializable {
      * This method sets the date of an event.
      * @param date the date of an event.
      */
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
@@ -129,7 +132,7 @@ public class Event implements Serializable {
      * This method gets the time of an event.
      * @return Return the time of an event.
      */
-    public Time getTime() {
+    public String getTime() {
         return time;
     }
 
@@ -137,7 +140,7 @@ public class Event implements Serializable {
      * This method sets the time of an event.
      * @param time the time of an event.
      */
-    public void setTime(Time time) {
+    public void setTime(String time) {
         this.time = time;
     }
 
@@ -195,15 +198,15 @@ public class Event implements Serializable {
      * @return  Return the eventCheckInId of an event.
      */
     public String getEventCheckInId() {
-        return eventCheckInId;
+        return checkInQRCodeImageUrl;
     }
 
     /**
      * This method sets the eventCheckInId of an event.
-     * @param eventCheckInId the eventCheckInId of an event.
+     * @param checkInQRCodeImageUrl the eventCheckInId of an event.
      */
-    public void setEventCheckInId(String eventCheckInId) {
-        this.eventCheckInId = eventCheckInId;
+    public void setEventCheckInId(String checkInQRCodeImageUrl) {
+        this.checkInQRCodeImageUrl = checkInQRCodeImageUrl;
     }
 
     /**
@@ -211,15 +214,15 @@ public class Event implements Serializable {
      * @return  Return the eventPromoId of an event.
      */
     public String getEventPromoId() {
-        return eventPromoId;
+        return promoQRCodeImageUrl;
     }
 
     /**
      * This method sets the eventPromoId of an event.
-     * @param eventPromoId the eventPromoId of an event.
+     * @param promoQRCodeImageUrl the eventPromoId of an event.
      */
-    public void setEventPromoId(String eventPromoId) {
-        this.eventPromoId = eventPromoId;
+    public void setEventPromoId(String promoQRCodeImageUrl) {
+        this.promoQRCodeImageUrl = promoQRCodeImageUrl;
     }
 
     /**
@@ -249,9 +252,45 @@ public class Event implements Serializable {
 
     /**
      * Adds an attendee to the list of attendees for this event.
-     * @param attendee the attendee to add.
+     * If the attendee is already in the list, their check-in time is incremented.
+     * @param attendeeUserId The ID of the attendee to add.
      */
-    public void addAttendee(User attendee) {
-        AttendeeList.add(attendee);
+    public void addAttendee(String attendeeUserId, String userName) {
+        long checkInTime = this.attendeeListIdToCheckInTimes.getOrDefault(attendeeUserId, 0L);
+        this.attendeeListIdToCheckInTimes.put(attendeeUserId, checkInTime + 1);
+        if (!this.attendeeListIdToName.containsKey(attendeeUserId)){
+            this.attendeeListIdToName.put(attendeeUserId, userName);
+        }
     }
+
+    /**
+     * Retrieves the attendee list for this event.
+     * @return A hashmap containing attendee IDs as keys and their corresponding check-in times as values.
+     */
+    public HashMap<String, Long> getAttendeeListIdToCheckInTimes() { return this.attendeeListIdToCheckInTimes; }
+
+    public HashMap<String, String> getAttendeeListIdToName() { return this.attendeeListIdToName; }
+
+
+    /**
+     * Checks if a given user ID is in the list of attendees for this event.
+     * @param checkUserId The user ID to check.
+     * @return True if the user is in the attendee list, false otherwise.
+     */
+    public boolean isAttendeeInThisEvent(String checkUserId){
+        return this.attendeeListIdToCheckInTimes.containsKey(checkUserId);
+    }
+
+    /**
+     * Retrieves the host ID for this event.
+     * @return The host ID.
+     */
+    public String getHostId(){ return this.hostId; }
+
+    /**
+     * Sets the host ID for this event.
+     * @param hostId The host ID to set.
+     */
+    public void setHostId(String hostId) { this.hostId = hostId; }
+
 }
