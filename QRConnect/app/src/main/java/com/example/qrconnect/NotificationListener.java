@@ -15,6 +15,7 @@ public class NotificationListener {
     private MainActivity activity;
 
     /**
+     * NotificationListener constructor.
      * Get MainActivity instance.
      * @param mainActivity the MainActivity instance.
      */
