@@ -57,8 +57,9 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
     private DatePickerDialog.OnDateSetListener mDateSetListener;
     private TimePickerDialog.OnTimeSetListener mTimeSetListener;
     String fieldName = "eventPoster";
-    private ActivityResultLauncher<Intent> qrCodeGeneratesPage;
+
     Event updatedEvent;
+    private int year, month, day, hour, minute;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,7 +78,6 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
         ImageView eventPoster = findViewById(R.id.init_event_image);
         ImageButton calenderButton = findViewById(R.id.init_calender_button);
         ImageButton timeButton = findViewById(R.id.init_time_button);
-
 
         // Initially disable the EditText if you want it to be disabled by default
         eventCapacity.setEnabled(false); // Default state;
@@ -106,17 +106,17 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
             }
         });
 
-        qrCodeGeneratesPage = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        if (result.getResultCode() == Activity.RESULT_OK) {
-                            updatedEvent = (Event) result.getData().getSerializableExtra("UPDATED_EVENT");
-                        }
-                    }
-                }
-        );
+//        qrCodeGeneratesPage = registerForActivityResult(
+//                new ActivityResultContracts.StartActivityForResult(),
+//                new ActivityResultCallback<ActivityResult>() {
+//                    @Override
+//                    public void onActivityResult(ActivityResult result) {
+//                        if (result.getResultCode() == Activity.RESULT_OK) {
+//                            updatedEvent = (Event) result.getData().getSerializableExtra("UPDATED_EVENT");
+//                        }
+//                    }
+//                }
+//        );
 
         activityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -174,14 +174,14 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Calendar cal = Calendar.getInstance();
-                int year = cal.get(Calendar.YEAR);
-                int month = cal.get(Calendar.MONTH);
-                int day = cal.get(Calendar.DAY_OF_MONTH);
+                year = cal.get(Calendar.YEAR);
+                month = cal.get(Calendar.MONTH);
+                day = cal.get(Calendar.DAY_OF_MONTH);
                 DatePickerDialog dialog = new DatePickerDialog(
                         EventDetailsInitializeActivity.this,
                         android.R.style.Theme_Holo_Light_Dialog_MinWidth,
                         mDateSetListener,
-                        year,month,day);
+                        year, month, day);
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 dialog.show();
             }
@@ -189,18 +189,20 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
 
         mDateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                month = month + 1;
-                eventDate.setText(month + "/" + day + "/" + year);
+            public void onDateSet(DatePicker datePicker, int selectedYear, int selectedMonth, int selectedDay) {
+                year = selectedYear;
+                month = selectedMonth;
+                day = selectedDay;
+                eventDate.setText(String.format(Locale.getDefault(), "%d/%d/%d", month+1, day, year));
             }
         };
 
         timeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Calendar calendar = Calendar.getInstance();
-                int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                int minute = calendar.get(Calendar.MINUTE);
+                Calendar cal = Calendar.getInstance();
+                hour = cal.get(Calendar.HOUR_OF_DAY);
+                minute = cal.get(Calendar.MINUTE);
                 TimePickerDialog timePickerDialog = new TimePickerDialog(EventDetailsInitializeActivity.this, android.R.style.Theme_Holo_Light_Dialog_MinWidth, mTimeSetListener, hour, minute, true);
                 timePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 timePickerDialog.show();
@@ -210,8 +212,9 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
         mTimeSetListener = new TimePickerDialog.OnTimeSetListener(){
             @Override
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                eventTime.setText(String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute));
-
+                hour = selectedHour;
+                minute = selectedMinute;
+                eventTime.setText(String.format(Locale.getDefault(), "%02d:%02d", hour, minute));
             }
         };
 
@@ -245,12 +248,14 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
 
             currentEvent.setEventTitle(title);
             currentEvent.setAnnouncement(description);
-            currentEvent.setDate(date);
-            currentEvent.setTime(time);
+            currentEvent.setDate(year, month, day);
+            currentEvent.setTime(hour, minute);
             currentEvent.setLocation(location);
             currentEvent.setCapacity(capacity);
 
-            startQRCodeGeneratesActivity(currentEvent);
+            Intent intent = new Intent(this, QRCodeGeneratesPage.class);
+            intent.putExtra("EVENT", currentEvent);
+            startActivity(intent);
 
         });
 
@@ -261,31 +266,29 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
             public void onClick(View view) {
                 DocumentReference docRef = db.collection("events").document(currentEvent.getEventId());
 
-                if (updatedEvent != null) {
-                    Intent resultIntent = new Intent();
-                    resultIntent.putExtra("UPDATED_EVENT", updatedEvent);
-                    setResult(Activity.RESULT_OK, resultIntent);
-
-                }
-                else {
-                    if(currentEvent.getEventCheckInId() == null && currentEvent.getEventPromoId() == null){
-                        docRef.delete()
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.d("Firestore", "DocumentSnapshot successfully deleted!");
-                                    Toast.makeText(getApplicationContext(), "Document successfully deleted!", Toast.LENGTH_SHORT).show();
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.w("Firestore", "Error deleting document", e);
-                                    Toast.makeText(getApplicationContext(), "Error deleting document", Toast.LENGTH_SHORT).show();
-                                }
-                            });
+//                if (updatedEvent != null) {
+//                    Intent resultIntent = new Intent();
+//                    resultIntent.putExtra("UPDATED_EVENT", updatedEvent);
+//                    setResult(Activity.RESULT_OK, resultIntent);
+//
+//                }
+                if(currentEvent.getEventCheckInId() == null && currentEvent.getEventPromoId() == null){
+                    docRef.delete()
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d("Firestore", "DocumentSnapshot successfully deleted!");
+                                Toast.makeText(getApplicationContext(), "Document successfully deleted!", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w("Firestore", "Error deleting document", e);
+                                Toast.makeText(getApplicationContext(), "Error deleting document", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
-                }
                 finish();
             }
         });
@@ -374,9 +377,5 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
         });
     }
 
-    private void startQRCodeGeneratesActivity(Event currentEvent) {
-        Intent intent = new Intent(this, QRCodeGeneratesPage.class);
-        intent.putExtra("EVENT", currentEvent);
-        qrCodeGeneratesPage.launch(intent);
-    }
+
 }

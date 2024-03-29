@@ -63,8 +63,8 @@ public class EventDetailsActivity extends AppCompatActivity {
     StorageReference storageRef = storage.getReference();
     private DatePickerDialog.OnDateSetListener mDateSetListener;
     private TimePickerDialog.OnTimeSetListener mTimeSetListener;
-
     String fieldName = "eventPoster";
+    private int year, month, day, hour, minute;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +81,13 @@ public class EventDetailsActivity extends AppCompatActivity {
         Button saveChangesButton = findViewById(R.id.save_event_button);
         Button uploadPosterButton = findViewById(R.id.upload_poster_button);
         ImageView eventPoster = findViewById(R.id.event_image);
+
+        Calendar cal = Calendar.getInstance();
+        year = cal.get(Calendar.YEAR);
+        month = cal.get(Calendar.MONTH);
+        day = cal.get(Calendar.DAY_OF_MONTH);
+        hour = cal.get(Calendar.HOUR_OF_DAY);
+        minute = cal.get(Calendar.MINUTE);
 
         ImageButton calenderButton = findViewById(R.id.calender_button);
         ImageButton timeButton = findViewById(R.id.time_button);
@@ -175,15 +182,11 @@ public class EventDetailsActivity extends AppCompatActivity {
         calenderButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Calendar cal = Calendar.getInstance();
-                int year = cal.get(Calendar.YEAR);
-                int month = cal.get(Calendar.MONTH);
-                int day = cal.get(Calendar.DAY_OF_MONTH);
                 DatePickerDialog dialog = new DatePickerDialog(
                         EventDetailsActivity.this,
                         android.R.style.Theme_Holo_Light_Dialog_MinWidth,
                         mDateSetListener,
-                        year,month,day);
+                        year, month, day);
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 dialog.show();
             }
@@ -191,18 +194,17 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         mDateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                month = month + 1;
-                eventDate.setText(month + "/" + day + "/" + year);
+            public void onDateSet(DatePicker datePicker, int selectedYear, int selectedMonth, int selectedDay) {
+                year = selectedYear;
+                month = selectedMonth;
+                day = selectedDay;
+                eventDate.setText(String.format(Locale.getDefault(), "%d/%d/%d", month+1, day, year));
             }
         };
 
         timeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Calendar calendar = Calendar.getInstance();
-                int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                int minute = calendar.get(Calendar.MINUTE);
                 TimePickerDialog timePickerDialog = new TimePickerDialog(EventDetailsActivity.this, android.R.style.Theme_Holo_Light_Dialog_MinWidth, mTimeSetListener, hour, minute, true);
                 timePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 timePickerDialog.show();
@@ -212,8 +214,9 @@ public class EventDetailsActivity extends AppCompatActivity {
         mTimeSetListener = new TimePickerDialog.OnTimeSetListener(){
             @Override
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                eventTime.setText(String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute));
-
+                hour = selectedHour;
+                minute = selectedMinute;
+                eventTime.setText(String.format(Locale.getDefault(), "%02d:%02d", hour, minute));
             }
         };
 
@@ -246,8 +249,8 @@ public class EventDetailsActivity extends AppCompatActivity {
 
             currentEvent.setEventTitle(title);
             currentEvent.setAnnouncement(description);
-            currentEvent.setDate(date);
-            currentEvent.setTime(time);
+            currentEvent.setDate(year, month, day);
+            currentEvent.setTime( hour, minute);
             currentEvent.setLocation(location);
             currentEvent.setCapacity(capacity);
         });

@@ -2,6 +2,7 @@ package com.example.qrconnect;
 
 import static com.example.qrconnect.EventIdType.EVENT_CHECKIN;
 import static com.example.qrconnect.EventIdType.EVENT_DETAILS;
+import static com.example.qrconnect.TimeConverter.stringToCalendar;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
@@ -43,6 +44,7 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.common.InputImage;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 public class BarcodeScanningActivity extends AppCompatActivity {
@@ -517,8 +519,10 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                                                   String eventId) {
         // Extract data from the document snapshot
         String eventTitle = documentSnapshot.getString("title");
-        String date = documentSnapshot.getString("date");
-        String time = documentSnapshot.getString("time");
+        String dateString = documentSnapshot.getString("date");
+        Calendar date = DateConverter.stringToCalendar(dateString);
+        String timeString = documentSnapshot.getString("time");
+        Calendar time = TimeConverter.stringToCalendar(timeString);
         String location = documentSnapshot.getString("location");
         Long capacityLong = documentSnapshot.getLong("capacity");
         Integer capacity = capacityLong != null ? capacityLong.intValue() : 0;

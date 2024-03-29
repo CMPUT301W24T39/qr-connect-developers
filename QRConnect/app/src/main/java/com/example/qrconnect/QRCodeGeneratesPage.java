@@ -45,7 +45,7 @@ import com.google.firebase.storage.UploadTask;
  * The QRCodeGeneratesPage class that maintains the functions in the QRCodeGeneratesPage Activity.
  * It extends AppCompatAcitivty.
  */
-public class QRCodeGeneratesPage extends AppCompatActivity {
+public class QRCodeGeneratesPage extends AppCompatActivity implements BottomNavigationDrawerFragment.EventInformationProvider{
     public static ImageView QRCodeImage;
     private ImageView PromoQRCodeImage;
     private Bitmap bitMapQRCode;
@@ -102,20 +102,17 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
             generateQRCode(eventCheckInId);
             generatePromoQRCode(eventPromoId);
 
-//            newEvent.setQRCodeImage(bitMapQRCode);
-//            newEvent.setPromoQRCodeImage(bitMapPromoQRCode);
+            uploadQRImages(bitMapQRCode, currentEvent, fieldNameCheckInQRCode);
+            uploadQRImages(bitMapPromoQRCode, currentEvent, fieldNamePromoteQRCode);
+
             currentEvent.setEventCheckInId(eventCheckInId);
             currentEvent.setEventPromoId(eventPromoId);
-
 
             QRCodeImage.setImageBitmap(bitMapQRCode);
             PromoQRCodeImage.setImageBitmap(bitMapPromoQRCode);
 
             updateEvent(currentEvent, fieldNameCheckInQRCode, eventCheckInId);
             updateEvent(currentEvent, fieldNamePromoteQRCode, eventPromoId);
-
-            uploadQRImages(bitMapQRCode, currentEvent, fieldNameCheckInQRCode);
-            uploadQRImages(bitMapPromoQRCode, currentEvent, fieldNamePromoteQRCode);
 
         }
 
@@ -226,9 +223,26 @@ public class QRCodeGeneratesPage extends AppCompatActivity {
     }
 
     private void returnUpdatedEvent(Event updatedEvent) {
-        Intent returnIntent = new Intent();
-        returnIntent.putExtra("UPDATED_EVENT", updatedEvent);
-        setResult(RESULT_OK, returnIntent);
+        Intent intent = new Intent(QRCodeGeneratesPage.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.putExtra("UPDATED_EVENT", updatedEvent);
+        startActivity(intent);
         finish();
+    }
+
+    @Override
+    public String getCheckInId() {
+        if (currentEvent != null) {
+            return currentEvent.getEventCheckInId();
+        }
+        return "";
+    }
+    @Override
+    public void onQRCodeUploaded(String downloadUrl) {
+        runOnUiThread(() -> {
+            Glide.with(this)
+                    .load(downloadUrl)
+                    .into(QRCodeImage);
+        });
     }
 }
