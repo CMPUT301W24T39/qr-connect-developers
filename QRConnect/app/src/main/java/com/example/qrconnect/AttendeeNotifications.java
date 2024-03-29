@@ -1,16 +1,40 @@
 package com.example.qrconnect;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 
 /**
  * The AttendeeNotifications class manages the attendee notifications page.
  * It extends AppCompatActivity.
  */
 public class AttendeeNotifications extends AppCompatActivity {
+
+    ListView notificationsList;
+    ArrayList<Notification> notificationsDataList;
+    NotificationArrayAdapter notificationArrayAdapter;
+    private FirebaseFirestore db;
+    private CollectionReference notificationsRef;
 
     /**
      * Called when the activity is first created. Responsible for initializing the notifications page.
@@ -23,6 +47,7 @@ public class AttendeeNotifications extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.attendee_notifications);
 
+        // Notification back button to the user home screen
         ImageButton backButton = findViewById(R.id.attendee_notifications_page_back_nav_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -30,5 +55,51 @@ public class AttendeeNotifications extends AppCompatActivity {
                 finish();
             }
         });
+
+        // Notification database initialization with Firebase
+        db = FirebaseFirestore.getInstance();
+        notificationsRef = db.collection("notifications");
+
+        notificationsList = findViewById(R.id.notifications_list);
+        notificationsDataList = new ArrayList<>();
+        notificationArrayAdapter = new NotificationArrayAdapter(this, notificationsDataList);
+        notificationsList.setAdapter(notificationArrayAdapter);
+
+        receiveNotifications();
+    }
+
+    /**
+     * Receive notifications from Firestore Database and update the notifications ListView
+     */
+    private void receiveNotifications() {
+        notificationsRef.get()
+            .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                    for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                        String event = documentSnapshot.getString("notificationEvent");
+                        String title = documentSnapshot.getString("notificationTitle");
+                        String description = documentSnapshot.getString("notificationDescription");
+                        String date = documentSnapshot.getString("notificationDate");
+                        boolean read = documentSnapshot.getBoolean("notificationRead");
+                        Notification notification = new Notification(event, title, description, date, read);
+                        notificationsDataList.add(notification);
+                    }
+                    sortNotifications();
+                }
+            });
+    }
+
+    /**
+     * Sort notificationsDataList by date so most recent is at the top.
+     */
+    private void sortNotifications(){
+        Collections.sort(notificationsDataList, new Comparator<Notification>() {
+            @Override
+            public int compare(Notification n1, Notification n2) {
+                return n2.getNotificationDate().compareTo(n1.getNotificationDate());
+            }
+        });
+        notificationArrayAdapter.notifyDataSetChanged();
     }
 }

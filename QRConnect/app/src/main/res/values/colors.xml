@@ -4,4 +4,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="loading_pink">#E492EB</color>
     <color name="continue_button_color">#B328BF</color>
+    <color name="dark_pink">#9228BF</color>
 </resources>
