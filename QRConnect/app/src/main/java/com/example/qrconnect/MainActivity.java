@@ -1,5 +1,7 @@
 package com.example.qrconnect;
 
+import static com.example.qrconnect.TimeConverter.stringToCalendar;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -35,8 +37,11 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.UUID;
+import java.text.SimpleDateFormat;
 /*
 https://developer.android.com/media/camera/camera-deprecated/photobasics
 https://stackoverflow.com/questions/5089300/how-can-i-change-the-image-of-an-imageview
@@ -61,6 +66,8 @@ https://www.youtube.com/watch?v=MCeWm8qu0sw
 https://stackoverflow.com/questions/44676579/how-to-make-option-menu-appear-on-bottom-of-the-screen
 https://stackoverflow.com/questions/72713837/redirecting-user-to-menu-section-after-button-click-by-popping-up-nav-bar-from
 https://developer.android.com/training/basics/intents/sending
+https://www.youtube.com/watch?v=hwe1abDO2Ag
+https://www.youtube.com/watch?v=c6c1giRekB4
  */
 
 /**
@@ -119,16 +126,19 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
 
         //checkNotifications();
 
-        eventDetailsInitializeActivity = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Event updatedEvent = (Event) result.getData().getSerializableExtra("UPDATED_EVENT");
-                        addNewEvent(updatedEvent);
-                        eventAdapter.notifyDataSetChanged();
-                    }
-                }
-        );
+//        eventDetailsInitializeActivity = registerForActivityResult(
+//                new ActivityResultContracts.StartActivityForResult(),
+//                result -> {
+//                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+//                        Event updatedEvent = (Event) result.getData().getSerializableExtra("UPDATED_EVENT");
+//                        if(updatedEvent.getEventPromoId() != null && updatedEvent.getEventCheckInId() != null){
+//                            eventDataList.add(updatedEvent);
+//                            addNewEvent(updatedEvent);
+//                        }
+//                        eventAdapter.notifyDataSetChanged();
+//                    }
+//                }
+//        );
 
 
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -142,11 +152,11 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                 newEvent.setEventId(uniqueID);
                 String hostId = UserPreferences.getUserId(getApplicationContext());
                 newEvent.setHostId(hostId);
-
-                eventDataList.add(newEvent);
                 eventAdapter.notifyDataSetChanged();
                 addNewEvent(newEvent);
-                startEventDetailsInitializeActivity(newEvent);
+                Intent intent = new Intent(MainActivity.this, EventDetailsInitializeActivity.class);
+                intent.putExtra("EVENT", newEvent);
+                startActivity(intent);
             }
         });
 
@@ -162,8 +172,20 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                     for (QueryDocumentSnapshot doc: querySnapshots){
                         String eventId = doc.getId();
                         String eventTitle = doc.getString("title");
-                        String eventDate = doc.getString("date");
-                        String eventTime = doc.getString("time");
+                        String eventTimeString = doc.getString("time");
+                        Calendar eventTime = null;
+                        if (eventTimeString != null && !eventTimeString.isEmpty()) {
+                            eventTime = TimeConverter.stringToCalendar(eventTimeString);
+                        } else {
+                            Log.e("Firestore", "Event time is null or empty for document: " + doc.getId());
+                        }
+                        String eventDateString = doc.getString("date");
+                        Calendar eventDate = null;
+                        if (eventDateString != null && !eventDateString.isEmpty()) {
+                            eventDate = DateConverter.stringToCalendar(eventDateString);
+                        } else {
+                            Log.e("Firestore", "Event time is null or empty for document: " + doc.getId());
+                        }
                         String eventLocation = doc.getString("location");
 //                        if (doc.getString("capacity") != null){
 //                            Integer eventCapacity = Integer.parseInt(doc.getString("capacity"));}
@@ -173,10 +195,10 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                         String hostId = doc.getString("hostId");
                         HashMap<String, Long> attendeeListIdToTimes = (HashMap<String, Long>) doc.get("attendeeListIdToTimes");
                         HashMap<String, String> attendeeListIdToName = (HashMap<String, String>) doc.get("attendeeListIdToName");
-                        eventDataList.add(new Event(eventTitle, eventDate,eventTime,
+                        eventDataList.add(new Event(eventTitle, eventDate, eventTime,
                                 eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
                                 hostId, attendeeListIdToTimes, attendeeListIdToName));
-                        Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate,eventTime, eventLocation, 0, eventAnnouncement, checkInId, promoId, eventId));
+                        Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate, eventTime, eventLocation, 0, eventAnnouncement, checkInId, promoId, eventId));
                     }
                     eventAdapter.notifyDataSetChanged();
                 }
@@ -186,8 +208,16 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         eventList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Event currentEvent = eventDataList.get(position);
+                String userId = UserPreferences.getUserId(getApplicationContext());
+                String hostId = currentEvent.getHostId();
+                if (userId.equals(hostId)) {
 
-                new DeleteEventFragment(eventDataList.get(position)).show(getSupportFragmentManager(), "Delete Event");
+                    new DeleteEventFragment(currentEvent).show(getSupportFragmentManager(), "Delete Event");
+                } else {
+
+                    Toast.makeText(MainActivity.this, "You are not the host of this event.", Toast.LENGTH_SHORT).show();
+                }
                 return true;
             }
         });
@@ -223,8 +253,17 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 try {
                     Event currentEvent = eventAdapter.getItem(position);
-                    Intent showIntent = new Intent(MainActivity.this, EventDetailsActivity.class);
-                    showIntent.putExtra("EVENT", currentEvent);
+                    String userId = UserPreferences.getUserId(getApplicationContext());
+                    String hostId = currentEvent.getHostId();
+                    Intent showIntent;
+                    if (userId.equals(hostId)){
+                        showIntent = new Intent(MainActivity.this, EventDetailsActivity.class);
+                        showIntent.putExtra("EVENT", currentEvent);
+                    }
+                    else{
+                        showIntent = new Intent(MainActivity.this, PromoDetailsActivity.class);
+                        showIntent.putExtra("EVENT_ID", currentEvent.getEventId());
+                    }
                     startActivity(showIntent);
                 } catch (Exception e) {
                     Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -245,16 +284,46 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         super.onResume();
         eventAdapter.notifyDataSetChanged();
     }
-
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.hasExtra("UPDATED_EVENT")) {
+            Event updatedEvent = (Event) intent.getSerializableExtra("UPDATED_EVENT");
+            eventDataList.add(updatedEvent);
+            addNewEvent(updatedEvent);
+        }
+        eventAdapter.notifyDataSetChanged();
+    }
     /**
      * This adds a new event to firebase.
      * @param event This is a event that is added to firebase.
      */
     private void addNewEvent(Event event) {
+
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.US);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+
+        String formattedTime = "";
+        if (event.getTime() != null) {
+            formattedTime = timeFormat.format(event.getTime().getTime());
+        } else {
+            Log.e("Firestore", "Event time is null for event: " + event.getEventTitle());
+            formattedTime = timeFormat.format(Calendar.getInstance().getTime());
+        }
+
+        String formattedDate = "";
+        if (event.getDate() != null) {
+            formattedDate = dateFormat.format(event.getDate().getTime());
+        } else {
+            Log.e("Firestore", "Event time is null for event: " + event.getEventTitle());
+            formattedDate = dateFormat.format(Calendar.getInstance().getTime());
+        }
+
+
         HashMap<String, Object> data = new HashMap<>();
         data.put("title", event.getEventTitle());
-        data.put("date", event.getDate());
-        data.put("time", event.getTime());
+        data.put("date", formattedDate);
+        data.put("time", formattedTime);
         data.put("location", event.getLocation());
         data.put("capacity", event.getCapacity());
         data.put("announcement", event.getAnnouncement());
@@ -313,11 +382,6 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
 
     }
 
-    private void startEventDetailsInitializeActivity(Event newEvent) {
-        Intent intent = new Intent(this, EventDetailsInitializeActivity.class);
-        intent.putExtra("EVENT", newEvent);
-        eventDetailsInitializeActivity.launch(intent);
-    }
 
     private void deleteQRCodesFromStorage(String filePath) {
         FirebaseStorage storage = FirebaseStorage.getInstance();

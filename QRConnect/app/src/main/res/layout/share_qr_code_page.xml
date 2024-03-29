@@ -7,13 +7,13 @@
 
 
     <ImageButton
-        android:id="@+id/gmail_button"
+        android:id="@+id/share_button"
         android:layout_width="66dp"
         android:layout_height="75dp"
         android:layout_marginStart="12dp"
         android:layout_marginTop="84dp"
         android:background="@color/white"
-        android:src="@drawable/ic_gmail"
+        android:src="@drawable/ic_share"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.448"
@@ -96,14 +96,14 @@
         app:layout_constraintVertical_bias="0.306" />
 
     <ImageButton
-        android:id="@+id/gmail_button2"
+        android:id="@+id/share_button2"
         android:layout_width="66dp"
         android:layout_height="75dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="75dp"
         android:layout_marginBottom="116dp"
         android:background="@color/white"
-        android:src="@drawable/ic_gmail"
+        android:src="@drawable/ic_share"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"

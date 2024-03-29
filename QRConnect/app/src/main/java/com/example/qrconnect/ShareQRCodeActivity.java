@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,28 +41,31 @@ public class ShareQRCodeActivity extends AppCompatActivity {
     ImageButton backButton;
     ImageView qrCodeToShare;
     ImageView promoteQrCodeToShare;
-    ImageButton gmailButton1;
-    ImageButton gmailButton2;
+    ImageButton share_button1;
+    ImageButton share_button2;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.share_qr_code_page);
 
         qrCodeToShare = findViewById(R.id.qr_code_image_to_share);
         promoteQrCodeToShare = findViewById(R.id.promote_qr_code_image_to_share);
-        gmailButton1 = findViewById(R.id.gmail_button);
-        gmailButton2 = findViewById(R.id.gmail_button2);
-
+        share_button1 = findViewById(R.id.share_button);
+        share_button2 = findViewById(R.id.share_button2);
+        backButton = findViewById(R.id.arrow_back_3);
         Event currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
 
-        StorageReference qrCodeRef = storageRef.child("qrcodes/" + currentEvent.getEventCheckInId());
-        StorageReference promoteQrCodeRef = storageRef.child("qrcodes/"+ currentEvent.getEventPromoId());
+        if (currentEvent.getEventCheckInId() != null && currentEvent.getEventPromoId() != null){
+            StorageReference qrCodeRef = storageRef.child("qrcodes/" + currentEvent.getEventCheckInId());
+            StorageReference promoteQrCodeRef = storageRef.child("qrcodes/"+ currentEvent.getEventPromoId());
 
-        backButton = findViewById(R.id.arrow_back_3);
-
-        loadEventQrCodeToShare(qrCodeRef, qrCodeToShare);
-        loadEventQrCodeToShare(promoteQrCodeRef, promoteQrCodeToShare);
+            loadEventQrCodeToShare(qrCodeRef, qrCodeToShare);
+            loadEventQrCodeToShare(promoteQrCodeRef, promoteQrCodeToShare);
+        }
+        else{
+            Toast.makeText(ShareQRCodeActivity.this, "Null QR Code" , Toast.LENGTH_SHORT).show();
+        }
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -69,16 +73,30 @@ public class ShareQRCodeActivity extends AppCompatActivity {
             }
         });
 
-        gmailButton1.setOnClickListener(new View.OnClickListener() {
+        share_button1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                shareImage(currentEvent.getEventCheckInId());
+                if (currentEvent.getEventCheckInId() != null){
+
+                    shareImage(currentEvent.getEventCheckInId());
+                }
+                else {
+                    Toast.makeText(ShareQRCodeActivity.this, "Share failed: Check-in id is null" , Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
-        gmailButton2.setOnClickListener(new View.OnClickListener() {
+        share_button2.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {shareImage(currentEvent.getEventPromoId());}
+            public void onClick(View v) {
+                if (currentEvent.getEventCheckInId() != null){
+
+                    shareImage(currentEvent.getEventPromoId());
+                }
+                else {
+                    Toast.makeText(ShareQRCodeActivity.this, "Share failed: Promo id is null" , Toast.LENGTH_SHORT).show();
+                }
+            }
         });
     }
 
