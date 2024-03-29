@@ -50,7 +50,15 @@ public class MilestoneManager {
      * @param currentAttendance the current attendance of the event.
      */
     public void checkMilestones(String eventTitle, Integer capacity, Integer currentAttendance) {
-        List<Integer> milestones = Arrays.asList(1, 10, 25, 50, 100, 500);
+        List<Integer> milestones = Arrays.asList(10, 25, 50, 100, 500);
+
+        // First person milestone
+        if (currentAttendance == 1) {
+            String title = "Event Milestone Reached!";
+            String description = "Congratulations! Your event has its first attendee!";
+            sendNotification(eventTitle, title, description);
+        }
+
         // Check milestones
         for (Integer milestone : milestones) {
             // Check if current attendance equals the milestone
@@ -61,7 +69,7 @@ public class MilestoneManager {
             }
         }
         // Checks if the current attendance is at the capacity
-        if (currentAttendance == capacity) {
+        if (currentAttendance == capacity && capacity != 0) {
             String title = "Event Milestone Reached!";
             String description = "Congratulations! Your event has reached its capacity of " + capacity + " !";
             sendNotification(eventTitle, title, description);
