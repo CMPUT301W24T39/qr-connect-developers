@@ -199,11 +199,6 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                 Event currentEvent = userEventDataList.get(position);
                 String userId = UserPreferences.getUserId(getApplicationContext());
                 String hostId = currentEvent.getHostId();
-                if (userId.equals(hostId)) {
-                    new DeleteEventFragment(currentEvent).show(getSupportFragmentManager(), "Delete Event");
-                } else {
-                   Toast.makeText(MainActivity.this, "You are not the host of this event.", Toast.LENGTH_SHORT).show();
-                }
                 return true;
             }
         });
