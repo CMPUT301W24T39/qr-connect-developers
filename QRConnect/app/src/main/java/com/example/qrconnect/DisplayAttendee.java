@@ -3,40 +3,24 @@ package com.example.qrconnect;
 import java.util.HashMap;
 
 /**
- * The Attendee class represents an attendee, who is a user.
- * Initializes an attendee with basic information.
- * It extends the User class.
+ * Represents an attendee and their check-in information for events.
  */
-public class Attendee extends User{
-    private HashMap <String, Long> eventCheckInCount; // EventId to CheckIn times
+public class DisplayAttendee {
+    private HashMap<String, Long> eventCheckInCount; // EventId to CheckIn times
+    private String UserId;
+    private String UserName;
 
     /**
-     * Constructs an instance of the Attendee class.
-     * @param userID The ID of the user (attendee).
-     * @param name The name of the user (attendee).
-     * @param contactInformation contact information of the user (attendee).
+     * Constructs a DisplayAttendee object with the given user ID and name.
+     * Initializes the eventCheckInCount HashMap.
+     * @param userID The user ID of the attendee.
+     * @param name The name of the attendee.
      */
-    public Attendee(String userID, String name, String contactInformation) {
-        super(userID, name, contactInformation);
-        eventCheckInCount = new HashMap<>();
+    public DisplayAttendee(String userID, String name) {
+        this.UserId = userID;
+        this.UserName = name;
+        this.eventCheckInCount = new HashMap<>();
     }
-
-    /**
-     * Uploads a profile picture for the attendee (user).
-     * This method is not implemented in this class.
-     * @param imagePath The path to the image.
-     */
-    @Override
-    public void uploadProfilePicture(String imagePath) { }
-    // This method is not implemented here.
-
-    /**
-     * Removes the uploaded profile picture of the attendee (user).
-     * This method is not implemented in this class.
-     */
-    @Override
-    public void removeProfilePicture() { }
-    // This method is not implemented here.
 
     /**
      * Updates the check-in count for a specific event.
@@ -45,6 +29,22 @@ public class Attendee extends User{
      */
     public void updateCheckInCount(String eventId, long checkInCount) {
         this.eventCheckInCount.put(eventId, checkInCount);
+    }
+
+    public String getUserId() {
+        return UserId;
+    }
+
+    public void setUserId(String userId) {
+        UserId = userId;
+    }
+
+    public String getUserName() {
+        return UserName;
+    }
+
+    public void setUserName(String userName) {
+        UserName = userName;
     }
 
     /**

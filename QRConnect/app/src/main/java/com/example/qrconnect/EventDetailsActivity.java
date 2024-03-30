@@ -106,7 +106,9 @@ public class EventDetailsActivity extends AppCompatActivity {
         DocumentReference eventRef = db.collection("events").document(currentEvent.getEventId());
         StorageReference eventPosterRef = storageRef.child("eventposters/" + currentEvent.getEventId() + "_" + fieldName + ".jpg");
         loadEventPoster(eventPosterRef, eventPoster);
-        loadEventData(eventRef, eventTitle, eventDescriptionEdit, eventDate, eventTime, eventLocation, eventCapacity, eventCurrentAttendance);
+        loadEventData(eventRef, eventTitle, eventDescriptionEdit, eventDate,
+                eventTime, eventLocation, eventCapacity, limitCapacitySwitch,
+                eventCurrentAttendance);
 
         uploadPosterButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -160,11 +162,10 @@ public class EventDetailsActivity extends AppCompatActivity {
                 if (isChecked) {
                     // Switch is on - User can enter capacity
                     eventCapacity.setEnabled(true);
-                    eventCapacity.requestFocus(); // Optionally request focus
                 } else {
-                    // Switch is off - Disable capacity entry and optionally clear or set to "Unlimited"
+                    // Switch is off - Disable capacity entry
                     eventCapacity.setEnabled(false);
-                    eventCapacity.setText(""); // Clear the text or set to "Unlimited" or similar text
+                    eventCapacity.setText(""); // Clear the text
                 }
             }
         });
@@ -313,6 +314,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                                EditText eventTime,
                                EditText eventLocation,
                                EditText eventCapacity,
+                               Switch limitCapacitySwitch,
                                TextView eventCurrentAttendance) {
         eventRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -330,9 +332,13 @@ public class EventDetailsActivity extends AppCompatActivity {
                                 eventDate.setText(document.getString("date"));
                                 eventTime.setText(document.getString("time"));
                                 eventLocation.setText(document.getString("location"));
+
                                 try {
                                     Long capacity = document.getLong("capacity");
                                     eventCapacity.setText(capacity != null ? String.valueOf(capacity) : "0");
+                                    if (capacity != null && capacity != 0L) {
+                                        limitCapacitySwitch.setChecked(true);
+                                    }
                                 } catch (Exception e) {
                                     eventCapacity.setText("0");
                                     Log.d("EventDetails", "Error loading capacity: " + e.getMessage());
