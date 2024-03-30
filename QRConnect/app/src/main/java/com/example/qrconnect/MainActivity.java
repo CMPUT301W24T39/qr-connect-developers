@@ -192,13 +192,13 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                 Event currentEvent = eventDataList.get(position);
                 String userId = UserPreferences.getUserId(getApplicationContext());
                 String hostId = currentEvent.getHostId();
-                if (userId.equals(hostId)) {
+//                if (userId.equals(hostId)) {
 
                     new DeleteEventFragment(currentEvent).show(getSupportFragmentManager(), "Delete Event");
-                } else {
-
-                    Toast.makeText(MainActivity.this, "You are not the host of this event.", Toast.LENGTH_SHORT).show();
-                }
+//                } else {
+//
+//                    Toast.makeText(MainActivity.this, "You are not the host of this event.", Toast.LENGTH_SHORT).show();
+//                }
                 return true;
             }
         });
@@ -267,10 +267,15 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         super.onNewIntent(intent);
         if (intent.hasExtra("UPDATED_EVENT")) {
             Event updatedEvent = (Event) intent.getSerializableExtra("UPDATED_EVENT");
-            eventDataList.add(updatedEvent);
-            addNewEvent(updatedEvent);
+            // 查找并更新 eventDataList 中对应的 Event 对象
+            for (int i = 0; i < eventDataList.size(); i++) {
+                if (eventDataList.get(i).getEventId().equals(updatedEvent.getEventId())) {
+                    eventDataList.set(i, updatedEvent); // 更新对应的 Event 对象
+                    break;
+                }
+            }
+            eventAdapter.notifyDataSetChanged();
         }
-        eventAdapter.notifyDataSetChanged();
     }
     /**
      * This adds a new event to firebase.

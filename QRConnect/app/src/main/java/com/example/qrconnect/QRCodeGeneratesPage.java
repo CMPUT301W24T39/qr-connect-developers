@@ -22,6 +22,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -85,6 +86,7 @@ public class QRCodeGeneratesPage extends AppCompatActivity implements BottomNavi
                             Glide.with(this)
                                     .load(imageUrl)
                                     .into(QRCodeImage);
+                            Toast.makeText(QRCodeGeneratesPage.this, "Check-in QR code is successfully updated", Toast.LENGTH_SHORT).show();
                         }
 
                         if (updatedEvent != null) {

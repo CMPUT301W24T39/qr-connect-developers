@@ -72,13 +72,9 @@ public class SelectEventPage extends AppCompatActivity {
                 if (dateTimeSelectedEvent.before(dateTimeCurrentEvent)){
 
                     String fieldNameCheckInQRCode = "checkInQRCodeImageUrl";
-                    String fieldNamePromoteQRCode = "promoQRCodeImageUrl";
 
                     currentEvent.setEventCheckInId(selectedEvent.getEventCheckInId());
-                    currentEvent.setEventPromoId(selectedEvent.getEventPromoId());
-
                     updateEvent(currentEvent, fieldNameCheckInQRCode, selectedEvent.getEventCheckInId());
-                    updateEvent(currentEvent, fieldNamePromoteQRCode, selectedEvent.getEventPromoId());
 
                     FirebaseStorage storage = FirebaseStorage.getInstance();
                     StorageReference storageRef = storage.getReference();
@@ -89,7 +85,7 @@ public class SelectEventPage extends AppCompatActivity {
                         setResult(RESULT_OK, resultIntent);
                         returnUpdatedEvent(currentEvent);
                             }).addOnFailureListener(exception -> {
-
+                            Toast.makeText(SelectEventPage.this, "Check-in QR code is not successfully updated", Toast.LENGTH_SHORT).show();
                         });
 
                     }
