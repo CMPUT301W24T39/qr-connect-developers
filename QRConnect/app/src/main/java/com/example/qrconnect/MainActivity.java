@@ -267,10 +267,9 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         super.onNewIntent(intent);
         if (intent.hasExtra("UPDATED_EVENT")) {
             Event updatedEvent = (Event) intent.getSerializableExtra("UPDATED_EVENT");
-            // 查找并更新 eventDataList 中对应的 Event 对象
             for (int i = 0; i < eventDataList.size(); i++) {
                 if (eventDataList.get(i).getEventId().equals(updatedEvent.getEventId())) {
-                    eventDataList.set(i, updatedEvent); // 更新对应的 Event 对象
+                    eventDataList.set(i, updatedEvent);
                     break;
                 }
             }
