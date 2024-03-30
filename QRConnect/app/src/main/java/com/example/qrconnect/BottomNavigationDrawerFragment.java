@@ -114,7 +114,6 @@ public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
         String checkInId = eventInformationProvider.getCheckInId();
         // Define the path in Firebase Storage
         StorageReference fileRef = storageRef.child("qrcodes/" + checkInId);
-        System.out.println("THIS IS A DEBUG MESSAGE");
         UploadTask uploadTask = fileRef.putFile(imageUri);
 
         uploadTask.addOnSuccessListener(taskSnapshot -> fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
