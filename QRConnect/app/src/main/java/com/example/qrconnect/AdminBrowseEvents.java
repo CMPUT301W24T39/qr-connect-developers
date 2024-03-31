@@ -1,33 +1,103 @@
 package com.example.qrconnect;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.SearchView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * The AdminBrowseEvents class manages the admin browse events page.
  * It extends AppCompatActivity.
  */
 public class AdminBrowseEvents extends AppCompatActivity {
+    private ListView adminEventsList;
+    private ArrayList<Event> adminEventDataList;
+    private AdminEventAdapter adminEventAdapter;
+    private FirebaseFirestore db;
+    private CollectionReference eventsRef;
 
     /**
      * Called when the activity is first created. Responsible for initializing the admin browse events page.
+     *
      * @param savedInstanceState If the activity is being re-initialized after
-     *     previously being shut down then this Bundle contains the data it most
-     *     recently supplied in {@link #onSaveInstanceState}. Otherwise it is null.
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState}. Otherwise it is null.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.admin_browse_events);
 
+        // Back button to the admin menu
         ImageButton backButton = findViewById(R.id.admin_browse_events_back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finish();
+            }
+        });
+
+        // Notification database initialization with Firebase
+        db = FirebaseFirestore.getInstance();
+        eventsRef = db.collection("events");
+
+        adminEventsList = findViewById(R.id.admin_browse_events_list);
+        adminEventDataList = new ArrayList<>();
+        adminEventAdapter = new AdminEventAdapter(this, adminEventDataList);
+        adminEventsList.setAdapter(adminEventAdapter);
+
+        getEvents();
+    }
+
+    /**
+     * Get events from Firestore Database and update the events ListView
+     */
+    private void getEvents() {
+        eventsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.e("Firestore", error.toString());
+                    return;
+                }
+                if (querySnapshots != null) {
+                    adminEventDataList.clear();
+                    for (QueryDocumentSnapshot doc: querySnapshots){
+                        String eventId = doc.getId();
+                        String eventTitle = doc.getString("title");
+                        String eventDate = doc.getString("date");
+                        String eventTime = doc.getString("time");
+                        String eventLocation = doc.getString("location");
+                        String eventAnnouncement = doc.getString("announcement");
+                        String checkInId = doc.getString("checkInQRCodeImageUrl");
+                        String promoId = doc.getString("promoQRCodeImageUrl");
+                        String hostId = doc.getString("hostId");
+                        HashMap<String, Long> attendeeListIdToTimes = (HashMap<String, Long>) doc.get("attendeeListIdToTimes");
+                        HashMap<String, String> attendeeListIdToName = (HashMap<String, String>) doc.get("attendeeListIdToName");
+                        adminEventDataList.add(new Event(eventTitle, eventDate,eventTime,
+                                eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
+                                hostId, attendeeListIdToTimes, attendeeListIdToName));
+                        Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate,eventTime, eventLocation, 0, eventAnnouncement, checkInId, promoId, eventId));
+                    }
+                    adminEventAdapter.notifyDataSetChanged();
+                }
             }
         });
     }
