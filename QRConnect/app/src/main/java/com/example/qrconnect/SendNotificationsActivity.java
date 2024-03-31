@@ -36,6 +36,7 @@ public class SendNotificationsActivity extends AppCompatActivity {
     private EditText descriptionEditText;
     private FirebaseFirestore db;
     private CollectionReference notificationsRef;
+    private String userId;
 
     /**
      * Called when the activity is first created. Responsible for initializing the send notifications.
@@ -48,12 +49,15 @@ public class SendNotificationsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.send_notification);
 
+        // Get user ID from SharedPreferences
+        userId = UserPreferences.getUserId(this);
+
         // Get event from the event details page
         Event event = (Event) getIntent().getSerializableExtra("event");
 
         // Send notification database initialization with Firebase
         db = FirebaseFirestore.getInstance();
-        notificationsRef = db.collection("notifications");
+        notificationsRef = db.collection("users").document(userId).collection("notifications");
 
         // Initialize edit text fields for the notification
         titleEditText = findViewById(R.id.send_notification_title);

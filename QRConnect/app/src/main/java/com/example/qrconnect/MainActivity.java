@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
     private CollectionReference globalEventsRef;
-    private static CollectionReference notificationsRef;
+    private static CollectionReference userNotificationsRef;
     private ActivityResultLauncher<Intent> eventDetailsInitializeActivity;
     private EventAdapter eventAdapter;
     private NotificationListener notificationListener;
@@ -110,11 +110,17 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         // Get user ID from SharedPreferences
         userId = UserPreferences.getUserId(this);
 
+        // Initialize database
+        db = FirebaseFirestore.getInstance();
+        eventsRef = db.collection("users").document(userId).collection("events");
+        globalEventsRef = db.collection("events");
+        userNotificationsRef = db.collection("users").document(userId).collection("notifications");
+
         // Start the notification listener to check notifications in real time and update the UI accordingly
-        notificationListener = new NotificationListener(this);
+        notificationListener = new NotificationListener(this, userNotificationsRef);
         notificationListener.startListening();
         // Initialize milestone manager
-        milestoneManager= new MilestoneManager(this);
+        milestoneManager= new MilestoneManager(this, userNotificationsRef, eventsRef);
         milestoneManager.startManager();
 
         // Initialize buttons
@@ -127,12 +133,6 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         // Initialize adapters
         eventAdapter = new EventAdapter(this, eventDataList);
         eventList.setAdapter(eventAdapter);
-
-        // Initialize database
-        db = FirebaseFirestore.getInstance();
-        eventsRef = db.collection("users").document(userId).collection("events");
-        globalEventsRef = db.collection("events");
-        notificationsRef = db.collection("notifications");
 
 //        eventDetailsInitializeActivity = registerForActivityResult(
 //                new ActivityResultContracts.StartActivityForResult(),
@@ -454,7 +454,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
      * If not all the notifications are read, make the alert on the notification bell visible.
      */
     public void checkNotifications() {
-        notificationsRef.get().addOnCompleteListener(task -> {
+        userNotificationsRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 boolean allRead = true;
                 for (QueryDocumentSnapshot document : task.getResult()) {
@@ -482,7 +482,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
      */
     private void markNotificationsAsRead() {
         // For notificationRead that are false
-        notificationsRef.whereEqualTo("notificationRead", false)
+        userNotificationsRef.whereEqualTo("notificationRead", false)
             .get()
             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
@@ -490,7 +490,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             // Change notificationRead to true
-                            notificationsRef.document(document.getId()).update("notificationRead", true);
+                            userNotificationsRef.document(document.getId()).update("notificationRead", true);
                         }
                     }
                 }

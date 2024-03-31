@@ -24,10 +24,9 @@ public class MilestoneListener {
      * Get MilestoneManager instance.
      * @param milestoneManager the MainActivity instance.
      */
-    public MilestoneListener(MilestoneManager milestoneManager) {
+    public MilestoneListener(MilestoneManager milestoneManager, CollectionReference events) {
         activity = milestoneManager;
-        db = FirebaseFirestore.getInstance();
-        eventsRef = db.collection("events");
+        eventsRef = events;
     }
 
     /**

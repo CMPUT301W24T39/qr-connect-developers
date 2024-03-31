@@ -24,22 +24,23 @@ public class MilestoneManager {
     private static Integer capacity;
     private FirebaseFirestore db;
     private CollectionReference notificationsRef;
+    private CollectionReference eventsRef;
     private MilestoneListener milestoneListener;
     private MainActivity activity;
 
     /**
      * MilestoneManager constructor.
      */
-    public MilestoneManager(MainActivity mainActivity){
+    public MilestoneManager(MainActivity mainActivity, CollectionReference notifications, CollectionReference events){
         activity = mainActivity;
         // Send notification database initialization with Firebase
-        db = FirebaseFirestore.getInstance();
-        notificationsRef = db.collection("notifications");
+        notificationsRef = notifications;
+        eventsRef = events;
     }
 
     public void startManager() {
         // Start the notification listener to check notifications in real time and update the UI accordingly
-        milestoneListener = new MilestoneListener(this);
+        milestoneListener = new MilestoneListener(this, eventsRef);
         milestoneListener.startListening();
     }
 
@@ -50,7 +51,7 @@ public class MilestoneManager {
      * @param currentAttendance the current attendance of the event.
      */
     public void checkMilestones(String eventTitle, Integer capacity, Integer currentAttendance) {
-        List<Integer> milestones = Arrays.asList(10, 25, 50, 100, 500);
+        List<Integer> milestones = Arrays.asList(3, 5, 10, 25, 50, 100);
 
         // First person milestone
         if (currentAttendance == 1) {
@@ -71,7 +72,7 @@ public class MilestoneManager {
         // Checks if the current attendance is at the capacity
         if (currentAttendance == capacity && capacity != 0) {
             String title = "Event Milestone Reached!";
-            String description = "Congratulations! Your event has reached its capacity of " + capacity + " !";
+            String description = "Congratulations! Your event has reached its capacity of " + capacity + "!";
             sendNotification(eventTitle, title, description);
         }
     }
