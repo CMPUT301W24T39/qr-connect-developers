@@ -21,25 +21,24 @@ import java.util.List;
  * The MilestoneManager class manages the event milestone notifications.
  */
 public class MilestoneManager {
-    private static Integer capacity;
-    private FirebaseFirestore db;
     private CollectionReference notificationsRef;
+    private CollectionReference eventsRef;
     private MilestoneListener milestoneListener;
     private MainActivity activity;
 
     /**
      * MilestoneManager constructor.
      */
-    public MilestoneManager(MainActivity mainActivity){
+    public MilestoneManager(MainActivity mainActivity, CollectionReference events, CollectionReference notifications){
         activity = mainActivity;
         // Send notification database initialization with Firebase
-        db = FirebaseFirestore.getInstance();
-        notificationsRef = db.collection("notifications");
+        notificationsRef = events;
+        eventsRef = notifications;
     }
 
     public void startManager() {
         // Start the notification listener to check notifications in real time and update the UI accordingly
-        milestoneListener = new MilestoneListener(this);
+        milestoneListener = new MilestoneListener(this, eventsRef);
         milestoneListener.startListening();
     }
 

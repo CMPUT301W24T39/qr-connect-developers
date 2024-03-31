@@ -17,6 +17,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 public class PromoDetailsActivity extends AppCompatActivity {
+    private String userId;
     /**
      * Initializes the activity, sets the content view, and begins the process of loading event details.
      * It retrieves the event ID passed from the previous activity and uses it to load the corresponding
@@ -28,6 +29,10 @@ public class PromoDetailsActivity extends AppCompatActivity {
      */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Get user ID from SharedPreferences
+        userId = UserPreferences.getUserId(this);
+
         String eventId = getIntent().getStringExtra("EVENT_ID");
         Log.d("Promo Details Activity", "Received event ID: " + eventId);
         setContentView(R.layout.activity_promo_detatils);
@@ -43,7 +48,7 @@ public class PromoDetailsActivity extends AppCompatActivity {
      */
     private void loadPromoDetails(String eventId){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference eventRef = db.collection("events").document(eventId);
+        DocumentReference eventRef = db.collection("users").document(userId).collection("events").document(eventId);
 
         eventRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {

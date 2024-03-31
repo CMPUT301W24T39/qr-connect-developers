@@ -54,11 +54,16 @@ public class BarcodeScanningActivity extends AppCompatActivity {
     private long lastActionTime = 0;// To prevent rapid multiple scans issue.
     private Event targetEvent;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private String userId;
     //private String currentUserId = UserPreferences.getUserId(getApplicationContext());
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_barcode_scanning);
+
+        // Get user ID from SharedPreferences
+        userId = UserPreferences.getUserId(this);
+
         startCamera();
         initializeScanningLine();
         setUpBackButton();
@@ -272,7 +277,7 @@ public class BarcodeScanningActivity extends AppCompatActivity {
     }
 
     private void readEventFromDatabase(String eventId) {
-        DocumentReference eventRef = db.collection("events").document(eventId);
+        DocumentReference eventRef = db.collection("users").document(userId).collection("events").document(eventId);
         eventRef.get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
@@ -326,7 +331,7 @@ public class BarcodeScanningActivity extends AppCompatActivity {
     }
 
     private void proceedWithConfirmAction() {
-        DocumentReference eventRef = db.collection("events")
+        DocumentReference eventRef = db.collection("users").document(userId).collection("events")
                 .document(targetEvent.getEventId());
         String currentUserId = UserPreferences.getUserId(getApplicationContext());
 
@@ -430,7 +435,7 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         String qrCodeType = scanResult.split("_")[1];
         EventIdType eventType = determineEventType(qrCodeType); // Determine event type
 
-        db.collection("events").whereEqualTo("eventId", qrCodeIdentifier)
+        db.collection("users").document(userId).collection("events").whereEqualTo("eventId", qrCodeIdentifier)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

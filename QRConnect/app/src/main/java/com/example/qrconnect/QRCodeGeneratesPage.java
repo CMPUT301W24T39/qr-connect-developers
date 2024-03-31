@@ -53,6 +53,7 @@ public class QRCodeGeneratesPage extends AppCompatActivity implements BottomNavi
     private ImageButton backButton1;
     private FirebaseFirestore db;
     Event currentEvent;
+    private String userId;
 
     ActivityResultLauncher<Intent> selectEventLauncher;
     /**
@@ -65,6 +66,9 @@ public class QRCodeGeneratesPage extends AppCompatActivity implements BottomNavi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.qr_code_generates_page);
+
+        // Get user ID from SharedPreferences
+        String userId = UserPreferences.getUserId(this);
 
         backButton1 = findViewById(R.id.arrow_back_1);
         db = FirebaseFirestore.getInstance();
@@ -192,7 +196,7 @@ public class QRCodeGeneratesPage extends AppCompatActivity implements BottomNavi
      */
     private void updateEvent(Event event, String fieldName, String Id) {
 
-        db.collection("events")
+        db.collection("users").document(userId).collection("events")
                 .document(event.getEventId())
                 .update(fieldName, Id);
     }

@@ -4,14 +4,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The AdminEventAdapter class makes the objects in adminEventDataList to be able to show in the view.
@@ -47,7 +45,7 @@ public class AdminEventAdapter extends ArrayAdapter<Event> {
         View view = convertView;
 
         if(view == null){
-            view = LayoutInflater.from(context).inflate(R.layout.list_event, parent,false);
+            view = LayoutInflater.from(context).inflate(R.layout.list_event_organizer, parent,false);
         }
 
         Event event = events.get(position);

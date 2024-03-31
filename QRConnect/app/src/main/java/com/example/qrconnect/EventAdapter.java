@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The EventAdapter class makes the objects in eventDataList to be able to show in the view.
@@ -38,15 +37,23 @@ public class EventAdapter extends ArrayAdapter<Event> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View view;
+        Event event = events.get(position);
+        String userId = UserPreferences.getUserId(EventAdapter.this.getContext());
+        String hostId = event.getHostId();
+
+
         if(convertView == null){
-            view = LayoutInflater.from(getContext()).inflate(R.layout.list_event, parent, false);
+            if (userId.equals(hostId)) {
+                view = LayoutInflater.from(getContext()).inflate(R.layout.list_event_organizer, parent, false);
+            }
+            else {
+                view = LayoutInflater.from(getContext()).inflate(R.layout.list_event_attendee, parent, false);
+            }
         } else {
             view = convertView;
         }
 
-        Event event = events.get(position);
         TextView eventTitle = view.findViewById(R.id.event_title_text);
-
         eventTitle.setText(event.getEventTitle());
 
         return view;
@@ -66,7 +73,7 @@ public class EventAdapter extends ArrayAdapter<Event> {
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
         View view;
         if(convertView == null){
-            view = LayoutInflater.from(getContext()).inflate(R.layout.list_event, parent, false);
+            view = LayoutInflater.from(getContext()).inflate(R.layout.list_event_organizer, parent, false);
         } else {
             view = convertView;
         }

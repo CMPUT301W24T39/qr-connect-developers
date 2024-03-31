@@ -57,6 +57,7 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
     private DatePickerDialog.OnDateSetListener mDateSetListener;
     private TimePickerDialog.OnTimeSetListener mTimeSetListener;
     String fieldName = "eventPoster";
+    private String userId;
 
     Event updatedEvent;
     private int year, month, day, hour, minute;
@@ -64,6 +65,9 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_details_initialize_activity);
+
+        // Get user ID from SharedPreferences
+        userId = UserPreferences.getUserId(this);
 
         EditText eventTitle = findViewById(R.id.init_event_title_edittext);
         EditText eventDescriptionEdit = findViewById(R.id.init_event_description_edit);
@@ -92,7 +96,7 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
         Event currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference eventRef = db.collection("events").document(currentEvent.getEventId());
+        DocumentReference eventRef = db.collection("users").document(userId).collection("events").document(currentEvent.getEventId());
         StorageReference eventPosterRef = storageRef.child("eventposters/" + currentEvent.getEventId() + "_" + fieldName + ".jpg");
         loadEventPoster(eventPosterRef, eventPoster);
         loadEventData(eventRef, eventTitle, eventDescriptionEdit, eventDate, eventTime, eventLocation, eventCapacity, eventCurrentAttendance);
@@ -264,7 +268,7 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DocumentReference docRef = db.collection("events").document(currentEvent.getEventId());
+                DocumentReference docRef = db.collection("users").document(userId).collection("events").document(currentEvent.getEventId());
 
 //                if (updatedEvent != null) {
 //                    Intent resultIntent = new Intent();

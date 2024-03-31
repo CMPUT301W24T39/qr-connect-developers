@@ -65,10 +65,15 @@ public class EventDetailsActivity extends AppCompatActivity {
     private TimePickerDialog.OnTimeSetListener mTimeSetListener;
     String fieldName = "eventPoster";
     private int year, month, day, hour, minute;
+    private String userId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_details);
+
+        // Get user ID from SharedPreferences
+        userId = UserPreferences.getUserId(this);
+
         EditText eventTitle = findViewById(R.id.event_title_edittext);
         EditText eventDescriptionEdit = findViewById(R.id.event_description_edit);
         EditText eventDate = findViewById(R.id.event_date);
@@ -103,7 +108,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         Event currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference eventRef = db.collection("events").document(currentEvent.getEventId());
+        DocumentReference eventRef = db.collection("users").document(userId).collection("events").document(currentEvent.getEventId());
         StorageReference eventPosterRef = storageRef.child("eventposters/" + currentEvent.getEventId() + "_" + fieldName + ".jpg");
         loadEventPoster(eventPosterRef, eventPoster);
         loadEventData(eventRef, eventTitle, eventDescriptionEdit, eventDate,

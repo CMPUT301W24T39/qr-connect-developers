@@ -14,20 +14,17 @@ import java.util.Map;
  * Calls the sendNotifications() in MilestoneManager to send milestone notifications based on current attendance of an event.
  */
 public class MilestoneListener {
-    private FirebaseFirestore db;
     private CollectionReference eventsRef;
     private ListenerRegistration listenerRegistration;
     private MilestoneManager activity;
-
     /**
      * MilestoneListener constructor.
      * Get MilestoneManager instance.
      * @param milestoneManager the MainActivity instance.
      */
-    public MilestoneListener(MilestoneManager milestoneManager) {
+    public MilestoneListener(MilestoneManager milestoneManager, CollectionReference events) {
         activity = milestoneManager;
-        db = FirebaseFirestore.getInstance();
-        eventsRef = db.collection("events");
+        eventsRef = events;
     }
 
     /**

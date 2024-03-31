@@ -36,6 +36,7 @@ public class SelectEventPage extends AppCompatActivity {
     private ImageButton backButton2;
     Event currentEvent;
     private FirebaseFirestore db;
+    private String userId;
 
     /**
      * This class defines the functions of SelectEventPage activity.
@@ -46,6 +47,10 @@ public class SelectEventPage extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+
+        // Get user ID from SharedPreferences
+        String userId = UserPreferences.getUserId(this);
+
         setContentView(R.layout.select_existing_event_qr_code);
         backButton2 = findViewById(R.id.arrow_back_2);
         currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
@@ -115,7 +120,7 @@ public class SelectEventPage extends AppCompatActivity {
     }
     private void updateEvent(Event event, String fieldName, String Id) {
 
-        db.collection("events")
+        db.collection("users").document(userId).collection("events")
                 .document(event.getEventId())
                 .update(fieldName, Id);
     }

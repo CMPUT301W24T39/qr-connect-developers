@@ -9,7 +9,6 @@ import com.google.firebase.firestore.ListenerRegistration;
  * Calls the checkNotifications() in MainActivity to update the notification bell if a notification was added or modified.
  */
 public class NotificationListener {
-    private FirebaseFirestore db;
     private CollectionReference notificationsRef;
     private ListenerRegistration listenerRegistration;
     private MainActivity activity;
@@ -19,10 +18,9 @@ public class NotificationListener {
      * Get MainActivity instance.
      * @param mainActivity the MainActivity instance.
      */
-    public NotificationListener(MainActivity mainActivity) {
+    public NotificationListener(MainActivity mainActivity, CollectionReference notifications) {
         activity = mainActivity;
-        db = FirebaseFirestore.getInstance();
-        notificationsRef = db.collection("notifications");
+        notificationsRef = notifications;
     }
 
     /**

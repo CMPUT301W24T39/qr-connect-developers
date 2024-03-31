@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
     private EventAdapter eventAdapter;
     private NotificationListener notificationListener;
     private MilestoneManager milestoneManager;
+    private String userId;
 
     /**
      * This defines the functions in main activity.
@@ -101,11 +102,21 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Get user ID from SharedPreferences
+        userId = UserPreferences.getUserId(this);
+
+        // Initialize database
+        db = FirebaseFirestore.getInstance();
+        // Event databases
+        eventsRef = db.collection("users").document(userId).collection("events");
+        // Notification database
+        notificationsRef = db.collection("users").document(userId).collection("notifications");
+
         // Start the notification listener to check notifications in real time and update the UI accordingly
-        notificationListener = new NotificationListener(this);
+        notificationListener = new NotificationListener(this, notificationsRef);
         notificationListener.startListening();
         // Initialize milestone manager
-        milestoneManager= new MilestoneManager(this);
+        milestoneManager= new MilestoneManager(this, eventsRef, notificationsRef);
         milestoneManager.startManager();
 
         // Initialize buttons
@@ -118,13 +129,6 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         // Initialize adapters
         eventAdapter = new EventAdapter(this, eventDataList);
         eventList.setAdapter(eventAdapter);
-
-        // Initialize database
-        db = FirebaseFirestore.getInstance();
-        eventsRef = db.collection("events");
-        notificationsRef = db.collection("notifications");
-
-        //checkNotifications();
 
 //        eventDetailsInitializeActivity = registerForActivityResult(
 //                new ActivityResultContracts.StartActivityForResult(),
@@ -139,7 +143,6 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
 //                    }
 //                }
 //        );
-
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -222,6 +225,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
             }
         });
 
+        // User homepage profile button
         profileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -270,6 +274,8 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                 }
             }
         });
+
+        // User homepage scan qr code button
         Button cameraButton = findViewById(R.id.qr_code_scanner_button);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
