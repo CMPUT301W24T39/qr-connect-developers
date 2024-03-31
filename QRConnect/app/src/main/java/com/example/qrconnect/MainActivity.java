@@ -275,6 +275,7 @@ public class MainActivity extends AppCompatActivity {
         data.put("eventId", event.getEventId());
         data.put("checkInQRCodeImageUrl", event.getEventCheckInId());
         data.put("promoQRCodeImageUrl", event.getEventPromoId());
+        data.put("posterURL", event.getEventPosterUrl());
 
         eventsRef
                 .document(event.getEventId())
