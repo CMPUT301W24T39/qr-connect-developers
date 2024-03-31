@@ -1,11 +1,14 @@
 package com.example.qrconnect;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
+
 import androidx.appcompat.widget.SearchView;
 
 import androidx.annotation.Nullable;
@@ -21,6 +24,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * The AdminBrowseEvents class manages the admin browse events page.
@@ -72,6 +76,24 @@ public class AdminBrowseEvents extends AppCompatActivity {
         // Referenced https://reintech.io/blog/adding-search-functionality-android-app-searchview
         searchView = findViewById(R.id.admin_events_search_view);
         setupSearchView();
+
+        // View event details when clicking on an event in the list
+        adminEventsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                try {
+                    Event currentEvent = adminEventAdapter.getItem(position);
+                    Log.d("Admin Browse Events", "Received event: " + currentEvent);
+                    String eventID = currentEvent.getEventId();
+                    Log.d("Admin Browse Events", "Received eventID: " + eventID);
+                    Intent showIntent = new Intent(AdminBrowseEvents.this, AdminEventDetails.class);
+                    showIntent.putExtra("EventID", eventID);
+                    startActivity(showIntent);
+                } catch (Exception e) {
+                    Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     /**
