@@ -14,15 +14,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The AdminEventDetails class manages the admin even details page so the admin has the option to delete the event.
@@ -32,9 +37,8 @@ public class AdminEventDetails extends AppCompatActivity implements AdminDeleteE
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
     private DocumentReference eventRef;
-    private ListView adminEventsList;
-    private ArrayList<Event> adminEventDataList;
-    private AdminEventAdapter adminEventAdapter;
+    private CollectionReference usersRef;
+    private DocumentReference userRef;
 
     /**
      * Initializes the activity, sets the content view, and begins the process of loading event details.
@@ -48,6 +52,7 @@ public class AdminEventDetails extends AppCompatActivity implements AdminDeleteE
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.admin_browse_events_event_details);
+
         // Get items from previous activity
         Event currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
         Log.d("Admin Browse Events", "Received event: " + currentEvent);
@@ -86,6 +91,7 @@ public class AdminEventDetails extends AppCompatActivity implements AdminDeleteE
     private void loadEventDetails(String eventId){
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
+        usersRef = db.collection("users");
         eventRef = eventsRef.document(eventId);
 
         eventRef.get().addOnSuccessListener(documentSnapshot -> {
@@ -132,6 +138,7 @@ public class AdminEventDetails extends AppCompatActivity implements AdminDeleteE
      * @param event This is the event to delete.
      */
     public void deleteEvent(Event event){
+        String eventId = event.getEventId();
 
         eventsRef
                 .document(event.getEventId())
@@ -148,6 +155,48 @@ public class AdminEventDetails extends AppCompatActivity implements AdminDeleteE
                         Log.w("Firestore", "Error deleting document", e);
                     }
                 });
+
+        usersRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot userDocument : task.getResult()) {
+                        String userId = userDocument.getId();
+                        CollectionReference userEvents = usersRef.document(userId).collection("events");
+                        userEvents.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> eventsTask) {
+                                if (eventsTask.isSuccessful()) {
+                                    for (QueryDocumentSnapshot eventDocument : eventsTask.getResult()) {
+                                        String userEventId = eventDocument.getId();
+                                        if (userEventId.equals(eventId)) {
+                                            userEvents.document(eventId)
+                                                    .delete()
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+                                                            Log.d("Firestore", "DocumentSnapshot successfully deleted!");
+                                                        }
+                                                    })
+                                                    .addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Log.w("Firestore", "Error deleting document", e);
+                                                        }
+                                                    });
+                                        }
+                                    }
+                                } else {
+                                    Log.d("Firestore", "Error getting documents: ", eventsTask.getException());
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    Log.d("Firestore", "Error getting documents: ", task.getException());
+                }
+            }
+        });
 
         if (event.getEventCheckInId() != null && event.getEventPromoId() != null){
             String qrCodeFilePath = "qrcodes/" + event.getEventId() + "_" + "checkInQRCodeImageUrl" + ".jpg";
