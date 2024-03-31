@@ -1,9 +1,7 @@
 package com.example.qrconnect;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -19,7 +17,7 @@ import java.util.Map;
  * It extends the AppCompatActivity class.
  */
 public class AttendeeListActivity extends AppCompatActivity {
-    private ArrayList<Attendee> attendees;
+    private ArrayList<DisplayAttendee> attendees;
     private AttendeeArrayAdapter adapter;
 
     /**
@@ -59,8 +57,8 @@ public class AttendeeListActivity extends AppCompatActivity {
      * @param event  the event related.
      * @return the list of mock attendees.
      */
-    private ArrayList<Attendee> generateAttendees(Event event) {
-        ArrayList<Attendee> displayAttendees = new ArrayList<>();
+    private ArrayList<DisplayAttendee> generateAttendees(Event event) {
+        ArrayList<DisplayAttendee> displayAttendees = new ArrayList<>();
 
         HashMap<String, String> attendeeListIdToName = event.getAttendeeListIdToName();
         HashMap<String, Long> attendeeListIdToCheckInTimes = event.getAttendeeListIdToCheckInTimes();
@@ -71,7 +69,7 @@ public class AttendeeListActivity extends AppCompatActivity {
 
             Long checkInCount = attendeeListIdToCheckInTimes.getOrDefault(userId, 0L);
 
-            Attendee attendee = new Attendee(userId, userName, null);
+            DisplayAttendee attendee = new DisplayAttendee(userId, userName);
             attendee.updateCheckInCount(event.getEventId(), checkInCount);
 
             displayAttendees.add(attendee);

@@ -55,6 +55,7 @@ public class PromoDetailsActivity extends AppCompatActivity {
                 TextView eventAddress = findViewById(R.id.promo_location_text);
                 TextView eventCapacity = findViewById(R.id.promo_capacity_text);
                 ImageView eventPoster = findViewById(R.id.promo_event_image);
+                TextView eventCurrentAttendance = findViewById(R.id.promo_event_current_attendance_text);
 
                 eventTitle.setText(documentSnapshot.getString("title"));
                 eventDescription.setText(documentSnapshot.getString("description"));
@@ -63,6 +64,8 @@ public class PromoDetailsActivity extends AppCompatActivity {
                 eventAddress.setText(documentSnapshot.getString("location"));
                 Long capacity = documentSnapshot.getLong("capacity");
                 eventCapacity.setText(capacity != null ? String.valueOf(capacity) : "0");
+                Long attendance = documentSnapshot.getLong("currentAttendance");
+                eventCurrentAttendance.setText(attendance != null ? String.valueOf(attendance) : "0");
 
                 // Load the poster image from Firebase Storage
                 FirebaseStorage storage = FirebaseStorage.getInstance();

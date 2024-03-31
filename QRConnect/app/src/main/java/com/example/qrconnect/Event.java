@@ -1,6 +1,7 @@
 package com.example.qrconnect;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.HashMap;
 
 /**
@@ -9,13 +10,11 @@ import java.util.HashMap;
  */
 public class Event implements Serializable {
     private String eventTitle;
-    private String date;
-    private String time;
+    private Calendar time;
+    private Calendar date;
     private String location;
     private Integer capacity;
     private String announcement;
-//    private Bitmap QRCodeImage;
-//    private Bitmap PromoQRCodeImage;
     private String checkInQRCodeImageUrl;
     private String promoQRCodeImageUrl;
     private String eventId;
@@ -27,7 +26,6 @@ public class Event implements Serializable {
     /**
      * Constructs an Event object with the specified details.
      * @param eventTitle the title of an event.
-     * @param date the data of an event.
      * @param time the time of an event.
      * @param location the location of an event.
      * @param capacity the capacity of an event.
@@ -38,7 +36,7 @@ public class Event implements Serializable {
      * @param hostId the id of an event organizer.
      * @param attendeeListIdToCheckInTimes the hashMap with userId and check-in#.
      */
-    public Event(String eventTitle, String date, String time, String location,
+    public Event(String eventTitle,  Calendar date, Calendar time, String location,
                  Integer capacity, String announcement, String checkInQRCodeImageUrl,
                  String promoQRCodeImageUrl, String eventId, String hostId,
                  HashMap<String, Long> attendeeListIdToCheckInTimes,
@@ -49,8 +47,6 @@ public class Event implements Serializable {
         this.location = location;
         this.capacity = capacity;
         this.announcement = announcement;
-//        this.QRCodeImage = QRCodeImage;
-//        this.PromoQRCodeImage = promoQRCodeImage;
         this.checkInQRCodeImageUrl = checkInQRCodeImageUrl;
         this.promoQRCodeImageUrl = promoQRCodeImageUrl;
         this.eventId = eventId;
@@ -63,38 +59,6 @@ public class Event implements Serializable {
      * Empty constructor for the Event class.
      */
     public Event(){};
-
-//    /**
-//     * This method gets the QR code of an event.
-//     * @return Return a QR code image.
-//     */
-//    public Bitmap getQRCodeImage() {
-//        return QRCodeImage;
-//    }
-
-//    /**
-//     * This method sets a QR code image to QRCodeImage attribute.
-//     * @param QRCodeImage the QR code of an event.
-//     */
-//    public void setQRCodeImage(Bitmap QRCodeImage) {
-//        this.QRCodeImage = QRCodeImage;
-//    }
-//
-//    /**
-//     * This method gets the Promotion QR code of an event.
-//     * @return Return the promotion QR code image.
-//     */
-//    public Bitmap getPromoQRCodeImage() {
-//        return PromoQRCodeImage;
-//    }
-//
-//    /**
-//     * This method sets a QR code image to QRCodeImage attribute.
-//     * @param promoQRCodeImage the promotion QR code of an event.
-//     */
-//    public void setPromoQRCodeImage(Bitmap promoQRCodeImage) {
-//        PromoQRCodeImage = promoQRCodeImage;
-//    }
 
     /**
      * This method gets the title of an event.
@@ -114,34 +78,31 @@ public class Event implements Serializable {
 
     /**
      * This method gets the date of an event.
-     * @return Return the date of an event.
+     * @return
      */
-    public String getDate() {
-        return date;
-    }
-
-    /**
-     * This method sets the date of an event.
-     * @param date the date of an event.
-     */
-    public void setDate(String date) {
-        this.date = date;
+    public Calendar getDate(){return date;}
+    public void setDate(int year, int month, int day){
+        this.date = Calendar.getInstance();
+        this.date.set(year, month, day);
     }
 
     /**
      * This method gets the time of an event.
      * @return Return the time of an event.
      */
-    public String getTime() {
+    public Calendar getTime() {
         return time;
     }
 
     /**
      * This method sets the time of an event.
-     * @param time the time of an event.
+     * @param hourOfDay
+     * @param minute
      */
-    public void setTime(String time) {
-        this.time = time;
+    public void setTime( int hourOfDay, int minute) {
+        this.time = Calendar.getInstance();
+        this.time.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        this.time.set(Calendar.MINUTE, minute);
     }
 
     /**

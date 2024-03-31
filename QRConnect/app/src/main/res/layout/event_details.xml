@@ -139,6 +139,7 @@
                     android:layout_height="wrap_content"/>
 
                 <ImageButton
+                    android:id="@+id/calender_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -164,6 +165,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:hint="12:00 AM/PM"/>
+
+                <Space
+                    android:layout_width="10dp"
+                    android:layout_height="wrap_content" />
+
+                <ImageButton
+                    android:id="@+id/time_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/ic_time"
+                    android:src="@drawable/ic_time" />
             </LinearLayout>
 
             <LinearLayout

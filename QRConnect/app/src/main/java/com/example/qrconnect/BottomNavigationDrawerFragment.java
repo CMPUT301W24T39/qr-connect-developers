@@ -6,14 +6,24 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -29,18 +39,42 @@ import androidx.annotation.Nullable;
  */
 public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
 
-    /**
-     * This maintains the function in the drop down menu.
-     * @param inflater The LayoutInflater object that can be used to inflate
-     * any views in the fragment.
-     * @param container If non-null, this is the parent view that the fragment's
-     * UI should be attached to. The fragment should not add the view itself,
-     * but this can be used to generate the LayoutParams of the view.
-     * @param savedInstanceState If non-null, this fragment is being re-constructed
-     * from a previous saved state as given here.
-     * @return Return a view for the drop down menu.
-     */
+    public interface EventInformationProvider {
+        String getCheckInId();
+        void onQRCodeUploaded(String downloadUrl);
+    }
+
+    private EventInformationProvider eventInformationProvider;
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
     private ActivityResultLauncher<Intent> activityResultLauncher;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof EventInformationProvider) {
+            eventInformationProvider = (EventInformationProvider) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement EventInformationProvider");
+        }
+
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
+
+        activityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null && data.getData() != null) {
+                            Uri selectedImageUri = data.getData();
+                            uploadImageToFirebase(selectedImageUri);
+                        }
+                    }
+                });
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -76,30 +110,19 @@ public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
         return rootView;
     }
 
-    /**
-     * Called when the activity is starting. Initialization should go:
-     * calling setContentView(int) to inflate the activity's UI, using findViewById(int) to
-     * programmatically interact with widgets in the UI, etc.
-     * @param savedInstanceState If the fragment is being re-created from
-     * a previous saved state, this is the state.
-     */
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    private void uploadImageToFirebase(Uri imageUri) {
+        String checkInId = eventInformationProvider.getCheckInId();
+        // Define the path in Firebase Storage
+        StorageReference fileRef = storageRef.child("qrcodes/" + checkInId);
+        System.out.println("THIS IS A DEBUG MESSAGE");
+        UploadTask uploadTask = fileRef.putFile(imageUri);
 
-        activityResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        if (result.getResultCode() == Activity.RESULT_OK) {
-                            Intent data = result.getData();
-                            if (data != null && data.getData() != null) {
-                                Uri selectedImageUri = data.getData();
-                                QRCodeGeneratesPage.QRCodeImage.setImageURI(selectedImageUri);
-                            }
-                        }
-                    }
-                });
+        uploadTask.addOnSuccessListener(taskSnapshot -> fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            Toast.makeText(getContext(), "Check-in QR code is successfully uploaded", Toast.LENGTH_SHORT).show();
+            eventInformationProvider.onQRCodeUploaded(uri.toString());
+        })).addOnFailureListener(e -> {
+            Toast.makeText(getContext(), "Check-in QR code is not successfully uploaded", Toast.LENGTH_SHORT).show();
+        });
     }
+
 }
