@@ -15,12 +15,16 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -36,6 +40,7 @@ public class SendNotificationsActivity extends AppCompatActivity {
     private EditText descriptionEditText;
     private FirebaseFirestore db;
     private CollectionReference notificationsRef;
+    private CollectionReference usersRef;
     private String userId;
 
     /**
@@ -58,6 +63,7 @@ public class SendNotificationsActivity extends AppCompatActivity {
         // Send notification database initialization with Firebase
         db = FirebaseFirestore.getInstance();
         notificationsRef = db.collection("users").document(userId).collection("notifications");
+        usersRef = db.collection("users");
 
         // Initialize edit text fields for the notification
         titleEditText = findViewById(R.id.send_notification_title);
@@ -92,6 +98,9 @@ public class SendNotificationsActivity extends AppCompatActivity {
      * Send notifications to the Firestore Database
      */
     private void sendNotification(Event event) {
+        String eventId = event.getEventId();
+        String eventHostId = event.getHostId();
+
         // Get title field from the event object
         String eventTitle = event.getEventTitle();
 
@@ -123,24 +132,59 @@ public class SendNotificationsActivity extends AppCompatActivity {
             // Create a new notification object
             Notification notification = new Notification(eventTitle, title, description, date_string, read);
 
-            // Add the notification to Firestore
-            notificationsRef.add(notification)
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                        @Override
-                        public void onSuccess(DocumentReference documentReference) {
-                            Toast.makeText(SendNotificationsActivity.this, "Notification sent successfully.", Toast.LENGTH_SHORT).show();
-                            // Clear the title and description EditText fields after sending the notification
-                            titleEditText.setText("");
-                            descriptionEditText.setText("");
+            usersRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot userDocument : task.getResult()) {
+                            String userId = userDocument.getId();
+                            CollectionReference userEvents = usersRef.document(userId).collection("events");
+                            CollectionReference userNotifications = usersRef.document(userId).collection("notifications");
+                            userEvents.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> eventsTask) {
+                                    if (eventsTask.isSuccessful()) {
+                                        for (QueryDocumentSnapshot eventDocument : eventsTask.getResult()) {
+                                            String userEventId = eventDocument.getId();
+                                            String userEventHostId = (String) eventDocument.get("hostId");
+                                            if (userEventId.equals(eventId) && !userEventHostId.equals(userId)) {
+                                                // Add the notification to Firestore
+                                                userNotifications.add(notification)
+                                                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                            @Override
+                                                            public void onSuccess(DocumentReference documentReference) {
+                                                                Toast.makeText(SendNotificationsActivity.this, "Notification sent successfully.", Toast.LENGTH_SHORT).show();
+                                                                // Clear the title and description EditText fields after sending the notification
+                                                                titleEditText.setText("");
+                                                                descriptionEditText.setText("");
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Toast.makeText(SendNotificationsActivity.this, "Failed to send notification.", Toast.LENGTH_SHORT).show();
+                                                                Log.e("Firestore", "Error adding notification.", e);
+                                                            }
+                                                        });
+                                            }
+                                        }
+                                    } else {
+                                        Log.d("Firestore", "Error getting documents: ", eventsTask.getException());
+                                    }
+                                }
+                            });
                         }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(SendNotificationsActivity.this, "Failed to send notification.", Toast.LENGTH_SHORT).show();
-                            Log.e("Firestore", "Error adding notification.", e);
-                        }
-                    });
+                    } else {
+                        Log.d("Firestore", "Error getting documents: ", task.getException());
+                    }
+                }
+            });
+
+
+
+
+
+
         }
         else {
             // If nothing entered and tried to send a notification
