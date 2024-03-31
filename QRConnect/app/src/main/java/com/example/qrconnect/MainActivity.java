@@ -36,6 +36,9 @@ import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.Serializable;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -233,7 +236,9 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         browseEventsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, AttendeeBrowseEvents.class));
+                Intent intent = new Intent(MainActivity.this, AttendeeBrowseEvents.class);
+                intent.putExtra("events", (Serializable) eventDataList);
+                startActivity(intent);
             }
         });
 
@@ -334,6 +339,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         data.put("eventId", event.getEventId());
         data.put("checkInQRCodeImageUrl", event.getEventCheckInId());
         data.put("promoQRCodeImageUrl", event.getEventPromoId());
+        data.put("posterURL", event.getEventPosterUrl());
         data.put("hostId", event.getHostId());
         data.put("attendeeListIdToTimes", event.getAttendeeListIdToCheckInTimes());
         data.put("attendeeListIdToName", event.getAttendeeListIdToName());

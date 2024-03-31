@@ -18,10 +18,12 @@ public class Event implements Serializable {
     private String checkInQRCodeImageUrl;
     private String promoQRCodeImageUrl;
     private String eventId;
+    private String eventPosterUrl;
     private String hostId;
     private HashMap<String, Long> attendeeListIdToCheckInTimes;
 
     private HashMap<String, String> attendeeListIdToName;
+
 
     /**
      * Constructs an Event object with the specified details.
@@ -222,6 +224,22 @@ public class Event implements Serializable {
         if (!this.attendeeListIdToName.containsKey(attendeeUserId)){
             this.attendeeListIdToName.put(attendeeUserId, userName);
         }
+    }
+
+    /**
+     * getter method for event poster url
+     * @return event poster url
+     */
+    public String getEventPosterUrl() {
+        return eventPosterUrl;
+    }
+
+    /**
+     * setter method for event poster url
+     * @param eventPosterUrl string to replace event poster url
+     */
+    public void setEventPosterUrl(String eventPosterUrl) {
+        this.eventPosterUrl = eventPosterUrl;
     }
 
     /**
