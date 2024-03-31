@@ -3,28 +3,39 @@ package com.example.qrconnect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
+
 /**
  * The AdminEventDetails class manages the admin even details page so the admin has the option to delete the event.
  * It extends AppCompatActivity.
  */
-public class AdminEventDetails extends AppCompatActivity {
+public class AdminEventDetails extends AppCompatActivity implements AdminDeleteEventFragment.AdminDeleteEventDialogListener {
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
     private DocumentReference eventRef;
+    private ListView adminEventsList;
+    private ArrayList<Event> adminEventDataList;
+    private AdminEventAdapter adminEventAdapter;
+
     /**
      * Initializes the activity, sets the content view, and begins the process of loading event details.
      * It retrieves the event ID passed from the previous activity and uses it to load the corresponding
@@ -36,9 +47,13 @@ public class AdminEventDetails extends AppCompatActivity {
      */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String eventId = getIntent().getStringExtra("EVENT_ID");
-        Log.d("Promo Details Activity", "Received event ID: " + eventId);
         setContentView(R.layout.admin_browse_events_event_details);
+        // Get items from previous activity
+        Event currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
+        Log.d("Admin Browse Events", "Received event: " + currentEvent);
+        String eventId = currentEvent.getEventId();
+
+        // Get event details for the event that was clicked on
         loadEventDetails(eventId);
 
         // Back button to the admin event browse page
@@ -49,7 +64,18 @@ public class AdminEventDetails extends AppCompatActivity {
                 finish();
             }
         });
+
+        // Delete button
+        Button deleteButton = findViewById(R.id.admin_delete_event_button);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getSupportFragmentManager() != null) {
+                    new AdminDeleteEventFragment(currentEvent, AdminEventDetails.this).show(getSupportFragmentManager(), "Delete Event");
+            }   }
+        });
     }
+
     /**
      * Fetches and displays the details of an event including its title, description, date, time, location,
      * and capacity from Firestore. It also retrieves the event's poster image from Firebase Storage and displays
@@ -98,6 +124,54 @@ public class AdminEventDetails extends AppCompatActivity {
             }
         }).addOnFailureListener(e -> {
             Log.d("EventDetails", "Error fetching document: ", e);
+        });
+    }
+
+    /**
+     * This deletes an event from the firebase.
+     * @param event This is the event to delete.
+     */
+    public void deleteEvent(Event event){
+
+        eventsRef
+                .document(event.getEventId())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("Firestore", "DocumentSnapshot successfully deleted!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("Firestore", "Error deleting document", e);
+                    }
+                });
+
+        if (event.getEventCheckInId() != null && event.getEventPromoId() != null){
+            String qrCodeFilePath = "qrcodes/" + event.getEventId() + "_" + "checkInQRCodeImageUrl" + ".jpg";
+            String promoQrCodeFilePath = "qrcodes/" + event.getEventId() + "_" + "promoQRCodeImageUrl" + ".jpg";
+            deleteQRCodesFromStorage(qrCodeFilePath);
+            deleteQRCodesFromStorage(promoQrCodeFilePath);
+        }
+        finish();
+    }
+
+    private void deleteQRCodesFromStorage(String filePath) {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference fileRef = storage.getReference().child(filePath);
+
+        fileRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("Storage", "File successfully deleted!");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w("Storage", "Error deleting file", e);
+            }
         });
     }
 }

@@ -23,6 +23,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -83,11 +84,10 @@ public class AdminBrowseEvents extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 try {
                     Event currentEvent = adminEventAdapter.getItem(position);
-                    Log.d("Admin Browse Events", "Received event: " + currentEvent);
-                    String eventID = currentEvent.getEventId();
-                    Log.d("Admin Browse Events", "Received eventID: " + eventID);
+                    Log.d("Admin Browse Events", "Given event: " + adminEventDataList);
+                    Log.d("Admin Browse Events", "Given event list: " + currentEvent);
                     Intent showIntent = new Intent(AdminBrowseEvents.this, AdminEventDetails.class);
-                    showIntent.putExtra("EventID", eventID);
+                    showIntent.putExtra("EVENT", currentEvent);
                     startActivity(showIntent);
                 } catch (Exception e) {
                     Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -113,8 +113,20 @@ public class AdminBrowseEvents extends AppCompatActivity {
                     for (QueryDocumentSnapshot doc: querySnapshots){
                         String eventId = doc.getId();
                         String eventTitle = doc.getString("title");
-                        String eventDate = doc.getString("date");
-                        String eventTime = doc.getString("time");
+                        String eventTimeString = doc.getString("time");
+                        Calendar eventTime = null;
+                        if (eventTimeString != null && !eventTimeString.isEmpty()) {
+                            eventTime = TimeConverter.stringToCalendar(eventTimeString);
+                        } else {
+                            Log.e("Firestore", "Event time is null or empty for document: " + doc.getId());
+                        }
+                        String eventDateString = doc.getString("date");
+                        Calendar eventDate = null;
+                        if (eventDateString != null && !eventDateString.isEmpty()) {
+                            eventDate = DateConverter.stringToCalendar(eventDateString);
+                        } else {
+                            Log.e("Firestore", "Event time is null or empty for document: " + doc.getId());
+                        }
                         String eventLocation = doc.getString("location");
                         String eventAnnouncement = doc.getString("announcement");
                         String checkInId = doc.getString("checkInQRCodeImageUrl");

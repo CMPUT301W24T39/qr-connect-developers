@@ -36,8 +36,8 @@
 
         <ImageView
             android:id="@+id/admin_event_image"
-            android:layout_width="279dp"
-            android:layout_height="200dp"
+            android:layout_width="315dp"
+            android:layout_height="259dp"
             android:layout_marginTop="16dp"
             android:scaleType="centerCrop"
             android:src="@mipmap/ic_launcher" />
@@ -76,7 +76,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20sp"
                 android:text="Date: "
-                android:textSize="16sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -84,7 +84,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="dd/mm/yyyy"
-                android:textSize="16sp" />
+                android:textSize="20sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -97,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20sp"
                 android:text="Time: "
-                android:textSize="16sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -105,7 +105,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="HH:MM"
-                android:textSize="16sp" />
+                android:textSize="20sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -118,7 +118,7 @@
                 android:layout_height="wrap_content"
                 android:text="Location: "
                 android:layout_marginLeft="20sp"
-                android:textSize="16sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -126,7 +126,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Address"
-                android:textSize="16sp" />
+                android:textSize="20sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -139,7 +139,7 @@
                 android:layout_height="wrap_content"
                 android:text="Capacity: "
                 android:layout_marginLeft="20sp"
-                android:textSize="16sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -147,7 +147,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="X"
-                android:textSize="16sp" />
+                android:textSize="20sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -160,7 +160,7 @@
                 android:layout_height="wrap_content"
                 android:text="Current Attendance: "
                 android:layout_marginLeft="20sp"
-                android:textSize="16sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -168,7 +168,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Y"
-                android:textSize="16sp" />
+                android:textSize="20sp" />
         </LinearLayout>
     </LinearLayout>
 
@@ -176,7 +176,7 @@
         android:id="@+id/admin_delete_event_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="10dp"
         android:layout_gravity="center"
         android:text="DELETE EVENT" />
 </LinearLayout>
