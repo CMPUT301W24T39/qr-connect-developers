@@ -30,11 +30,12 @@ import java.util.Date;
  */
 public class AttendeeNotifications extends AppCompatActivity {
 
-    ListView notificationsList;
-    ArrayList<Notification> notificationsDataList;
-    NotificationArrayAdapter notificationArrayAdapter;
+    private ListView notificationsList;
+    private ArrayList<Notification> notificationsDataList;
+    private NotificationArrayAdapter notificationArrayAdapter;
     private FirebaseFirestore db;
     private CollectionReference notificationsRef;
+    private String userId;
 
     /**
      * Called when the activity is first created. Responsible for initializing the notifications page.
@@ -47,6 +48,9 @@ public class AttendeeNotifications extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.attendee_notifications);
 
+        // Get user ID from SharedPreferences
+        userId = UserPreferences.getUserId(this);
+
         // Notification back button to the user home screen
         ImageButton backButton = findViewById(R.id.attendee_notifications_page_back_nav_button);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -56,9 +60,9 @@ public class AttendeeNotifications extends AppCompatActivity {
             }
         });
 
-        // Notification database initialization with Firebase
+        // Notification database initialization with Firebase, unique to the user id
         db = FirebaseFirestore.getInstance();
-        notificationsRef = db.collection("notifications");
+        notificationsRef = db.collection("users").document(userId).collection("notifications");
 
         notificationsList = findViewById(R.id.notifications_list);
         notificationsDataList = new ArrayList<>();

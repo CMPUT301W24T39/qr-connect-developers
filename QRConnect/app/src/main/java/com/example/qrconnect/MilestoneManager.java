@@ -71,7 +71,7 @@ public class MilestoneManager {
         // Checks if the current attendance is at the capacity
         if (currentAttendance == capacity && capacity != 0) {
             String title = "Event Milestone Reached!";
-            String description = "Congratulations! Your event has reached its capacity of " + capacity + " !";
+            String description = "Congratulations! Your event has reached its capacity of " + capacity + "!";
             sendNotification(eventTitle, title, description);
         }
     }
