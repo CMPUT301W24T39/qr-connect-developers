@@ -66,10 +66,16 @@ public class EventDetailsActivity extends AppCompatActivity {
     private TimePickerDialog.OnTimeSetListener mTimeSetListener;
     String fieldName = "eventPoster";
     private int year, month, day, hour, minute;
+    private String userId;
+    private CollectionReference userEventsRef;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_details);
+
+        // Get user ID from SharedPreferences
+        userId = UserPreferences.getUserId(this);
+
         EditText eventTitle = findViewById(R.id.event_title_edittext);
         EditText eventDescriptionEdit = findViewById(R.id.event_description_edit);
         EditText eventDate = findViewById(R.id.event_date);
@@ -104,10 +110,15 @@ public class EventDetailsActivity extends AppCompatActivity {
         Event currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        userEventsRef = db.collection("users").document(userId).collection("events");
         DocumentReference eventRef = db.collection("events").document(currentEvent.getEventId());
+        DocumentReference userEventRef = userEventsRef.document(currentEvent.getEventId());
         StorageReference eventPosterRef = storageRef.child("eventposters/" + currentEvent.getEventId() + "_" + fieldName + ".jpg");
         loadEventPoster(eventPosterRef, eventPoster);
         loadEventData(eventRef, eventTitle, eventDescriptionEdit, eventDate,
+                eventTime, eventLocation, eventCapacity, limitCapacitySwitch,
+                eventCurrentAttendance);
+        loadEventData(userEventRef, eventTitle, eventDescriptionEdit, eventDate,
                 eventTime, eventLocation, eventCapacity, limitCapacitySwitch,
                 eventCurrentAttendance);
 
@@ -150,6 +161,22 @@ public class EventDetailsActivity extends AppCompatActivity {
                                                 Log.d("Upload", "Image uploaded successfully: " + downloadUrl);
                                                 // Update the posterURL field in Firestore
                                                 db.collection("events").document(currentEvent.getEventId())
+                                                        .set(eventData, SetOptions.merge())
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                // Poster URL updated successfully
+                                                                Log.d("FirestoreUpdate", "Poster URL updated successfully for event: " + currentEvent.getEventId());
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                // Failed to update the poster URL
+                                                                Log.e("FirestoreUpdate", "Failed to update poster URL for event: " + currentEvent.getEventId(), e);
+                                                            }
+                                                        });
+                                                userEventsRef.document(currentEvent.getEventId())
                                                         .set(eventData, SetOptions.merge())
                                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                             @Override
@@ -263,6 +290,16 @@ public class EventDetailsActivity extends AppCompatActivity {
 
             // Save or update the event in Firestore
             eventRef.update(
+                            "title", title,
+                            "description", description,
+                            "date", date,
+                            "time", time,
+                            "location", location,
+                            "capacity", capacity
+                    )
+                    .addOnSuccessListener(aVoid -> Toast.makeText(EventDetailsActivity.this, "Event updated successfully", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(EventDetailsActivity.this, "Error updating event", Toast.LENGTH_SHORT).show());
+            userEventRef.update(
                             "title", title,
                             "description", description,
                             "date", date,
