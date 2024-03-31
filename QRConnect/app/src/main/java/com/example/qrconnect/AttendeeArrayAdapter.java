@@ -11,18 +11,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The AttendeeArrayAdapter class provides a way to adapt an ArrayList of Attendee objects
  * to be displayed in an AdapterView.
  * It extends the ArrayAdapter Class.
  */
-public class AttendeeArrayAdapter extends ArrayAdapter<Attendee> {
+public class AttendeeArrayAdapter extends ArrayAdapter<DisplayAttendee> {
 
-    private ArrayList<Attendee> attendees;
+    private ArrayList<DisplayAttendee> attendees;
     private Context context;
-    private Integer eventId;
+    private String eventId;
 
     /**
      * Constructs an instance of the AttendeeArrayAdapter.
@@ -30,7 +29,7 @@ public class AttendeeArrayAdapter extends ArrayAdapter<Attendee> {
      * @param attendees attendees for AttendeeArrayAdapter.
      * @param eventId eventID for AttendeeArrayAdapter.
      */
-    public AttendeeArrayAdapter(Context context, ArrayList<Attendee> attendees, Integer eventId) {
+    public AttendeeArrayAdapter(Context context, ArrayList<DisplayAttendee> attendees, String eventId) {
         super(context, 0, attendees);
         this.attendees = attendees;
         this.context = context;
@@ -52,12 +51,11 @@ public class AttendeeArrayAdapter extends ArrayAdapter<Attendee> {
             view = LayoutInflater.from(context).inflate(R.layout.attendee_content, parent,false);
         }
 
-        Attendee attendee = attendees.get(position);
-
+        DisplayAttendee attendee = attendees.get(position);
         TextView attendeeName = view.findViewById(R.id.attendee_name_text);
         TextView attendeeCheckInCount = view.findViewById(R.id.attendee_sign_in_count);
 
-        attendeeName.setText(attendee.getName());
+        attendeeName.setText(attendee.getUserName());
         attendeeCheckInCount.setText(String.valueOf(attendee.getCheckInCount(eventId)));
 
         return view;

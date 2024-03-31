@@ -1,9 +1,7 @@
 package com.example.qrconnect;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -11,13 +9,15 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The AttendeeListActivity class represents an activity that displays a list of attendees.
  * It extends the AppCompatActivity class.
  */
 public class AttendeeListActivity extends AppCompatActivity {
-    private ArrayList<Attendee> attendees;
+    private ArrayList<DisplayAttendee> attendees;
     private AttendeeArrayAdapter adapter;
 
     /**
@@ -31,17 +31,17 @@ public class AttendeeListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.show_attendee_list);
-
-        attendees = generateMockAttendees();
         Event currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
-
-//        System.out.println("The check in id is " +currentEvent.getEventId());
+        attendees = generateAttendees(currentEvent);
         ListView attendeeListView = findViewById(R.id.show_attendee_list_view);
-
         ImageButton backButton = findViewById(R.id.attendee_list_back_nav_button);
 
+        //Display total attendee
+        TextView currentAttendees = findViewById(R.id.attendee_list_count_current_attendance);
+        currentAttendees.setText(String.valueOf(attendees.size()));
+
         // Create adapter and set it to the ListView
-        adapter = new AttendeeArrayAdapter(this, attendees, 000000);
+        adapter = new AttendeeArrayAdapter(this, attendees, currentEvent.getEventId());
         attendeeListView.setAdapter(adapter);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,23 +53,28 @@ public class AttendeeListActivity extends AppCompatActivity {
     }
 
     /**
-     * Generates mock attendees for testing purposes.
+     * Generates attendees for displaying.
+     * @param event  the event related.
      * @return the list of mock attendees.
      */
-    private ArrayList<Attendee> generateMockAttendees() {
-        ArrayList<Attendee> mockAttendees = new ArrayList<>();
-        // Add mock attendees
-        mockAttendees.add(new Attendee("1", "John Doe", null));
-        mockAttendees.add(new Attendee("2", "Jane Smith", null));
-        mockAttendees.add(new Attendee("3", "Alice Johnson", null));
-        mockAttendees.add(new Attendee("4", "Bob Brown", null));
-        mockAttendees.add(new Attendee("5", "Emma Wilson", null));
-        mockAttendees.add(new Attendee("6", "Michael Davis", null));
-        mockAttendees.add(new Attendee("7", "Emily Anderson", null));
-        mockAttendees.add(new Attendee("8", "David Miller", null));
-        mockAttendees.add(new Attendee("9", "Sarah Garcia", null));
-        mockAttendees.add(new Attendee("10", "Ryan Martinez", null));
-        // Add more attendees as needed
-        return mockAttendees;
+    private ArrayList<DisplayAttendee> generateAttendees(Event event) {
+        ArrayList<DisplayAttendee> displayAttendees = new ArrayList<>();
+
+        HashMap<String, String> attendeeListIdToName = event.getAttendeeListIdToName();
+        HashMap<String, Long> attendeeListIdToCheckInTimes = event.getAttendeeListIdToCheckInTimes();
+
+        for (Map.Entry<String, String> entry : attendeeListIdToName.entrySet()) {
+            String userId = entry.getKey();
+            String userName = entry.getValue();
+
+            Long checkInCount = attendeeListIdToCheckInTimes.getOrDefault(userId, 0L);
+
+            DisplayAttendee attendee = new DisplayAttendee(userId, userName);
+            attendee.updateCheckInCount(event.getEventId(), checkInCount);
+
+            displayAttendees.add(attendee);
+        }
+
+        return displayAttendees;
     }
 }
