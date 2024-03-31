@@ -26,6 +26,7 @@ public class Event implements Serializable {
     private String promoQRCodeImageUrl;
     private String eventId;
     protected ArrayList<Attendee> AttendeeList;
+    private String eventPosterUrl;
 
     /**
      * Constructs an Event object with the specified details.
@@ -251,5 +252,13 @@ public class Event implements Serializable {
      */
     public void addAttendee(Attendee attendee) {
         AttendeeList.add(attendee);
+    }
+
+    public String getEventPosterUrl() {
+        return eventPosterUrl;
+    }
+
+    public void setEventPosterUrl(String eventPosterUrl) {
+        this.eventPosterUrl = eventPosterUrl;
     }
 }

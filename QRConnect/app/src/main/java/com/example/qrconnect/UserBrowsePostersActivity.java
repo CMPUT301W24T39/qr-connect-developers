@@ -10,12 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * The AttendeeBrowseEvents class manages the user browse events by posters page.
- * It extends AppCompatActivity.
- */
-public class AttendeeBrowseEvents extends AppCompatActivity {
-
+public class UserBrowsePostersActivity extends AppCompatActivity {
     private ListView listView;
     private List<Event> eventsList;
     ImageButton backButton = findViewById(R.id.user_posters_back_button);
@@ -42,4 +37,6 @@ public class AttendeeBrowseEvents extends AppCompatActivity {
             }
         });
     }
+
+
 }

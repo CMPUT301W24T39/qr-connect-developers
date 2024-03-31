@@ -42,6 +42,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import java.io.Serializable;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -213,7 +214,9 @@ public class MainActivity extends AppCompatActivity {
         browseEventsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, AttendeeBrowseEvents.class));
+                Intent intent = new Intent(MainActivity.this, AttendeeBrowseEvents.class);
+                intent.putExtra("events", (Serializable) eventDataList);
+                startActivity(intent);
             }
         });
 
