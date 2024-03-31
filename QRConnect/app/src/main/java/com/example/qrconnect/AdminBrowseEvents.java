@@ -6,7 +6,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.SearchView;
+import androidx.appcompat.widget.SearchView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +32,8 @@ public class AdminBrowseEvents extends AppCompatActivity {
     private AdminEventAdapter adminEventAdapter;
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
+    private SearchView searchView;
+    private ArrayList<Event> filteredEvents;
 
     /**
      * Called when the activity is first created. Responsible for initializing the admin browse events page.
@@ -60,10 +62,16 @@ public class AdminBrowseEvents extends AppCompatActivity {
 
         adminEventsList = findViewById(R.id.admin_browse_events_list);
         adminEventDataList = new ArrayList<>();
-        adminEventAdapter = new AdminEventAdapter(this, adminEventDataList);
+        filteredEvents = new ArrayList<>();
+        adminEventAdapter = new AdminEventAdapter(this, filteredEvents);
         adminEventsList.setAdapter(adminEventAdapter);
 
         getEvents();
+
+        // Set up search functionality
+        // Referenced https://reintech.io/blog/adding-search-functionality-android-app-searchview
+        searchView = findViewById(R.id.admin_events_search_view);
+        setupSearchView();
     }
 
     /**
@@ -79,6 +87,7 @@ public class AdminBrowseEvents extends AppCompatActivity {
                 }
                 if (querySnapshots != null) {
                     adminEventDataList.clear();
+                    filteredEvents.clear();
                     for (QueryDocumentSnapshot doc: querySnapshots){
                         String eventId = doc.getId();
                         String eventTitle = doc.getString("title");
@@ -94,11 +103,51 @@ public class AdminBrowseEvents extends AppCompatActivity {
                         adminEventDataList.add(new Event(eventTitle, eventDate,eventTime,
                                 eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
                                 hostId, attendeeListIdToTimes, attendeeListIdToName));
+                        filteredEvents.add(new Event(eventTitle, eventDate,eventTime,
+                                eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
+                                hostId, attendeeListIdToTimes, attendeeListIdToName));
                         Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate,eventTime, eventLocation, 0, eventAnnouncement, checkInId, promoId, eventId));
                     }
                     adminEventAdapter.notifyDataSetChanged();
                 }
             }
         });
+    }
+
+    /**
+     * Sets up the search view query (the text that is entered to filter the event search)
+     */
+    private void setupSearchView() {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filter(newText);
+                return false;
+            }
+        });
+    }
+
+    /**
+     * Applies the filter from the text search to the event list
+     * @param query the searched text to filter the events
+     */
+    private void filter(String query) {
+        filteredEvents.clear();
+        if (query.isEmpty()) {
+            filteredEvents.addAll(adminEventDataList);
+        } else {
+            query = query.toLowerCase();
+            for (Event event : adminEventDataList) {
+                if (event.getEventTitle().toLowerCase().contains(query.toLowerCase())) {
+                    filteredEvents.add(event);
+                }
+            }
+        }
+        adminEventAdapter.notifyDataSetChanged();
     }
 }
