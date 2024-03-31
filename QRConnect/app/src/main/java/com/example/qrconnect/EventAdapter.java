@@ -38,13 +38,22 @@ public class EventAdapter extends ArrayAdapter<Event> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View view;
+        Event event = events.get(position);
+        String userId = UserPreferences.getUserId(EventAdapter.this.getContext());
+        String hostId = event.getHostId();
+
         if(convertView == null){
-            view = LayoutInflater.from(getContext()).inflate(R.layout.list_event, parent, false);
+            if (userId.equals(hostId)) {
+                view = LayoutInflater.from(getContext()).inflate(R.layout.list_event_organizer, parent, false);
+            }
+            else {
+                view = LayoutInflater.from(getContext()).inflate(R.layout.list_event_checkin, parent, false);
+            }
         } else {
             view = convertView;
         }
 
-        Event event = events.get(position);
+
         TextView eventTitle = view.findViewById(R.id.event_title_text);
 
         eventTitle.setText(event.getEventTitle());
