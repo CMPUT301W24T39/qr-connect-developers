@@ -88,10 +88,7 @@ public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
                 int itemId = menuItem.getItemId();
-                if (itemId == R.id.nav_download) {
-
-                    return true;
-                } else if (itemId == R.id.nav_upload) {
+                if (itemId == R.id.nav_upload) {
                     Intent intent = new Intent(Intent.ACTION_PICK);
                     intent.setType("image/*");
                     activityResultLauncher.launch(intent);
@@ -114,7 +111,6 @@ public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
         String checkInId = eventInformationProvider.getCheckInId();
         // Define the path in Firebase Storage
         StorageReference fileRef = storageRef.child("qrcodes/" + checkInId);
-        System.out.println("THIS IS A DEBUG MESSAGE");
         UploadTask uploadTask = fileRef.putFile(imageUri);
 
         uploadTask.addOnSuccessListener(taskSnapshot -> fileRef.getDownloadUrl().addOnSuccessListener(uri -> {

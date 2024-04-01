@@ -6,7 +6,6 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -272,7 +271,7 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
                     .addOnFailureListener(e -> Toast.makeText(EventDetailsInitializeActivity.this, "Error updating event", Toast.LENGTH_SHORT).show());
 
             currentEvent.setEventTitle(title);
-            currentEvent.setAnnouncement(description);
+            currentEvent.setDescription(description);
             currentEvent.setDate(year, month, day);
             currentEvent.setTime(hour, minute);
             currentEvent.setLocation(location);

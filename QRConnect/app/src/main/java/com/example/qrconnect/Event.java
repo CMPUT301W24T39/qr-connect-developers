@@ -14,7 +14,7 @@ public class Event implements Serializable {
     private Calendar date;
     private String location;
     private Integer capacity;
-    private String announcement;
+    private String description;
     private String checkInQRCodeImageUrl;
     private String promoQRCodeImageUrl;
     private String eventId;
@@ -31,15 +31,15 @@ public class Event implements Serializable {
      * @param time the time of an event.
      * @param location the location of an event.
      * @param capacity the capacity of an event.
-     * @param announcement the announcement of an event.
+     * @param description the announcement of an event.
      * @param checkInQRCodeImageUrl the id of the QR code of an event.
      * @param promoQRCodeImageUrl the id of the promotion QR code of an event.
      * @param eventId the id of an event.
      * @param hostId the id of an event organizer.
      * @param attendeeListIdToCheckInTimes the hashMap with userId and check-in#.
      */
-    public Event(String eventTitle,  Calendar date, Calendar time, String location,
-                 Integer capacity, String announcement, String checkInQRCodeImageUrl,
+    public Event(String eventTitle, Calendar date, Calendar time, String location,
+                 Integer capacity, String description, String checkInQRCodeImageUrl,
                  String promoQRCodeImageUrl, String eventId, String hostId,
                  HashMap<String, Long> attendeeListIdToCheckInTimes,
                  HashMap<String, String> attendeeListIdToName) {
@@ -48,7 +48,7 @@ public class Event implements Serializable {
         this.time = time;
         this.location = location;
         this.capacity = capacity;
-        this.announcement = announcement;
+        this.description = description;
         this.checkInQRCodeImageUrl = checkInQRCodeImageUrl;
         this.promoQRCodeImageUrl = promoQRCodeImageUrl;
         this.eventId = eventId;
@@ -144,16 +144,16 @@ public class Event implements Serializable {
      * This method gets the announcement of an event.
      * @return  Return the announcement of an event.
      */
-    public String getAnnouncement() {
-        return announcement;
+    public String getDescription() {
+        return description;
     }
 
     /**
      * This method sets the announcement of an event.
-     * @param announcement the announcement of an event.
+     * @param description the announcement of an event.
      */
-    public void setAnnouncement(String announcement) {
-        this.announcement = announcement;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     /**
