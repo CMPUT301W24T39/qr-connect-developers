@@ -83,15 +83,18 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
     private ImageButton notificationButton;
     private ImageButton browseEventsButton;
     static ArrayList<Event> eventDataList = new ArrayList<Event>();
+    static ArrayList<Event> globalEventDataList = new ArrayList<Event>();
     ListView eventList;
     static boolean isAddButtonClicked = false;
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
-    private static CollectionReference notificationsRef;
+    private CollectionReference globalEventsRef;
+    private static CollectionReference userNotificationsRef;
     private ActivityResultLauncher<Intent> eventDetailsInitializeActivity;
     private EventAdapter eventAdapter;
     private NotificationListener notificationListener;
     private MilestoneManager milestoneManager;
+    private String userId;
 
     /**
      * This defines the functions in main activity.
@@ -104,11 +107,20 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Get user ID from SharedPreferences
+        userId = UserPreferences.getUserId(this);
+
+        // Initialize database
+        db = FirebaseFirestore.getInstance();
+        eventsRef = db.collection("users").document(userId).collection("events");
+        globalEventsRef = db.collection("events");
+        userNotificationsRef = db.collection("users").document(userId).collection("notifications");
+
         // Start the notification listener to check notifications in real time and update the UI accordingly
-        notificationListener = new NotificationListener(this);
+        notificationListener = new NotificationListener(this, userNotificationsRef);
         notificationListener.startListening();
         // Initialize milestone manager
-        milestoneManager= new MilestoneManager(this);
+        milestoneManager= new MilestoneManager(this, userNotificationsRef, eventsRef);
         milestoneManager.startManager();
 
         // Initialize buttons
@@ -121,13 +133,6 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         // Initialize adapters
         eventAdapter = new EventAdapter(this, eventDataList);
         eventList.setAdapter(eventAdapter);
-
-        // Initialize database
-        db = FirebaseFirestore.getInstance();
-        eventsRef = db.collection("events");
-        notificationsRef = db.collection("notifications");
-
-        //checkNotifications();
 
 //        eventDetailsInitializeActivity = registerForActivityResult(
 //                new ActivityResultContracts.StartActivityForResult(),
@@ -144,6 +149,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
 //        );
 
 
+        // Add event button
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -163,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
             }
         });
 
+        // Getting events from Firebase
         eventsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
@@ -172,6 +179,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                 }
                 if (querySnapshots != null) {
                     eventDataList.clear();
+                    globalEventDataList.clear();
                     for (QueryDocumentSnapshot doc: querySnapshots){
                         String eventId = doc.getId();
                         String eventTitle = doc.getString("title");
@@ -201,6 +209,9 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                         eventDataList.add(new Event(eventTitle, eventDate, eventTime,
                                 eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
                                 hostId, attendeeListIdToTimes, attendeeListIdToName));
+                        globalEventDataList.add(new Event(eventTitle, eventDate, eventTime,
+                                eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
+                                hostId, attendeeListIdToTimes, attendeeListIdToName));
                         Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate, eventTime, eventLocation, 0, eventAnnouncement, checkInId, promoId, eventId));
                     }
                     eventAdapter.notifyDataSetChanged();
@@ -208,6 +219,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
             }
         });
 
+        // List of events
         eventList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -225,6 +237,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
             }
         });
 
+        // User homepage profile button
         profileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -237,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, AttendeeBrowseEvents.class);
-                intent.putExtra("events", (Serializable) eventDataList);
+                intent.putExtra("events", (Serializable) globalEventDataList);
                 startActivity(intent);
             }
         });
@@ -253,6 +266,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
             }
         });
 
+        // Event list clicker
         eventList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -275,6 +289,8 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                 }
             }
         });
+
+        // User homepage scan qr code button
         Button cameraButton = findViewById(R.id.qr_code_scanner_button);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -295,6 +311,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         if (intent.hasExtra("UPDATED_EVENT")) {
             Event updatedEvent = (Event) intent.getSerializableExtra("UPDATED_EVENT");
             eventDataList.add(updatedEvent);
+            globalEventDataList.add(updatedEvent);
             addNewEvent(updatedEvent);
         }
         eventAdapter.notifyDataSetChanged();
@@ -353,6 +370,15 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                         Log.d("Firestore", "DocumentSnapshot successfully written!");
                     }
                 });
+        globalEventsRef
+                .document(event.getEventId())
+                .set(data)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Log.d("Firestore", "DocumentSnapshot successfully written!");
+                    }
+                });
     }
 
     /**
@@ -362,8 +388,24 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
     public void deleteEvent(Event event){
 
         eventDataList.remove(event);
+        globalEventDataList.remove(event);
         eventAdapter.notifyDataSetChanged();
         eventsRef
+                .document(event.getEventId())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("Firestore", "DocumentSnapshot successfully deleted!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("Firestore", "Error deleting document", e);
+                    }
+                });
+        globalEventsRef
                 .document(event.getEventId())
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -412,7 +454,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
      * If not all the notifications are read, make the alert on the notification bell visible.
      */
     public void checkNotifications() {
-        notificationsRef.get().addOnCompleteListener(task -> {
+        userNotificationsRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 boolean allRead = true;
                 for (QueryDocumentSnapshot document : task.getResult()) {
@@ -440,7 +482,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
      */
     private void markNotificationsAsRead() {
         // For notificationRead that are false
-        notificationsRef.whereEqualTo("notificationRead", false)
+        userNotificationsRef.whereEqualTo("notificationRead", false)
             .get()
             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
@@ -448,7 +490,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             // Change notificationRead to true
-                            notificationsRef.document(document.getId()).update("notificationRead", true);
+                            userNotificationsRef.document(document.getId()).update("notificationRead", true);
                         }
                     }
                 }
