@@ -99,7 +99,7 @@ public class BarcodeScanningActivity extends AppCompatActivity {
 
         // Calculate the start and end positions for the scanning line based on the focus area's dimensions
         final int focusAreaHeight = focusArea.getHeight();
-        final int startY = location[1] - ((RelativeLayout) scanningLine.getParent()).getTop(); // Start at the top of the focus area
+        final int startY = location[1] - ((RelativeLayout) scanningLine.getParent()).getTop() - 150; // Start at the top of the focus area
         final int endY = startY + focusAreaHeight; // End at the bottom of the focus area
 
         // Create and configure the ObjectAnimator for the scanning line within the focus area
@@ -216,8 +216,6 @@ public class BarcodeScanningActivity extends AppCompatActivity {
             }
         }
     }
-
-
 
     /**
      * Determines the appropriate action based on the scan result.
@@ -424,28 +422,42 @@ public class BarcodeScanningActivity extends AppCompatActivity {
      * @param scanResult The raw value obtained from scanning a barcode.
      * @param callback   The callback to be invoked with the validation result.
      */
-    private void isValidEventId(String scanResult, EventIdCallback callback){
+    private void isValidEventId(String scanResult, EventIdCallback callback) {
+        try {
+            String[] parts = scanResult.split("_");
+            if (parts.length != 2) {
+                // Return false if scanResult cannot be split by "_" or doesn't contain exactly one "_"
+                callback.onEventIdValidated(false, "", EventIdType.UNKNOWN);
+                return;
+            }
 
-        String qrCodeIdentifier = scanResult.split("_")[0];
-        String qrCodeType = scanResult.split("_")[1];
-        EventIdType eventType = determineEventType(qrCodeType); // Determine event type
+            String qrCodeIdentifier = parts[0];
+            String qrCodeType = parts[1];
+            EventIdType eventType = determineEventType(qrCodeType); // Determine event type
 
-        db.collection("events").whereEqualTo("eventId", qrCodeIdentifier)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        QuerySnapshot querySnapshot = task.getResult();
-                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                            callback.onEventIdValidated(true, qrCodeIdentifier, eventType);
+            db.collection("events").whereEqualTo("eventId", qrCodeIdentifier)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            QuerySnapshot querySnapshot = task.getResult();
+                            if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                                callback.onEventIdValidated(true, qrCodeIdentifier, eventType);
+                            } else {
+                                callback.onEventIdValidated(false, qrCodeIdentifier,
+                                        EventIdType.UNKNOWN);
+                            }
                         } else {
-                            callback.onEventIdValidated(false, qrCodeIdentifier,
-                                    EventIdType.UNKNOWN);
+                            callback.onError(task.getException());
                         }
-                    } else {
-                        callback.onError(task.getException());
-                    }
-                });
+                    });
+        } catch (NullPointerException e) {
+            // Handle NullPointerException from split method
+            callback.onEventIdValidated(false, "", EventIdType.UNKNOWN);
+        } catch (Exception ex){
+            callback.onEventIdValidated(false, "", EventIdType.UNKNOWN);
+        }
     }
+
 
     /**
      * Handles the scenario when a QR code is not found in the database. This method logs the event and
