@@ -1,6 +1,7 @@
 package com.example.qrconnect;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.longClick;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -31,6 +32,18 @@ public class QRCodeGeneratesPageTest {
         activityScenario.onActivity(activity -> {
             // Check if the current activity is MainActivity
             assertThat(activity, instanceOf(MainActivity.class));
+        });
+    }
+
+    @Test
+    public void testLongClickAction(){
+        ActivityScenario.launch(QRCodeGeneratesPage.class);
+        onView(withId(R.id.qr_code_image)).perform(longClick());
+        onView(withId(R.id.nav_turn_right)).perform(click());
+
+        ActivityScenario<SelectEventPage> activityScenario = ActivityScenario.launch(SelectEventPage.class);
+        activityScenario.onActivity(activity -> {
+            assertThat(activity, instanceOf(SelectEventPage.class));
         });
     }
 }

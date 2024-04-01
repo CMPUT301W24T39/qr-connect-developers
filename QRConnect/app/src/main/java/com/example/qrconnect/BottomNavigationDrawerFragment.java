@@ -88,10 +88,7 @@ public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
                 int itemId = menuItem.getItemId();
-                if (itemId == R.id.nav_download) {
-
-                    return true;
-                } else if (itemId == R.id.nav_upload) {
+                if (itemId == R.id.nav_upload) {
                     Intent intent = new Intent(Intent.ACTION_PICK);
                     intent.setType("image/*");
                     activityResultLauncher.launch(intent);

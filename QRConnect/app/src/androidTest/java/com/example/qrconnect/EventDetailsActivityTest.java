@@ -52,12 +52,22 @@ public class EventDetailsActivityTest {
     @Test
     public void testAttendeeMenuButton(){
         ActivityScenario.launch(EventDetailsActivity.class);
-        onView(withId(R.id.event_details_menu_icon_button)).perform(click());
+        onView(withId(R.id.view_attendee_list_button)).perform(click());
         // Check if UI changed to AttendeeListActivity
         ActivityScenario<AttendeeListActivity> activityScenario = ActivityScenario.launch(AttendeeListActivity.class);
         activityScenario.onActivity(activity -> {
             // Check if the current activity is AttendeeListActivity
             assertThat(activity, instanceOf(AttendeeListActivity.class));
+        });
+    }
+    @Test
+    public void testShareButton(){
+        ActivityScenario.launch(EventDetailsActivity.class);
+        onView(withId(R.id.share_event_button)).perform(click());
+        ActivityScenario<ShareQRCodeActivity> activityScenario = ActivityScenario.launch(ShareQRCodeActivity.class);
+        activityScenario.onActivity(activity -> {
+            // Check if the current activity is MainActivity
+            assertThat(activity, instanceOf(ShareQRCodeActivity.class));
         });
     }
 }
