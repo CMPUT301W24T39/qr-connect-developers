@@ -108,6 +108,10 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         setContentView(R.layout.activity_main);
 
         // Get user ID from SharedPreferences
+
+
+
+
         userId = UserPreferences.getUserId(this);
 
         // Initialize database
