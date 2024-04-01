@@ -41,14 +41,27 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
         </FrameLayout>
+        <View
+            android:id="@+id/admin_scanning_line"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#11FF00" />
+
+        <View
+            android:id="@+id/admin_focus_area"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_centerInParent="true"
+            android:background="#55FFFFFF" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/camera_button"
+            android:id="@+id/admin_switch_camera_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/camera_switch_icon"/>
 
     </RelativeLayout>
 

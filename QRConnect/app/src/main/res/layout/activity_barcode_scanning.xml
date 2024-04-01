@@ -20,34 +20,39 @@
             android:src="@drawable/arrow_back_icon2"/>
     </androidx.appcompat.widget.Toolbar>
 
-    <androidx.camera.view.PreviewView
-        android:id="@+id/previewView"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar">
 
-    <View
-        android:id="@+id/scanningLine"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="#11FF00" />
+        <androidx.camera.view.PreviewView
+            android:id="@+id/previewView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
-    <View
-        android:id="@+id/focusArea"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:layout_centerInParent="true"
-        android:background="#55FFFFFF" />
+        <View
+            android:id="@+id/scanningLine"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#11FF00" />
 
-    <ImageButton
-        android:id="@+id/switch_camera_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
+        <View
+            android:id="@+id/focusArea"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_centerInParent="true"
+            android:background="#55FFFFFF" />
 
-        android:src="@drawable/camera_switch_icon"/>
+        <ImageButton
+            android:id="@+id/switch_camera_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/camera_switch_icon"/>
 
-
+    </RelativeLayout>
 
 </RelativeLayout>
+
