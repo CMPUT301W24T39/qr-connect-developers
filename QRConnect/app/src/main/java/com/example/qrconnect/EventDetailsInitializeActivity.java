@@ -6,7 +6,6 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -37,6 +36,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -128,6 +128,8 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
                             if (data != null && data.getData() != null) {
                                 Uri selectedImageUri = data.getData();
                                 eventPoster.setImageURI(selectedImageUri);
+                                String posterUrlString = currentEvent.getEventId() + "_" + fieldName + ".jpg";
+
 
                                 UploadTask uploadTask = eventPosterRef.putFile(selectedImageUri);
                                 uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -137,8 +139,30 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
                                             @Override
                                             public void onSuccess(Uri uri) {
                                                 String downloadUrl = uri.toString();
+                                                // set event poster url in currentEvent and firestore database
+                                                currentEvent.setEventPosterUrl(downloadUrl);
+                                                // Create a map to hold the data to be updated or added
+                                                Map<String, Object> eventData = new HashMap<>();
+                                                eventData.put("posterURL", downloadUrl);
 
                                                 Log.d("Upload", "Image uploaded successfully: " + downloadUrl);
+                                                // Update the posterURL field in Firestore
+                                                db.collection("events").document(currentEvent.getEventId())
+                                                        .set(eventData, SetOptions.merge())
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                // Poster URL updated successfully
+                                                                Log.d("FirestoreUpdate", "Poster URL updated successfully for event: " + currentEvent.getEventId());
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                // Failed to update the poster URL
+                                                                Log.e("FirestoreUpdate", "Failed to update poster URL for event: " + currentEvent.getEventId(), e);
+                                                            }
+                                                        });
                                             }
                                         });
                                         Toast.makeText(EventDetailsInitializeActivity.this, "Image uploaded successfully", Toast.LENGTH_SHORT).show();
@@ -247,7 +271,7 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
                     .addOnFailureListener(e -> Toast.makeText(EventDetailsInitializeActivity.this, "Error updating event", Toast.LENGTH_SHORT).show());
 
             currentEvent.setEventTitle(title);
-            currentEvent.setAnnouncement(description);
+            currentEvent.setDescription(description);
             currentEvent.setDate(year, month, day);
             currentEvent.setTime(hour, minute);
             currentEvent.setLocation(location);

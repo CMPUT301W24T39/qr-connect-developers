@@ -2,10 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/loading_pink"
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar_event_details"
+        android:id="@+id/toolbar_send_notification"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary">
@@ -18,7 +19,7 @@
             android:src="@drawable/arrow_back_icon" />
 
         <TextView
-            android:id="@+id/notifications_page_title"
+            android:id="@+id/send_notifications_page_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Notifications"
@@ -31,37 +32,51 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="30dp"
+        android:background="@drawable/rounded_top_corners"
+        android:paddingLeft="10sp"
+        android:paddingTop="10sp"
+        android:paddingRight="10sp"
         android:orientation="vertical"
         android:padding="16dp">
         <EditText
-            android:id="@+id/event_title_edittext"
+            android:id="@+id/send_notification_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Title" />
+            android:minLines="3"
+            android:hint="Title (Character Limit: 50)" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginBottom="30dp"
+        android:layout_marginRight="30dp"
+        android:background="@drawable/rounded_bottom_corners"
+        android:paddingLeft="10sp"
+        android:paddingTop="10sp"
+        android:paddingRight="10sp"
         android:orientation="vertical"
         android:padding="16dp">
 
         <EditText
-            android:id="@+id/event_description_edittext"
+            android:id="@+id/send_notification_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:hint="Description"
+            android:hint="Description (Character Limit: 250)"
             android:minLines="3" />
 
     </LinearLayout>
 
     <Button
-        android:id="@+id/share_event_button"
-        android:layout_width="match_parent"
+        android:id="@+id/send_notification_button"
+        android:layout_width="254dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:layout_marginTop="16dp"
-        android:layout_gravity="bottom"
         android:text="SEND NOTIFICATIONS" />
 
 </LinearLayout>

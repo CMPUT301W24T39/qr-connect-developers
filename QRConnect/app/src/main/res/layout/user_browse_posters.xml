@@ -4,35 +4,37 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar_attendee_notifications"
+        android:id="@+id/toolbar_event_details"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary">
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp">
 
+        <!-- Back Button -->
         <ImageButton
-            android:id="@+id/attendee_notifications_page_back_nav_button"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/arrow_back_icon" />
-
-        <TextView
-            android:id="@+id/attendee_notifications_page_title"
+            android:id="@+id/user_posters_back_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Notifications"
-            android:layout_gravity="center_horizontal"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/arrow_back_icon2" />
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Event Posters"
             android:textAppearance="?attr/textAppearanceHeadline6"
             android:textColor="@android:color/white" />
-
     </androidx.appcompat.widget.Toolbar>
 
+    <!-- Event List -->
     <ListView
-        android:id="@+id/notifications_list"
+        android:id="@+id/eventPosterListView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/loading_pink">
-    </ListView>
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
 </LinearLayout>

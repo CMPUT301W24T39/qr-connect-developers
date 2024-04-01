@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <!-- Event Title -->
+    <TextView
+        android:id="@+id/eventTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <!-- Event Poster -->
+    <ImageView
+        android:id="@+id/eventPoster"
+        android:layout_width="256dp"
+        android:layout_height="256dp"
+        android:scaleType="fitCenter"
+        android:layout_gravity="center_horizontal"
+        />
+</LinearLayout>

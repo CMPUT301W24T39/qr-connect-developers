@@ -6,12 +6,10 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
@@ -39,6 +37,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -65,10 +64,16 @@ public class EventDetailsActivity extends AppCompatActivity {
     private TimePickerDialog.OnTimeSetListener mTimeSetListener;
     String fieldName = "eventPoster";
     private int year, month, day, hour, minute;
+    private String userId;
+    private CollectionReference userEventsRef;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_details);
+
+        // Get user ID from SharedPreferences
+        userId = UserPreferences.getUserId(this);
+
         EditText eventTitle = findViewById(R.id.event_title_edittext);
         EditText eventDescriptionEdit = findViewById(R.id.event_description_edit);
         EditText eventDate = findViewById(R.id.event_date);
@@ -103,10 +108,17 @@ public class EventDetailsActivity extends AppCompatActivity {
         Event currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        userEventsRef = db.collection("users").document(userId).collection("events");
         DocumentReference eventRef = db.collection("events").document(currentEvent.getEventId());
+        DocumentReference userEventRef = userEventsRef.document(currentEvent.getEventId());
         StorageReference eventPosterRef = storageRef.child("eventposters/" + currentEvent.getEventId() + "_" + fieldName + ".jpg");
         loadEventPoster(eventPosterRef, eventPoster);
-        loadEventData(eventRef, eventTitle, eventDescriptionEdit, eventDate, eventTime, eventLocation, eventCapacity, eventCurrentAttendance);
+        loadEventData(eventRef, eventTitle, eventDescriptionEdit, eventDate,
+                eventTime, eventLocation, eventCapacity, limitCapacitySwitch,
+                eventCurrentAttendance);
+        loadEventData(userEventRef, eventTitle, eventDescriptionEdit, eventDate,
+                eventTime, eventLocation, eventCapacity, limitCapacitySwitch,
+                eventCurrentAttendance);
 
         uploadPosterButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,6 +139,8 @@ public class EventDetailsActivity extends AppCompatActivity {
                             if (data != null && data.getData() != null) {
                                 Uri selectedImageUri = data.getData();
                                 eventPoster.setImageURI(selectedImageUri);
+                                String posterUrlString = currentEvent.getEventId() + "_" + fieldName + ".jpg";
+
 
                                 UploadTask uploadTask = eventPosterRef.putFile(selectedImageUri);
                                 uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -136,8 +150,46 @@ public class EventDetailsActivity extends AppCompatActivity {
                                             @Override
                                             public void onSuccess(Uri uri) {
                                                 String downloadUrl = uri.toString();
+                                                // set event poster url in currentEvent and firestore database
+                                                currentEvent.setEventPosterUrl(downloadUrl);
+                                                // Create a map to hold the data to be updated or added
+                                                Map<String, Object> eventData = new HashMap<>();
+                                                eventData.put("posterURL", downloadUrl);
 
                                                 Log.d("Upload", "Image uploaded successfully: " + downloadUrl);
+                                                // Update the posterURL field in Firestore
+                                                db.collection("events").document(currentEvent.getEventId())
+                                                        .set(eventData, SetOptions.merge())
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                // Poster URL updated successfully
+                                                                Log.d("FirestoreUpdate", "Poster URL updated successfully for event: " + currentEvent.getEventId());
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                // Failed to update the poster URL
+                                                                Log.e("FirestoreUpdate", "Failed to update poster URL for event: " + currentEvent.getEventId(), e);
+                                                            }
+                                                        });
+                                                userEventsRef.document(currentEvent.getEventId())
+                                                        .set(eventData, SetOptions.merge())
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                // Poster URL updated successfully
+                                                                Log.d("FirestoreUpdate", "Poster URL updated successfully for event: " + currentEvent.getEventId());
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                // Failed to update the poster URL
+                                                                Log.e("FirestoreUpdate", "Failed to update poster URL for event: " + currentEvent.getEventId(), e);
+                                                            }
+                                                        });
                                             }
                                         });
                                         Toast.makeText(EventDetailsActivity.this, "Image uploaded successfully", Toast.LENGTH_SHORT).show();
@@ -160,11 +212,10 @@ public class EventDetailsActivity extends AppCompatActivity {
                 if (isChecked) {
                     // Switch is on - User can enter capacity
                     eventCapacity.setEnabled(true);
-                    eventCapacity.requestFocus(); // Optionally request focus
                 } else {
-                    // Switch is off - Disable capacity entry and optionally clear or set to "Unlimited"
+                    // Switch is off - Disable capacity entry
                     eventCapacity.setEnabled(false);
-                    eventCapacity.setText(""); // Clear the text or set to "Unlimited" or similar text
+                    eventCapacity.setText(""); // Clear the text
                 }
             }
         });
@@ -246,9 +297,19 @@ public class EventDetailsActivity extends AppCompatActivity {
                     )
                     .addOnSuccessListener(aVoid -> Toast.makeText(EventDetailsActivity.this, "Event updated successfully", Toast.LENGTH_SHORT).show())
                     .addOnFailureListener(e -> Toast.makeText(EventDetailsActivity.this, "Error updating event", Toast.LENGTH_SHORT).show());
+            userEventRef.update(
+                            "title", title,
+                            "description", description,
+                            "date", date,
+                            "time", time,
+                            "location", location,
+                            "capacity", capacity
+                    )
+                    .addOnSuccessListener(aVoid -> Toast.makeText(EventDetailsActivity.this, "Event updated successfully", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(EventDetailsActivity.this, "Error updating event", Toast.LENGTH_SHORT).show());
 
             currentEvent.setEventTitle(title);
-            currentEvent.setAnnouncement(description);
+            currentEvent.setDescription(description);
             currentEvent.setDate(year, month, day);
             currentEvent.setTime( hour, minute);
             currentEvent.setLocation(location);
@@ -284,19 +345,14 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         // initialize send notification button
         ImageButton sendNotificationsButton = findViewById(R.id.event_details_send_notifications);
-
         sendNotificationsButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                try {
-                    Intent showIntent = new Intent(EventDetailsActivity.this, SendNotificationsActivity.class);
-                    //TODO: showIntent.putExtra("EVENT", event);
-                    startActivity(showIntent);
-                } catch (Exception e) {
-                    Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
+                Intent showIntent = new Intent(EventDetailsActivity.this, SendNotificationsActivity.class);
+                // Send the event to the send notifications page
+                showIntent.putExtra("event", currentEvent);
+                startActivity(showIntent);
             }
-
         });
 
         // Event details map locations button
@@ -307,8 +363,6 @@ public class EventDetailsActivity extends AppCompatActivity {
                 startActivity(new Intent(EventDetailsActivity.this, MapLocations.class));
             }
         });
-
-
     }
     // Refer from answered Nov 17, 2017 at 13:48 Grimthorr
     //https://stackoverflow.com/questions/47350129/about-the-firestore-query-data-documentation-specifically-documentsnapshot
@@ -320,6 +374,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                                EditText eventTime,
                                EditText eventLocation,
                                EditText eventCapacity,
+                               Switch limitCapacitySwitch,
                                TextView eventCurrentAttendance) {
         eventRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -337,9 +392,13 @@ public class EventDetailsActivity extends AppCompatActivity {
                                 eventDate.setText(document.getString("date"));
                                 eventTime.setText(document.getString("time"));
                                 eventLocation.setText(document.getString("location"));
+
                                 try {
                                     Long capacity = document.getLong("capacity");
                                     eventCapacity.setText(capacity != null ? String.valueOf(capacity) : "0");
+                                    if (capacity != null && capacity != 0L) {
+                                        limitCapacitySwitch.setChecked(true);
+                                    }
                                 } catch (Exception e) {
                                     eventCapacity.setText("0");
                                     Log.d("EventDetails", "Error loading capacity: " + e.getMessage());
