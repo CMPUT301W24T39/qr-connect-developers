@@ -5,11 +5,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
@@ -67,20 +70,55 @@ public class AdminQRScan extends AppCompatActivity {
                 finish();
             }
         });
+        startCamera();
+        FloatingActionButton switchButton = findViewById(R.id.admin_switch_camera_button);
+        switchButton.setOnClickListener(v -> switchCamera());
+        enterTokenMethod();
+    }
 
-        // Initialize the enter token button and set a click listener
+    private void enterTokenMethod(){
         enter_token_button = findViewById(R.id.admin_enter_token_button);
         enter_token_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(AdminQRScan.this, AdminMenu.class));
+                pauseCamera();
+                // Create and show a dialog to prompt the user to enter the admin password
+                AlertDialog.Builder builder = new AlertDialog.Builder(AdminQRScan.this);
+                builder.setTitle("Enter Admin Password");
+
+                final EditText input = new EditText(AdminQRScan.this);
+                input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                builder.setView(input);
+
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String currentAdminPassword = input.getText().toString();
+                        // Check if the entered password is correct
+                        if (adminPassword.equals(currentAdminPassword)) {
+                            // Start the AdminMenu activity
+                            startActivity(new Intent(AdminQRScan.this, AdminMenu.class));
+                            finish();
+                        } else {
+                            // Show an error message if the password is incorrect
+                            Toast.makeText(AdminQRScan.this, "Incorrect admin password", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel(); // Cancel the dialog if the user clicks Cancel
+                        finish();
+                    }
+                });
+                builder.show(); // Show the dialog
             }
         });
 
-        startCamera();
-        FloatingActionButton switchButton = findViewById(R.id.admin_switch_camera_button);
-        switchButton.setOnClickListener(v -> switchCamera());
     }
+
     /**
      * Initiates the camera with {@link CameraX} APIs. This method sets up the camera provider, selects the back camera,
      * and binds the lifecycle of the camera to the current activity.
