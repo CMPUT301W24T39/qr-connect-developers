@@ -153,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                 String hostId = UserPreferences.getUserId(getApplicationContext());
                 newEvent.setHostId(hostId);
                 eventAdapter.notifyDataSetChanged();
+                System.out.println(newEvent.getAttendeeListIdToCheckInLocations());
                 addNewEvent(newEvent);
                 Intent intent = new Intent(MainActivity.this, EventDetailsInitializeActivity.class);
                 intent.putExtra("EVENT", newEvent);
@@ -195,9 +196,10 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                         String hostId = doc.getString("hostId");
                         HashMap<String, Long> attendeeListIdToTimes = (HashMap<String, Long>) doc.get("attendeeListIdToTimes");
                         HashMap<String, String> attendeeListIdToName = (HashMap<String, String>) doc.get("attendeeListIdToName");
+                        HashMap<String, String> attendeeListToLocations = (HashMap<String, String>) doc.get("attendeeListToLocations");
                         eventDataList.add(new Event(eventTitle, eventDate, eventTime,
                                 eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
-                                hostId, attendeeListIdToTimes, attendeeListIdToName));
+                                hostId, attendeeListIdToTimes, attendeeListIdToName, attendeeListToLocations));
                         Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate, eventTime, eventLocation, 0, eventAnnouncement, checkInId, promoId, eventId));
                     }
                     eventAdapter.notifyDataSetChanged();
@@ -337,6 +339,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         data.put("hostId", event.getHostId());
         data.put("attendeeListIdToTimes", event.getAttendeeListIdToCheckInTimes());
         data.put("attendeeListIdToName", event.getAttendeeListIdToName());
+        data.put("attendeeListIdToLocations", event.getAttendeeListIdToCheckInLocations());
         data.put("currentAttendance", 0L);
         eventsRef
                 .document(event.getEventId())

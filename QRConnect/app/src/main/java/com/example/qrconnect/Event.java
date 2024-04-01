@@ -20,7 +20,7 @@ public class Event implements Serializable {
     private String eventId;
     private String hostId;
     private HashMap<String, Long> attendeeListIdToCheckInTimes;
-
+    private HashMap<String, String> attendeeListIdToCheckInLocations;
     private HashMap<String, String> attendeeListIdToName;
 
     /**
@@ -40,7 +40,8 @@ public class Event implements Serializable {
                  Integer capacity, String announcement, String checkInQRCodeImageUrl,
                  String promoQRCodeImageUrl, String eventId, String hostId,
                  HashMap<String, Long> attendeeListIdToCheckInTimes,
-                 HashMap<String, String> attendeeListIdToName) {
+                 HashMap<String, String> attendeeListIdToName,
+                 HashMap<String, String> attendeeListIdToCheckInLocations) {
         this.eventTitle = eventTitle;
         this.date = date;
         this.time = time;
@@ -52,6 +53,7 @@ public class Event implements Serializable {
         this.eventId = eventId;
         this.hostId = hostId;
         this.attendeeListIdToCheckInTimes = attendeeListIdToCheckInTimes == null ? new HashMap<>() : attendeeListIdToCheckInTimes;
+        this.attendeeListIdToCheckInLocations = attendeeListIdToCheckInLocations == null ? new HashMap<>() : attendeeListIdToCheckInLocations;
         this.attendeeListIdToName = attendeeListIdToName == null ? new HashMap<>() : attendeeListIdToName;
     }
 
@@ -216,9 +218,12 @@ public class Event implements Serializable {
      * If the attendee is already in the list, their check-in time is incremented.
      * @param attendeeUserId The ID of the attendee to add.
      */
-    public void addAttendee(String attendeeUserId, String userName) {
+    public void addAttendee(String attendeeUserId, String userName, String checkInLocation) {
         long checkInTime = this.attendeeListIdToCheckInTimes.getOrDefault(attendeeUserId, 0L);
+
         this.attendeeListIdToCheckInTimes.put(attendeeUserId, checkInTime + 1);
+        this.attendeeListIdToCheckInLocations.put(attendeeUserId, checkInLocation);
+
         if (!this.attendeeListIdToName.containsKey(attendeeUserId)){
             this.attendeeListIdToName.put(attendeeUserId, userName);
         }
@@ -229,6 +234,8 @@ public class Event implements Serializable {
      * @return A hashmap containing attendee IDs as keys and their corresponding check-in times as values.
      */
     public HashMap<String, Long> getAttendeeListIdToCheckInTimes() { return this.attendeeListIdToCheckInTimes; }
+
+    public HashMap<String, String> getAttendeeListIdToCheckInLocations() { return this.attendeeListIdToCheckInLocations; }
 
     public HashMap<String, String> getAttendeeListIdToName() { return this.attendeeListIdToName; }
 

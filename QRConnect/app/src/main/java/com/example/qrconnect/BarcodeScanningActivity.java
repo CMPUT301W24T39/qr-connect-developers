@@ -1,13 +1,23 @@
 package com.example.qrconnect;
 
+import static android.app.PendingIntent.getActivity;
 import static com.example.qrconnect.EventIdType.EVENT_CHECKIN;
 import static com.example.qrconnect.EventIdType.EVENT_DETAILS;
+
+import android.Manifest;
+
+
 import static com.example.qrconnect.TimeConverter.stringToCalendar;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,6 +40,7 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.camera.view.PreviewView;
 
@@ -53,6 +64,11 @@ public class BarcodeScanningActivity extends AppCompatActivity {
     private boolean usingFrontCamera = false;
     private long lastActionTime = 0;// To prevent rapid multiple scans issue.
     private Event targetEvent;
+    private final int MY_PERMISSIONS_REQUEST_LOCATION = 1;
+
+    private LocationManager locationManager;
+    private Location myLocation;
+
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     //private String currentUserId = UserPreferences.getUserId(getApplicationContext());
     @Override
@@ -64,6 +80,8 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         setUpBackButton();
         ImageButton switchCameraButton = findViewById(R.id.switch_camera_button);
         switchCameraButton.setOnClickListener(v -> switchCamera());
+
+
 
     }
 
@@ -338,9 +356,38 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                         String firstName = documentSnapshot.getString("firstName");
                         String lastName = documentSnapshot.getString("lastName");
                         String currentUserName = firstName + " " + lastName;
-                        targetEvent.addAttendee(currentUserId, currentUserName);
+
+                        //get current uesr location
+                        if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                                || ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+                            // Permissions are granted, proceed to get the location
+                            locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListener() {
+                                @Override
+                                public void onLocationChanged(Location location) {
+                                    // Use the location object here
+                                    String latitude = Double.toString(location.getLatitude());
+                                    String longitude = Double.toString(location.getLongitude());
+
+                                    String checkInLocation = latitude + " " + longitude;
+                                    targetEvent.addAttendee(currentUserId, currentUserName, checkInLocation);
+                                    System.out.println("locationis3 " + checkInLocation);
+                                    locationManager.removeUpdates(this); // Stop receiving updates immediately
+                                }
+                            });
+                        } else {
+                            // Permissions are not granted, request permissions
+                            ActivityCompat.requestPermissions(this, new String[] { android.Manifest.permission.ACCESS_FINE_LOCATION }, MY_PERMISSIONS_REQUEST_LOCATION);
+
+                            // Inform the user that location access is required
+                            Toast.makeText(getApplicationContext(), "First enable LOCATION ACCESS", Toast.LENGTH_LONG).show();
+
+                        }
+
                         Log.d(TAG, "User's name: " + currentUserName);
                         updateEventAttendeeLists(eventRef);
+
                     } else {
                         Log.d(TAG, "User document does not exist");
                     }
@@ -349,6 +396,8 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                     Log.e(TAG, "Error fetching user document", e);
                 });
     }
+
+
 
     private void updateEventAttendeeLists(DocumentReference eventRef) {
         eventRef.update("attendeeListIdToTimes", targetEvent.getAttendeeListIdToCheckInTimes())
@@ -362,6 +411,15 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         eventRef.update("attendeeListIdToName", targetEvent.getAttendeeListIdToName())
                 .addOnSuccessListener(v -> {
                     Log.d(TAG, "Event updated attendeeListIdToName successfully");
+                    showCheckInSuccessfullyDialog();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error updating event attendeeListIdToName", e);
+                });
+
+        eventRef.update("attendeeListIdToLocations", targetEvent.getAttendeeListIdToCheckInLocations())
+                .addOnSuccessListener(v -> {
+                    Log.d(TAG, "Event updated attendeeListIdToLocations successfully");
                     showCheckInSuccessfullyDialog();
                 })
                 .addOnFailureListener(e -> {
@@ -534,10 +592,12 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                 (HashMap<String, Long>) documentSnapshot.get("attendeeListIdToTimes");
         HashMap<String, String> attendeeListIdToName =
                 (HashMap<String, String>) documentSnapshot.get("attendeeListIdToName");
+        HashMap<String, String> attendeeListIdToLocations =
+                (HashMap<String, String>) documentSnapshot.get("attendeeListIdToLocations");
         // Create the Event object manually
         return new Event(eventTitle, date, time, location, capacity, announcement,
                 checkInQRCodeImageUrl, promoQRCodeImageUrl, eventId, hostId,
-                attendeeListIdToTimes, attendeeListIdToName);
+                attendeeListIdToTimes, attendeeListIdToName, attendeeListIdToLocations);
     }
 
 }
