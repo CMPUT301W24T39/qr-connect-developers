@@ -32,6 +32,8 @@ android {
 }
 
 dependencies {
+    implementation ("org.osmdroid:osmdroid-android:6.1.18")
+    implementation ("org.osmdroid:osmdroid-wms:6.1.18")
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
@@ -69,5 +71,7 @@ dependencies {
     implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
 
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
+
+
 
 }
