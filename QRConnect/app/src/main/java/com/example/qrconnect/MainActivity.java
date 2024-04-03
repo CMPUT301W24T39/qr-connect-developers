@@ -74,12 +74,11 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
     private ImageButton notificationButton;
     private ImageButton browseEventsButton;
     static ArrayList<Event> eventDataList = new ArrayList<Event>();
-    static ArrayList<Event> globalEventDataList = new ArrayList<Event>();
+    static ArrayList<Event> userEventDataList = new ArrayList<Event>();
     ListView eventList;
     static boolean isAddButtonClicked = false;
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
-    private CollectionReference globalEventsRef;
     private static CollectionReference userNotificationsRef;
     private ActivityResultLauncher<Intent> eventDetailsInitializeActivity;
     private EventAdapter eventAdapter;
@@ -103,8 +102,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
 
         // Initialize database
         db = FirebaseFirestore.getInstance();
-        eventsRef = db.collection("users").document(userId).collection("events");
-        globalEventsRef = db.collection("events");
+        eventsRef = db.collection("events");
         userNotificationsRef = db.collection("users").document(userId).collection("notifications");
 
         // Start the notification listener to check notifications in real time and update the UI accordingly
@@ -122,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         browseEventsButton = findViewById(R.id.explore_event_button);
 
         // Initialize adapters
-        eventAdapter = new EventAdapter(this, eventDataList);
+        eventAdapter = new EventAdapter(this, userEventDataList);
         eventList.setAdapter(eventAdapter);
 
 //        eventDetailsInitializeActivity = registerForActivityResult(
@@ -170,7 +168,8 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                 }
                 if (querySnapshots != null) {
                     eventDataList.clear();
-                    globalEventDataList.clear();
+                    userEventDataList.clear();
+                    // globalEventDataList.clear();
                     for (QueryDocumentSnapshot doc: querySnapshots){
                         String eventId = doc.getId();
                         String eventTitle = doc.getString("title");
@@ -200,11 +199,10 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                         eventDataList.add(new Event(eventTitle, eventDate, eventTime,
                                 eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
                                 hostId, attendeeListIdToTimes, attendeeListIdToName));
-                        globalEventDataList.add(new Event(eventTitle, eventDate, eventTime,
-                                eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
-                                hostId, attendeeListIdToTimes, attendeeListIdToName));
+
                         Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate, eventTime, eventLocation, 0, eventAnnouncement, checkInId, promoId, eventId));
                     }
+                    getUserEvents();
                     eventAdapter.notifyDataSetChanged();
                 }
             }
@@ -214,16 +212,14 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         eventList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Event currentEvent = eventDataList.get(position);
+                Event currentEvent = userEventDataList.get(position);
                 String userId = UserPreferences.getUserId(getApplicationContext());
                 String hostId = currentEvent.getHostId();
-//                if (userId.equals(hostId)) {
-
+                if (userId.equals(hostId)) {
                     new DeleteEventFragment(currentEvent).show(getSupportFragmentManager(), "Delete Event");
-//                } else {
-//
-//                    Toast.makeText(MainActivity.this, "You are not the host of this event.", Toast.LENGTH_SHORT).show();
-//                }
+                } else {
+                   Toast.makeText(MainActivity.this, "You are not the host of this event.", Toast.LENGTH_SHORT).show();
+                }
                 return true;
             }
         });
@@ -241,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, AttendeeBrowseEvents.class);
-                intent.putExtra("events", (Serializable) globalEventDataList);
+                // intent.putExtra("events", (Serializable) globalEventDataList);
                 startActivity(intent);
             }
         });
@@ -302,7 +298,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         if (intent.hasExtra("UPDATED_EVENT")) {
             Event updatedEvent = (Event) intent.getSerializableExtra("UPDATED_EVENT");
             eventDataList.add(updatedEvent);
-            globalEventDataList.add(updatedEvent);
+            // globalEventDataList.add(updatedEvent);
             addNewEvent(updatedEvent);
             eventAdapter.notifyDataSetChanged();
         }
@@ -361,15 +357,6 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                         Log.d("Firestore", "DocumentSnapshot successfully written!");
                     }
                 });
-        globalEventsRef
-                .document(event.getEventId())
-                .set(data)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Log.d("Firestore", "DocumentSnapshot successfully written!");
-                    }
-                });
     }
 
     /**
@@ -379,24 +366,9 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
     public void deleteEvent(Event event){
 
         eventDataList.remove(event);
-        globalEventDataList.remove(event);
+        // globalEventDataList.remove(event);
         eventAdapter.notifyDataSetChanged();
         eventsRef
-                .document(event.getEventId())
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("Firestore", "DocumentSnapshot successfully deleted!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("Firestore", "Error deleting document", e);
-                    }
-                });
-        globalEventsRef
                 .document(event.getEventId())
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -496,6 +468,20 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         super.onDestroy();
         if (notificationListener != null) {
             notificationListener.stopListening();
+        }
+    }
+
+    /**
+     * Goes through the events collection and separates the events unique to the user.
+     * These events include where the user id matches the host id (organizer),
+     * where the user id is in the attendeelist of an event (attendee/checked in),
+     * or where the user id is in the signuplist of an event (signed up).
+     */
+    private void getUserEvents() {
+        for (Event event : eventDataList) {
+            if (event.getHostId() != null && event.getHostId().equals(userId) || event.getAttendeeListIdToName().containsKey(userId)) {
+                userEventDataList.add(event);
+            }
         }
     }
 }

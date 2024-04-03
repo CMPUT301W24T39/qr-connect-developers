@@ -24,7 +24,7 @@
         android:layout_centerVertical="true"
         android:layout_marginEnd="15dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/check_circle"
+        android:src="@drawable/signup_circle"
         android:scaleType="fitCenter"
         android:clickable="false"/>
     -->
