@@ -237,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, AttendeeBrowseEvents.class);
-                // intent.putExtra("events", (Serializable) globalEventDataList);
+                intent.putExtra("events", (Serializable) eventDataList);
                 startActivity(intent);
             }
         });
