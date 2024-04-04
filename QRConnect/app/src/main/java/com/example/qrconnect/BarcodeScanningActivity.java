@@ -336,9 +336,43 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                         String firstName = documentSnapshot.getString("firstName");
                         String lastName = documentSnapshot.getString("lastName");
                         String currentUserName = firstName + " " + lastName;
-                        targetEvent.addAttendee(currentUserId, currentUserName);
-                        Log.d(TAG, "User's name: " + currentUserName);
-                        updateEventAttendeeLists(eventRef);
+                        targetEvent.signupUser(currentUserId, currentUserName);
+
+                        userRef.get().addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document.exists()) {
+                                    // Document was found in the cache or network. Access its data with document.getData()
+                                    // or get a specific field with document.get("fieldName")
+                                    Log.d("Document", "DocumentSnapshot data: " + document.get("isLocationTrackingOn"));
+
+                                    if (true) {
+
+
+                                        requestLocationAndUpdateAttendee(locationData -> {
+                                            // This block is called when the locationData is ready.
+                                            // Proceed to use locationData here to update the attendee list.
+                                            targetEvent.addAttendee(currentUserId, currentUserName, locationData);
+                                            Log.d(TAG, "User's name: " + currentUserName);
+                                            updateEventAttendeeLists(eventRef);
+                                        });
+
+                                    } else{
+                                        targetEvent.addAttendee(currentUserId, currentUserName, "");
+                                        updateEventAttendeeLists(eventRef);
+                                    }
+
+                                } else {
+                                    // Document does not exist
+                                    Log.d("Document", "No such document");
+                                }
+                            } else {
+                                // Task failed with an exception
+                                Log.d("Document", "get failed with ", task.getException());
+                            }
+                        });
+
+>>>>>>> Stashed changes
                     } else {
                         Log.d(TAG, "User document does not exist");
                     }

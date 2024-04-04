@@ -127,9 +127,11 @@ public class AttendeeBrowseEvents extends AppCompatActivity {
                         String posterUrl = doc.getString("posterURL");
                         HashMap<String, Long> attendeeListIdToTimes = (HashMap<String, Long>) doc.get("attendeeListIdToTimes");
                         HashMap<String, String> attendeeListIdToName = (HashMap<String, String>) doc.get("attendeeListIdToName");
+                        HashMap<String, String> attendeeListIdToLocation = (HashMap<String, String>) doc.get("attendeeListIdToLocation");
+                        HashMap<String, String> signupUserIdToName = (HashMap<String, String>) doc.get("signupUserIdToName");
                         Event event = new Event(eventTitle, eventDate,eventTime,
                                 eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
-                                hostId, attendeeListIdToTimes, attendeeListIdToName);
+                                hostId, attendeeListIdToTimes, attendeeListIdToName, attendeeListIdToLocation, signupUserIdToName);
                         event.setEventPosterUrl(posterUrl);
                         eventsList.add(event);
                         filteredEvents.add(event);
