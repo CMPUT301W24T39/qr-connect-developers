@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         notificationListener = new NotificationListener(this, userNotificationsRef);
         notificationListener.startListening();
         // Initialize milestone manager
-        milestoneManager= new MilestoneManager(this, userNotificationsRef, eventsRef);
+        milestoneManager= new MilestoneManager(this, userNotificationsRef, userId);
         milestoneManager.startManager();
 
         // Initialize buttons

@@ -86,7 +86,8 @@ public class AttendeeNotifications extends AppCompatActivity {
                         String description = documentSnapshot.getString("notificationDescription");
                         String date = documentSnapshot.getString("notificationDate");
                         boolean read = documentSnapshot.getBoolean("notificationRead");
-                        Notification notification = new Notification(event, title, description, date, read);
+                        String eventId = documentSnapshot.getString("notificationEventId");
+                        Notification notification = new Notification(event, title, description, date, read, eventId);
                         notificationsDataList.add(notification);
                     }
                     sortNotifications();

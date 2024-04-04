@@ -130,7 +130,7 @@ public class SendNotificationsActivity extends AppCompatActivity {
         // Able to send a notification without a description
         if (!title.isEmpty()) {
             // Create a new notification object
-            Notification notification = new Notification(eventTitle, title, description, date_string, read);
+            Notification notification = new Notification(eventTitle, title, description, date_string, read, eventId);
             // Checks if there are any attendees to send the notitication to
             if (!event.getAttendeeListIdToName().isEmpty()) {
                 for (String attendeeId : event.getAttendeeListIdToName().keySet()) {
