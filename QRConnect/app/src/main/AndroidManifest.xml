@@ -98,6 +98,10 @@
             android:exported="true">
         </activity>
         <activity
+            android:name=".AdminProfileDetails"
+            android:exported="true">
+        </activity>
+        <activity
             android:name=".QRCodeCheckInActivity"
             android:parentActivityName=".QRCodeGeneratesPage"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />

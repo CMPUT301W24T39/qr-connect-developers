@@ -29,33 +29,11 @@
 
     </androidx.appcompat.widget.Toolbar>
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/admin_profiles_toolbar_search"
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/admin_profiles_search_view"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary">
-
-        <ImageButton
-            android:id="@+id/admin_profiles_search_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/search_icon"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:layout_gravity="start" />
-
-        <Space
-            android:layout_width="26dp"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/admin_profiles_search_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Search Profiles ..."
-            android:layout_marginRight="23dp"
-            android:padding="8dp"
-            android:layout_gravity="center" />
-    </androidx.appcompat.widget.Toolbar>
+        android:layout_height="wrap_content"
+        android:queryHint="Search for items..." />
 
     <ListView
         android:id="@+id/admin_browse_profiles_list"
