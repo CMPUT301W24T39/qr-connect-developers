@@ -23,4 +23,10 @@ public class UserPreferences {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return prefs.getString(KEY_USER_ID, null);
     }
+
+    public static void clearUserId(Context context) {
+        SharedPreferences.Editor editor = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit();
+        editor.remove(KEY_USER_ID);
+        editor.apply();
+    }
 }

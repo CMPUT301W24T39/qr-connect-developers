@@ -41,7 +41,7 @@ import java.util.Objects;
  * It extends AppCompatActivity.
  */
 public class UserProfilePage extends AppCompatActivity {
-    private static String USER_ID = "1";
+    private String USER_ID;
     private static String COLLECTION_PATH = "users";
     private static String STORAGE_PATH = "profile_pictures/";
     private ImageView profilePicture;
@@ -60,14 +60,15 @@ public class UserProfilePage extends AppCompatActivity {
     private FirebaseStorage storage;
     private StorageReference storageRef;
 
-    // Hardcoded to single user for now.
-    // TODO: allow multiple users.
-    private UserProfile user = new UserProfile(USER_ID);
+
+    private UserProfile user = new UserProfile(USER_ID, "", "");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_profile_page);
+
+        USER_ID = UserPreferences.getUserId(getApplicationContext());
 
         initializeFirebase();
         findViews();
