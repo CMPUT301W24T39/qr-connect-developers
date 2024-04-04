@@ -76,7 +76,6 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
     static ArrayList<Event> eventDataList = new ArrayList<Event>();
     static ArrayList<Event> userEventDataList = new ArrayList<Event>();
     ListView eventList;
-    static boolean isAddButtonClicked = false;
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
     private static CollectionReference userNotificationsRef;
@@ -123,26 +122,10 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         eventAdapter = new EventAdapter(this, userEventDataList);
         eventList.setAdapter(eventAdapter);
 
-//        eventDetailsInitializeActivity = registerForActivityResult(
-//                new ActivityResultContracts.StartActivityForResult(),
-//                result -> {
-//                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-//                        Event updatedEvent = (Event) result.getData().getSerializableExtra("UPDATED_EVENT");
-//                        if(updatedEvent.getEventPromoId() != null && updatedEvent.getEventCheckInId() != null){
-//                            eventDataList.add(updatedEvent);
-//                            addNewEvent(updatedEvent);
-//                        }
-//                        eventAdapter.notifyDataSetChanged();
-//                    }
-//                }
-//        );
-
-
         // Add event button
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isAddButtonClicked = true;
                 Event newEvent = new Event();
                 String uniqueID = UUID.randomUUID().toString();
                 newEvent.setEventTitle("New Event " + (userEventDataList.size() +1));
