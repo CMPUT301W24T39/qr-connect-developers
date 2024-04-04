@@ -54,7 +54,7 @@ public class BarcodeScanningActivity extends AppCompatActivity {
     private long lastActionTime = 0;// To prevent rapid multiple scans issue.
     private Event targetEvent;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    //private String currentUserId = UserPreferences.getUserId(getApplicationContext());
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -337,6 +337,7 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                         String lastName = documentSnapshot.getString("lastName");
                         String currentUserName = firstName + " " + lastName;
                         targetEvent.addAttendee(currentUserId, currentUserName);
+                        targetEvent.signupUser(currentUserId, currentUserName);
                         Log.d(TAG, "User's name: " + currentUserName);
                         updateEventAttendeeLists(eventRef);
                     } else {
@@ -374,6 +375,15 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error updating event currentAttendance", e);
                 });
+
+        eventRef.update("signupUserIdToName", targetEvent.getSignupUserIdToName())
+                .addOnSuccessListener(v -> {
+                    Log.d(TAG, "Event updated signupUserIdToName successfully");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error updating event signupUserIdToName", e);
+                });
+
     }
 
 
@@ -546,10 +556,12 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                 (HashMap<String, Long>) documentSnapshot.get("attendeeListIdToTimes");
         HashMap<String, String> attendeeListIdToName =
                 (HashMap<String, String>) documentSnapshot.get("attendeeListIdToName");
+        HashMap<String, String> signupUserIdToName =
+                (HashMap<String, String>) documentSnapshot.get("signupUserIdToName");
         // Create the Event object manually
         return new Event(eventTitle, date, time, location, capacity, announcement,
                 checkInQRCodeImageUrl, promoQRCodeImageUrl, eventId, hostId,
-                attendeeListIdToTimes, attendeeListIdToName);
+                attendeeListIdToTimes, attendeeListIdToName, signupUserIdToName);
     }
 
 }

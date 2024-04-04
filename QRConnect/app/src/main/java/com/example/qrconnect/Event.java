@@ -21,8 +21,9 @@ public class Event implements Serializable {
     private String eventPosterUrl;
     private String hostId;
     private HashMap<String, Long> attendeeListIdToCheckInTimes;
-
     private HashMap<String, String> attendeeListIdToName;
+    private HashMap<String, String> signupUserIdToName;
+
 
 
     /**
@@ -42,7 +43,8 @@ public class Event implements Serializable {
                  Integer capacity, String description, String checkInQRCodeImageUrl,
                  String promoQRCodeImageUrl, String eventId, String hostId,
                  HashMap<String, Long> attendeeListIdToCheckInTimes,
-                 HashMap<String, String> attendeeListIdToName) {
+                 HashMap<String, String> attendeeListIdToName,
+                 HashMap<String, String> signupUserIdToName ) {
         this.eventTitle = eventTitle;
         this.date = date;
         this.time = time;
@@ -55,6 +57,8 @@ public class Event implements Serializable {
         this.hostId = hostId;
         this.attendeeListIdToCheckInTimes = attendeeListIdToCheckInTimes == null ? new HashMap<>() : attendeeListIdToCheckInTimes;
         this.attendeeListIdToName = attendeeListIdToName == null ? new HashMap<>() : attendeeListIdToName;
+        this.signupUserIdToName = signupUserIdToName == null ? new HashMap<>() : signupUserIdToName;
+
     }
 
     /**
@@ -271,5 +275,15 @@ public class Event implements Serializable {
      * @param hostId The host ID to set.
      */
     public void setHostId(String hostId) { this.hostId = hostId; }
+
+    public void signupUser(String userId, String userName) {
+        signupUserIdToName.put(userId, userName);
+    }
+
+    public HashMap<String, String> getSignupUserIdToName() { return this.signupUserIdToName; }
+    // Get method for sign up user name
+    public String getSignupUserName(String userId) {
+        return signupUserIdToName.get(userId);
+    }
 
 }

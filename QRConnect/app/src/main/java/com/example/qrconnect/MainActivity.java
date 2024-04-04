@@ -144,7 +144,6 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
             public void onClick(View v) {
                 isAddButtonClicked = true;
                 Event newEvent = new Event();
-
                 String uniqueID = UUID.randomUUID().toString();
                 newEvent.setEventTitle("New Event " + (eventDataList.size() +1));
                 newEvent.setEventId(uniqueID);
@@ -196,9 +195,10 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                         String hostId = doc.getString("hostId");
                         HashMap<String, Long> attendeeListIdToTimes = (HashMap<String, Long>) doc.get("attendeeListIdToTimes");
                         HashMap<String, String> attendeeListIdToName = (HashMap<String, String>) doc.get("attendeeListIdToName");
+                        HashMap<String, String> signupUserIdToName = (HashMap<String, String>) doc.get("signupUserIdToName");
                         eventDataList.add(new Event(eventTitle, eventDate, eventTime,
                                 eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
-                                hostId, attendeeListIdToTimes, attendeeListIdToName));
+                                hostId, attendeeListIdToTimes, attendeeListIdToName, signupUserIdToName));
 
                         Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate, eventTime, eventLocation, 0, eventAnnouncement, checkInId, promoId, eventId));
                     }
@@ -347,6 +347,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         data.put("hostId", event.getHostId());
         data.put("attendeeListIdToTimes", event.getAttendeeListIdToCheckInTimes());
         data.put("attendeeListIdToName", event.getAttendeeListIdToName());
+        data.put("signupUserIdToName", event.getSignupUserIdToName());
         data.put("currentAttendance", 0L);
         eventsRef
                 .document(event.getEventId())

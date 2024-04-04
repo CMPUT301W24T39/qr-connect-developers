@@ -1,6 +1,7 @@
 package com.example.qrconnect;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,7 +57,12 @@ public class AttendeeArrayAdapter extends ArrayAdapter<DisplayAttendee> {
         TextView attendeeCheckInCount = view.findViewById(R.id.attendee_sign_in_count);
 
         attendeeName.setText(attendee.getUserName());
-        attendeeCheckInCount.setText(String.valueOf(attendee.getCheckInCount(eventId)));
+        if (attendee.getCheckInCount(eventId) == 0L){
+            Log.d("Attendee Array Adapter", "Adapt for displaying signup User");
+            attendeeCheckInCount.setText("");
+        } else {
+            attendeeCheckInCount.setText(String.valueOf(attendee.getCheckInCount(eventId)));
+        }
 
         return view;
     }
