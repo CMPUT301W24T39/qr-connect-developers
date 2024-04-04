@@ -17,18 +17,18 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SinglePosterAdapter extends ArrayAdapter<Event>  {
-    private List<Event> eventsList;
+    private ArrayList<Event> eventsList;
     private Context context;
     private FirebaseFirestore db;
 
-    public SinglePosterAdapter(Context context, List<Event> events, FirebaseFirestore firestore) {
+    public SinglePosterAdapter(Context context, ArrayList<Event> events) {
         super(context, 0, events);
         this.context = context;
         this.eventsList = events;
-        this.db = firestore;
     }
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -46,31 +46,41 @@ public class SinglePosterAdapter extends ArrayAdapter<Event>  {
 
         // Load event poster using Picasso library
         ImageView eventPosterImageView = itemView.findViewById(R.id.eventPoster);
-        loadEventPoster(currentEvent, eventPosterImageView);
+//        loadEventPoster(currentEvent, eventPosterImageView);
 
+        // Check if the event has a posterURL
+        if (currentEvent.getEventPosterUrl() != null && !currentEvent.getEventPosterUrl().isEmpty()) {
+            // Event has a poster, load the image using Glide
+            Glide.with(context)
+                    .load(currentEvent.getEventPosterUrl())
+                    .into(eventPosterImageView);
+        } else {
+            // Event does not have a poster, load placeholder image
+          //  eventPosterImageView.setImageResource(R.drawable.placeholder_image);
+        }
         return itemView;
     }
 
-    private void loadEventPoster(Event event, ImageView imageView) {
-        if (event.getEventId() != null) {
-            DocumentReference eventRef = db.collection("events").document(event.getEventId());
-            eventRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    if (documentSnapshot.exists()) {
-                        String posterUrl = documentSnapshot.getString("posterURL");
-                        Glide.with(context)
-                                .load(posterUrl)
-                                .into(imageView);
-                    }
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(Exception e) {
-                    Log.e("Firestore", "Error fetching event document: " + e.getMessage());
-                }
-            });
-        }
-    }
+//    private void loadEventPoster(Event event, ImageView imageView) {
+//        if (event.getEventId() != null) {
+//            DocumentReference eventRef = db.collection("events").document(event.getEventId());
+//            eventRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                @Override
+//                public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                    if (documentSnapshot.exists()) {
+//                        String posterUrl = documentSnapshot.getString("posterURL");
+//                        Glide.with(context)
+//                                .load(posterUrl)
+//                                .into(imageView);
+//                    }
+//                }
+//            }).addOnFailureListener(new OnFailureListener() {
+//                @Override
+//                public void onFailure(Exception e) {
+//                    Log.e("Firestore", "Error fetching event document: " + e.getMessage());
+//                }
+//            });
+//        }
+//    }
 
 }
