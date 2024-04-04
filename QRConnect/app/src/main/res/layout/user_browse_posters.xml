@@ -30,11 +30,19 @@
             android:textColor="@android:color/white" />
     </androidx.appcompat.widget.Toolbar>
 
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/posters_search_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:queryHint="Search for events..." />
+
     <!-- Event List -->
     <ListView
         android:id="@+id/eventPosterListView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp"/>
 
 </LinearLayout>
