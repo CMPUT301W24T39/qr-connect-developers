@@ -200,9 +200,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                         eventDataList.add(new Event(eventTitle, eventDate, eventTime,
                                 eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
                                 hostId, attendeeListIdToTimes, attendeeListIdToName, attendeeListIdToLocation));
-                        globalEventDataList.add(new Event(eventTitle, eventDate, eventTime,
-                                eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
-                                hostId, attendeeListIdToTimes, attendeeListIdToName, attendeeListIdToLocation));
+
 
 
 

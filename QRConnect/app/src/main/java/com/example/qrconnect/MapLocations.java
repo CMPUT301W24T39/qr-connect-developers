@@ -65,20 +65,23 @@ public class MapLocations extends AppCompatActivity {
                     // Assuming 'YourObject' is a class that represents the structure of your Firestore document.
                     Map<String, String> userLocations = (Map<String, String>) documentSnapshot.get("attendeeListIdToLocation");
 
-                    if (userLocations.equals("")) {
+                    if (userLocations!= null) {
                         for (Map.Entry<String, String> entry : userLocations.entrySet()) {
-                            String userId = entry.getKey();
+
                             String coordinate = entry.getValue();
                             // Use userId and value as needed
-                            String[] parts = coordinate.split(" ");
+                            if (!coordinate.equals("")){
+                                String[] parts = coordinate.split(" ");
 
-                            GeoPoint markerLocation = new GeoPoint(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]));
+                                GeoPoint markerLocation = new GeoPoint(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]));
 
-                            Marker startMarker = new Marker(map);
+                                Marker startMarker = new Marker(map);
 
-                            startMarker.setPosition(markerLocation);
-                            startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-                            map.getOverlays().add(startMarker);
+                                startMarker.setPosition(markerLocation);
+                                startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                                map.getOverlays().add(startMarker);
+                            }
+
                         }
                     }
                     // Now 'object' contains your document data. You can use it as needed.

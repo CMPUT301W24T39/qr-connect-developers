@@ -362,7 +362,7 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                                     // or get a specific field with document.get("fieldName")
                                     Log.d("Document", "DocumentSnapshot data: " + document.get("isLocationTrackingOn"));
 
-                                    if (document.get("isLocationTrackingOn").equals("true")) {
+                                    if (true) {
 
 
                                         requestLocationAndUpdateAttendee(locationData -> {
