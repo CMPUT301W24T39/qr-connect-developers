@@ -13,8 +13,16 @@ public class UserProfile {
     protected String pronouns;
     protected String userID;
 
-    public UserProfile(String userID) {
+    public UserProfile(String userID, String firstName, String lastName) {
         this.userID = userID;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = "";
+        this.isLocationTracking = false;
+        this.isProfilePictureUploaded = false;
+        this.phone = "";
+        this.profilePictureURL = "";
+        this.pronouns = "";
     }
 
     public String getEmail() {

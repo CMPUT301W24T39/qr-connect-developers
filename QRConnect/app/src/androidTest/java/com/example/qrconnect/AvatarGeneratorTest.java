@@ -27,10 +27,7 @@ public class AvatarGeneratorTest {
      * @return UserProfile
      */
     private UserProfile mockUser(String firstName, String lastName, String userID) {
-        UserProfile user = new UserProfile(userID);
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        return user;
+        return new UserProfile(userID, firstName, lastName);
     }
 
     /**

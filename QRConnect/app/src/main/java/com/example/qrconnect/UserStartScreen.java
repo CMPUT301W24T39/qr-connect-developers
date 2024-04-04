@@ -58,9 +58,11 @@ public class UserStartScreen extends AppCompatActivity {
                 // Retrieve first and last names
                 String firstName = firstNameEditText.getText().toString().trim();
                 String lastName = lastNameEditText.getText().toString().trim();
+                // create new user object
+                UserProfile user = new UserProfile(generatedUserId, firstName, lastName);
 
                 // save user info to Firestore
-                storeUserInFirestore(generatedUserId, firstName, lastName);
+                storeUserInFirestore(user);
             }
         });
 
@@ -85,19 +87,23 @@ public class UserStartScreen extends AppCompatActivity {
     /**
      * Stores user information in Firestore.
      *
-     * @param userId    The user ID.
-     * @param firstName The first name of the user.
-     * @param lastName  The last name of the user.
+     * @param user    The user profile.
      */
-    private void storeUserInFirestore(String userId, String firstName, String lastName) {
+    private void storeUserInFirestore(UserProfile user) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+        String userId = user.getUserID();
         // Create a new user data map
         Map<String, Object> userData = new HashMap<>();
         userData.put("userId", userId);
-        // Store name of the user in firestore database. Store null if the first/last names are empty.
-        userData.put("firstName", firstName.isEmpty() ? null : firstName);
-        userData.put("lastName", lastName.isEmpty() ? null : lastName);
+        userData.put("firstName", user.getFirstName());
+        userData.put("lastName", user.getLastName());
+        userData.put("pronouns", user.getPronouns());
+        userData.put("email", user.getEmail());
+        userData.put("phone", user.getPhone());
+        userData.put("isLocationTrackingOn", user.getLocationTracking());
+        userData.put("isProfilePictureUploaded", user.getProfilePictureUploaded());
+        userData.put("profilePictureURL", user.getProfilePictureURL());
 
         // Add a new document with a generated ID to the "users" collection
         db.collection("users")
