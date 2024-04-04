@@ -6,16 +6,24 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * The MilestoneManager class manages the event milestone notifications.
@@ -27,20 +35,27 @@ public class MilestoneManager {
     private CollectionReference eventsRef;
     private MilestoneListener milestoneListener;
     private MainActivity activity;
+    boolean[] mileStoneReached;
+    private String userId;
 
     /**
      * MilestoneManager constructor.
      */
-    public MilestoneManager(MainActivity mainActivity, CollectionReference notifications, CollectionReference events){
+    public MilestoneManager(MainActivity mainActivity, CollectionReference notifications, String id){
         activity = mainActivity;
-        // Send notification database initialization with Firebase
         notificationsRef = notifications;
-        eventsRef = events;
+        userId = id;
+
+        mileStoneReached = new boolean[1];
+        db = FirebaseFirestore.getInstance();
+        eventsRef = db.collection("events");
+
     }
 
     public void startManager() {
         // Start the notification listener to check notifications in real time and update the UI accordingly
-        milestoneListener = new MilestoneListener(this, eventsRef);
+        milestoneListener = new MilestoneListener(this, userId);
+        Log.d("MilestoneManager", "Milestone manager for user id: " + userId);
         milestoneListener.startListening();
     }
 
@@ -50,37 +65,49 @@ public class MilestoneManager {
      * @param capacity the capacity of the event.
      * @param currentAttendance the current attendance of the event.
      */
-    public void checkMilestones(String eventTitle, Integer capacity, Integer currentAttendance) {
+    public void checkMilestones(String eventId, String eventTitle, Integer capacity, Integer currentAttendance) {
         List<Integer> milestones = Arrays.asList(3, 5, 10, 25, 50, 100);
+
+        // Log milestone check start
+        Log.d("MilestoneManager", "Checking milestones for event: " + eventTitle);
+
 
         // First person milestone
         if (currentAttendance == 1) {
             String title = "Event Milestone Reached!";
             String description = "Congratulations! Your event has its first attendee!";
-            sendNotification(eventTitle, title, description);
+            checkIfMilestoneAlreadyReached(description, eventId);
+            // Check if milestone was reached
+            if (!mileStoneReached[0] && currentAttendance == 1) {
+                sendNotification(eventId, eventTitle, title, description);
+            }
         }
 
         // Check milestones
         for (Integer milestone : milestones) {
             // Check if current attendance equals the milestone
-            if (currentAttendance == milestone) {
+            if (currentAttendance.equals(milestone)) {
                 String title = "Event Milestone Reached!";
                 String description = "Congratulations! Your event has reached " + milestone + " attendees!";
-                sendNotification(eventTitle, title, description);
+                sendNotification(eventId, eventTitle, title, description);
+
             }
         }
         // Checks if the current attendance is at the capacity
-        if (currentAttendance == capacity && capacity != 0) {
+        if (currentAttendance.equals(capacity) && capacity != 0) {
             String title = "Event Milestone Reached!";
             String description = "Congratulations! Your event has reached its capacity of " + capacity + "!";
-            sendNotification(eventTitle, title, description);
+            sendNotification(eventId, eventTitle, title, description);
         }
     }
 
     /**
      * Send milestone notifications to the Firestore Database.
      */
-    private void sendNotification(String eventTitle, String title, String description) {
+    private void sendNotification(String eventId, String eventTitle, String title, String description) {
+
+        // Log notification sending
+        Log.d("MilestoneManager", "Sending notification for event: " + eventTitle);
 
         // Get the date and time when the notification is sent
         DateTimeFormatter dtf = null;
@@ -102,7 +129,7 @@ public class MilestoneManager {
         boolean read = false;
 
         // Create a new notification object
-        Notification notification = new Notification(eventTitle, title, description, date_string, read);
+        Notification notification = new Notification(eventTitle, title, description, date_string, read, eventId);
         // Add the notification to Firestore
         notificationsRef.add(notification)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -117,5 +144,54 @@ public class MilestoneManager {
                         Log.e("Firestore", "Error adding notification.", e);
                     }
                 });
+    }
+
+    /**
+     * Check if the milestone of the event was already reached.
+     */
+    private void checkIfMilestoneAlreadyReached(String description, String eventId) {
+
+        // Log check old milestones
+        Log.d("MilestoneManager", "Check if milestone happened for event: " + eventId);
+
+        mileStoneReached[0] = false; // Default to false (milestone hasn't already been reached)
+
+        notificationsRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot userDocument : task.getResult()) {
+                        // Event Id
+                        String documentEventId = userDocument.getString("notificationEventId");
+                        Log.d("MilestoneManager", "Check the event milestone for event1: " + documentEventId);
+                        Log.d("MilestoneManager", "Check the event milestone for event2: " + eventId);
+                        // Event Description
+                        String documentDescription = userDocument.getString("notificationDescription");
+                        Log.d("MilestoneManager", "Check the description milestone for event1: " + documentDescription);
+                        Log.d("MilestoneManager", "Check the description milestone for event2: " + description);
+
+                        if (documentEventId != null) {
+                            Log.d("MilestoneManager", "Condition 1: documentEventId is not null");
+                        }
+                        if (documentEventId.equals(eventId)) {
+                            Log.d("MilestoneManager", "Condition 2: documentEventId equals eventId");
+                        }
+                        if (documentDescription != null) {
+                            Log.d("MilestoneManager", "Condition 3: documentDescription is not null");
+                        }
+                        if (documentDescription.equals(description)) {
+                            Log.d("MilestoneManager", "Condition 4: documentDescription equals description");
+                        }
+                        if (documentEventId != null && documentEventId.equals(eventId) && documentDescription != null && documentDescription.equals(description)){
+                            // If the milestone was already reached for this event
+                            mileStoneReached[0] = true;
+                            Log.d("MilestoneManager", "Milestone reached: " + mileStoneReached[0]);
+                        }
+                    }
+                } else {
+                    Log.d("Firestore", "Error getting documents: ", task.getException());
+                }
+            }
+        });
     }
 }

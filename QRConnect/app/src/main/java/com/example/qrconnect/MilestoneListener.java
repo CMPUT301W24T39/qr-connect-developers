@@ -18,21 +18,26 @@ public class MilestoneListener {
     private CollectionReference eventsRef;
     private ListenerRegistration listenerRegistration;
     private MilestoneManager activity;
+    private String userId;
 
     /**
      * MilestoneListener constructor.
      * Get MilestoneManager instance.
      * @param milestoneManager the MainActivity instance.
      */
-    public MilestoneListener(MilestoneManager milestoneManager, CollectionReference events) {
+    public MilestoneListener(MilestoneManager milestoneManager, String id) {
         activity = milestoneManager;
-        eventsRef = events;
+        userId = id;
+
+        db = FirebaseFirestore.getInstance();
+        eventsRef = db.collection("events");
     }
 
     /**
      * Start the event listener.
      */
     public void startListening() {
+        Log.d("MilestoneListener", "Starting event milestone listener...");
         listenerRegistration = eventsRef.addSnapshotListener((queryDocumentSnapshots, e) -> {
             // If there are any errors while listening
             if (e != null) {
@@ -44,16 +49,23 @@ public class MilestoneListener {
                 switch (dc.getType()) {
                     case MODIFIED: // If an event was modified
                         DocumentSnapshot newDocumentSnapshot = dc.getDocument();
+                        // Host Id
+                        String hostId = newDocumentSnapshot.getString("hostId");
+                        Log.d("Firestore", "Host ID: " + hostId);
+                        Log.d("Firestore", "User ID: " + userId);
+                        if (hostId != null && hostId.equals(userId)) {
+                            // Event Id
+                            String eventId = newDocumentSnapshot.getString("eventId");
+                            // Event title
+                            String title = newDocumentSnapshot.getString("title");
+                            // Event capacity
+                            Integer capacity = newDocumentSnapshot.getLong("capacity").intValue();
+                            // Event current attendance
+                            Integer currentAttendance = newDocumentSnapshot.getLong("currentAttendance").intValue();
 
-                        // Event title
-                        String title = newDocumentSnapshot.getString("title");
-                        // Event capacity
-                        Integer capacity = newDocumentSnapshot.getLong("capacity").intValue();
-                        // Event current attendance
-                        Integer currentAttendance = newDocumentSnapshot.getLong("currentAttendance").intValue();
-
-                        // Check milestones related to capacity and currentAttendance
-                        activity.checkMilestones(title, capacity, currentAttendance);
+                            // Check milestones related to capacity and currentAttendance
+                            activity.checkMilestones(eventId, title, capacity, currentAttendance);
+                        }
                         break;
                 }
             }

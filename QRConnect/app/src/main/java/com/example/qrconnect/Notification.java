@@ -12,19 +12,24 @@ public class Notification{
     private String description;
     private String date;
     private boolean read;
+    private String eventId;
 
     /**
      * Constructs a Notification object with the specified details.
      * @param event the name of the event of the notification.
      * @param title the title of the notification.
      * @param description the description of the notification.
+     * @param date the date of the notification.
+     * @param read the read status of the notification.
+     * @param eventId the event id associated with the notification.
      */
-    Notification(String event, String title, String description, String date, boolean read){
+    Notification(String event, String title, String description, String date, boolean read, String eventId){
         this.event = event;
         this.title = title;
         this.description = description;
         this.date = date;
         this.read = read;
+        this.eventId = eventId;
     }
 
     // Notification getters
@@ -68,6 +73,14 @@ public class Notification{
         return this.read;
     }
 
+    /**
+     * Getter for the notification event id.
+     * @return the event id associated with the notification.
+     */
+    public String getNotificationEventId(){
+        return this.eventId;
+    }
+
     // Notification setters
     /**
      * Setter for the notification event.
@@ -106,4 +119,10 @@ public class Notification{
      * @param read the read status of the notification.
      */
     public void setNotificationRead(boolean read){ this.read = read; }
+
+    /**
+     * Setter for the notification event id.
+     * @param eventId the event id associated with the notification.
+     */
+    public void setNotificationEventId(String eventId){ this.eventId = eventId; }
 }

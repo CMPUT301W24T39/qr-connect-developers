@@ -50,7 +50,7 @@ public class AdminQRScan extends AppCompatActivity {
     private String TAG = "AdminQRScanning";
     private boolean usingFrontCamera = false;
     private long lastActionTime = 0;// To prevent rapid multiple scans issue.
-    private final String adminPassword = "Admin Acceptable QR Code ID\n";//Set the unique admin password.
+    private final String adminPassword = "1234";//Set the unique admin password.
     private View scanningLine;
     /**
      * Called when the activity is first created. Responsible for initializing the view as admin scan QR code page.
