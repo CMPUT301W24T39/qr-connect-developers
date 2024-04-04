@@ -37,6 +37,7 @@ public class MilestoneListener {
      * Start the event listener.
      */
     public void startListening() {
+        Log.d("MilestoneListener", "Starting event milestone listener...");
         listenerRegistration = eventsRef.addSnapshotListener((queryDocumentSnapshots, e) -> {
             // If there are any errors while listening
             if (e != null) {
@@ -52,7 +53,7 @@ public class MilestoneListener {
                         String hostId = newDocumentSnapshot.getString("hostId");
                         Log.d("Firestore", "Host ID: " + hostId);
                         Log.d("Firestore", "User ID: " + userId);
-                        if (hostId != null && hostId == userId) {
+                        if (hostId != null && hostId.equals(userId)) {
                             // Event Id
                             String eventId = newDocumentSnapshot.getString("eventId");
                             // Event title
