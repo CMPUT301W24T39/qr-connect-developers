@@ -5,32 +5,37 @@
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar_map_locations"
+        android:id="@+id/toolbar_top"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary">
+        android:layout_height="76dp"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:orientation="horizontal">
 
         <ImageButton
-            android:id="@+id/map_locations_back_button"
+            android:id="@+id/signup_list_back_nav_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/arrow_back_icon" />
 
         <TextView
-            android:id="@+id/map_locations_page_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Check In Loctions"
-            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="110dp"
+            android:text="Signup Users"
             android:textAppearance="?attr/textAppearanceHeadline6"
             android:textColor="@android:color/white" />
 
     </androidx.appcompat.widget.Toolbar>
 
-    <org.osmdroid.views.MapView
-        android:id="@+id/map"
+    <ListView
+        android:id="@+id/show_signup_user_list_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="0.5dp"
+        android:listSelector="@android:color/transparent" />
 
 </LinearLayout>

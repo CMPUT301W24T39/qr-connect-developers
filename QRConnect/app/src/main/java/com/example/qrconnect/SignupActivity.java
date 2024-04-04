@@ -3,6 +3,7 @@ package com.example.qrconnect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,7 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-public class PromoDetailsActivity extends AppCompatActivity {
+public class SignupActivity extends AppCompatActivity {
     /**
      * Initializes the activity, sets the content view, and begins the process of loading event details.
      * It retrieves the event ID passed from the previous activity and uses it to load the corresponding
@@ -29,10 +30,11 @@ public class PromoDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String eventId = getIntent().getStringExtra("EVENT_ID");
-        Log.d("Promo Details Activity", "Received event ID: " + eventId);
-        setContentView(R.layout.activity_promo_detatils);
-        loadPromoDetails(eventId);
-        promoBackAction();
+        Log.d("Signup Activity", "Received event ID: " + eventId);
+        setContentView(R.layout.activity_signup_event);
+        loadSignupDetails(eventId);
+        setupButtonListener();
+        signupBackAction();
     }
     /**
      * Fetches and displays the details of an event including its title, description, date, time, location,
@@ -41,21 +43,21 @@ public class PromoDetailsActivity extends AppCompatActivity {
      *
      * @param eventId The unique identifier of the event whose details are to be loaded and displayed.
      */
-    private void loadPromoDetails(String eventId){
+    private void loadSignupDetails(String eventId){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference eventRef = db.collection("events").document(eventId);
 
         eventRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 // Set text fields with data from Firestore
-                TextView eventTitle = findViewById(R.id.promo_event_title_textview);
-                TextView eventDescription = findViewById(R.id.promo_description_text);
-                TextView eventDate = findViewById(R.id.promo_date_text);
-                TextView eventTime = findViewById(R.id.promo_time_text);
-                TextView eventAddress = findViewById(R.id.promo_location_text);
-                TextView eventCapacity = findViewById(R.id.promo_capacity_text);
-                ImageView eventPoster = findViewById(R.id.promo_event_image);
-                TextView eventCurrentAttendance = findViewById(R.id.promo_event_current_attendance_text);
+                TextView eventTitle = findViewById(R.id.signup_event_title_textview);
+                TextView eventDescription = findViewById(R.id.signup_description_text);
+                TextView eventDate = findViewById(R.id.signup_date_text);
+                TextView eventTime = findViewById(R.id.signup_time_text);
+                TextView eventAddress = findViewById(R.id.signup_location_text);
+                TextView eventCapacity = findViewById(R.id.signup_capacity_text);
+                ImageView eventPoster = findViewById(R.id.signup_event_image);
+                TextView eventCurrentAttendance = findViewById(R.id.signup_event_current_attendance_text);
 
                 eventTitle.setText(documentSnapshot.getString("title"));
                 eventDescription.setText(documentSnapshot.getString("description"));
@@ -77,21 +79,21 @@ public class PromoDetailsActivity extends AppCompatActivity {
                             .load(uri)
                             .into(eventPoster);
                 }).addOnFailureListener(e -> {
-                    Log.d("EventDetails", "Error loading image: ", e);
+                    Log.d("SignupActivity", "Error loading image: ", e);
                 });
             } else {
-                Log.d("EventDetails", "Document does not exist.");
+                Log.d("SignupActivity", "Document does not exist.");
             }
         }).addOnFailureListener(e -> {
-            Log.d("EventDetails", "Error fetching document: ", e);
+            Log.d("SignupActivity", "Error fetching document: ", e);
         });
     }
     /**
      * Sets up the action for the back navigation button. When clicked, it finishes the current activity,
      * effectively navigating the user back to the previous screen.
      */
-    private void promoBackAction(){
-        ImageButton backButton = findViewById(R.id.promo_details_back_nav_button);
+    private void signupBackAction(){
+        ImageButton backButton = findViewById(R.id.signup_details_back_nav_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -99,4 +101,18 @@ public class PromoDetailsActivity extends AppCompatActivity {
             }
         });
     }
+    /**
+     * Sets up listeners for buttons in the activity.
+     */
+    private void setupButtonListener() {
+        Button signupButton = findViewById(R.id.signup_button_signup_bottom);
+        signupButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO: Signup Logic and alert dialog
+                // Can use event.signupUser ...
+            }
+        });
+    }
 }
+
