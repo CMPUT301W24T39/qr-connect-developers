@@ -351,11 +351,8 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                         String firstName = documentSnapshot.getString("firstName");
                         String lastName = documentSnapshot.getString("lastName");
                         String currentUserName = firstName + " " + lastName;
-                        targetEvent.addAttendee(currentUserId, currentUserName);
                         targetEvent.signupUser(currentUserId, currentUserName);
-                        Log.d(TAG, "User's name: " + currentUserName);
-                        updateEventAttendeeLists(eventRef);
-  
+
                         userRef.get().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
                                 DocumentSnapshot document = task.getResult();
