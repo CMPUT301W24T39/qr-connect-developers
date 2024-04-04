@@ -33,6 +33,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -130,7 +132,6 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
                                 eventPoster.setImageURI(selectedImageUri);
                                 String posterUrlString = currentEvent.getEventId() + "_" + fieldName + ".jpg";
 
-
                                 UploadTask uploadTask = eventPosterRef.putFile(selectedImageUri);
                                 uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                     @Override
@@ -139,6 +140,7 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
                                             @Override
                                             public void onSuccess(Uri uri) {
                                                 String downloadUrl = uri.toString();
+                                                saveImageInfoToRealtimeDatabase(posterUrlString, downloadUrl);
                                                 // set event poster url in currentEvent and firestore database
                                                 currentEvent.setEventPosterUrl(downloadUrl);
                                                 // Create a map to hold the data to be updated or added
@@ -397,6 +399,20 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception exception) {
                 Log.e("EventDetailsActivity", "Error loading image: ", exception);
+            }
+        });
+    }
+    private void saveImageInfoToRealtimeDatabase(String imageName, String downloadUrl) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("eventposters");
+        myRef.child(imageName).setValue(new ImageInfo(imageName, downloadUrl)).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()) {
+                    System.out.println("Uploaded successfully in realtime database");
+                } else {
+                    System.out.println("Failed to upload successfully in realtime database");
+                }
             }
         });
     }
