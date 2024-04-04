@@ -9,23 +9,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Event"
-        android:textSize="20dp"
+        android:textSize="15dp"
         android:layout_centerVertical="true"
         android:layout_marginStart="15dp"
         android:textAppearance="?attr/textAppearanceSubtitle1"
         android:clickable="false"/>
-
-    <!--
-    <ImageButton
-        android:id="@+id/event_icon_check_in"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="15dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
+    <ImageView
+        android:id="@+id/event_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:src="@drawable/check_circle"
-        android:scaleType="fitCenter"
-        android:clickable="false"/>
-    -->
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="12dp"/>
+
 </RelativeLayout>
