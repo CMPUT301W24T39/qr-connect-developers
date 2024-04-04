@@ -6,8 +6,13 @@ import static com.example.qrconnect.TimeConverter.stringToCalendar;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,6 +35,7 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.camera.view.PreviewView;
 
@@ -47,13 +53,19 @@ import com.google.mlkit.vision.common.InputImage;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
+
 public class BarcodeScanningActivity extends AppCompatActivity {
     private ProcessCameraProvider cameraProvider;
     private String TAG = "BarcodeScanning";
     private boolean usingFrontCamera = false;
     private long lastActionTime = 0;// To prevent rapid multiple scans issue.
     private Event targetEvent;
+    private final int MY_PERMISSIONS_REQUEST_LOCATION = 1;
+    String locationData = "";
+
+    private LocationManager locationManager;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+
     //private String currentUserId = UserPreferences.getUserId(getApplicationContext());
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,12 +122,13 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         animator.setRepeatMode(ValueAnimator.REVERSE); // Make the line move back and forth within the adjusted area
         animator.start();
     }
+
     /**
      * Initiates the camera with {@link CameraX} APIs. This method sets up the camera provider, selects the back camera,
      * and binds the lifecycle of the camera to the current activity.
      * Referred from https://developer.android.com/media/camera/camerax/architecture
      * March 14, 2024
-    */
+     */
     private void startCamera() {
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() -> {
@@ -141,6 +154,7 @@ public class BarcodeScanningActivity extends AppCompatActivity {
             }
         }, ContextCompat.getMainExecutor(this));
     }
+
     /**
      * Pauses the camera preview by unbinding the camera provider from the current lifecycle.
      * This is used to temporarily halt the camera's operation.
@@ -206,7 +220,8 @@ public class BarcodeScanningActivity extends AppCompatActivity {
      */
     private class ImageAnalyzer implements ImageAnalysis.Analyzer {
 
-        @OptIn(markerClass = ExperimentalGetImage.class) @Override
+        @OptIn(markerClass = ExperimentalGetImage.class)
+        @Override
         public void analyze(@NonNull ImageProxy imageProxy) {
             Image mediaImage = imageProxy.getImage();
             if (mediaImage != null) {
@@ -230,7 +245,7 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         // Referred from https://stackoverflow.com/questions/25991367/difference-between-throttling-and-debouncing-a-function
         // Donal, Sept 23, 2024.
         long currentTime = System.currentTimeMillis();
-        if (currentTime - lastActionTime < 1000){
+        if (currentTime - lastActionTime < 1000) {
             startCamera();
             return;
         }
@@ -274,10 +289,10 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         eventRef.get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        try{
+                        try {
                             targetEvent = createEventFromDocumentSnapshot(documentSnapshot, eventId);
                             showSuccessDialog();
-                        } catch (Exception ex){
+                        } catch (Exception ex) {
                             showFailureDialog(ex.getMessage());
                         }
                     } else {
@@ -328,7 +343,8 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                 .document(targetEvent.getEventId());
         String currentUserId = UserPreferences.getUserId(getApplicationContext());
 
-        DocumentReference userRef = db.collection("users").document(currentUserId);
+        DocumentReference userRef = db.collection("users").document("1");
+
 
         userRef.get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -336,9 +352,42 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                         String firstName = documentSnapshot.getString("firstName");
                         String lastName = documentSnapshot.getString("lastName");
                         String currentUserName = firstName + " " + lastName;
-                        targetEvent.addAttendee(currentUserId, currentUserName);
-                        Log.d(TAG, "User's name: " + currentUserName);
-                        updateEventAttendeeLists(eventRef);
+
+
+                        userRef.get().addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document.exists()) {
+                                    // Document was found in the cache or network. Access its data with document.getData()
+                                    // or get a specific field with document.get("fieldName")
+                                    Log.d("Document", "DocumentSnapshot data: " + document.get("isLocationTrackingOn"));
+
+                                    if (true) {
+
+
+                                        requestLocationAndUpdateAttendee(locationData -> {
+                                            // This block is called when the locationData is ready.
+                                            // Proceed to use locationData here to update the attendee list.
+                                            targetEvent.addAttendee(currentUserId, currentUserName, locationData);
+                                            Log.d(TAG, "User's name: " + currentUserName);
+                                            updateEventAttendeeLists(eventRef);
+                                        });
+
+                                    } else{
+                                        targetEvent.addAttendee(currentUserId, currentUserName, "");
+                                        updateEventAttendeeLists(eventRef);
+                                    }
+
+                                } else {
+                                    // Document does not exist
+                                    Log.d("Document", "No such document");
+                                }
+                            } else {
+                                // Task failed with an exception
+                                Log.d("Document", "get failed with ", task.getException());
+                            }
+                        });
+
                     } else {
                         Log.d(TAG, "User document does not exist");
                     }
@@ -346,6 +395,34 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error fetching user document", e);
                 });
+    }
+
+    private void requestLocationAndUpdateAttendee(LocationCallback callback) {
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+            locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    String latitude = Double.toString(location.getLatitude());
+                    String longitude = Double.toString(location.getLongitude());
+                    String locationData = latitude + " " + longitude;
+
+                    locationManager.removeUpdates(this); // Stop receiving updates immediately
+
+                    // Use the callback to notify that the location is ready
+                    callback.onLocationReady(locationData);
+                }
+            });
+        } else {
+            // Request permissions
+            ActivityCompat.requestPermissions(this, new String[] { android.Manifest.permission.ACCESS_FINE_LOCATION }, MY_PERMISSIONS_REQUEST_LOCATION);
+            Toast.makeText(getApplicationContext(), "First enable LOCATION ACCESS", Toast.LENGTH_LONG).show();
+        }
+    }
+    public interface LocationCallback {
+        void onLocationReady(String locationData);
     }
 
     private void updateEventAttendeeLists(DocumentReference eventRef) {
@@ -364,6 +441,15 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error updating event attendeeListIdToName", e);
+                });
+
+        eventRef.update("attendeeListIdToLocation", targetEvent.getAttendeeListIdToLocation())
+                .addOnSuccessListener(v -> {
+                    Log.d(TAG, "Event updated attendeeListIdToLocation successfully");
+                    showCheckInSuccessfullyDialog();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error updating event attendeeListIdToLocation", e);
                 });
 
         eventRef.update("currentAttendance", targetEvent.getAttendeeListIdToName().size())
@@ -546,10 +632,12 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                 (HashMap<String, Long>) documentSnapshot.get("attendeeListIdToTimes");
         HashMap<String, String> attendeeListIdToName =
                 (HashMap<String, String>) documentSnapshot.get("attendeeListIdToName");
+        HashMap<String, String> attendeeListIdToLocation =
+                (HashMap<String, String>) documentSnapshot.get("attendeeListIdToLocation");
         // Create the Event object manually
         return new Event(eventTitle, date, time, location, capacity, announcement,
                 checkInQRCodeImageUrl, promoQRCodeImageUrl, eventId, hostId,
-                attendeeListIdToTimes, attendeeListIdToName);
+                attendeeListIdToTimes, attendeeListIdToName, attendeeListIdToLocation);
     }
 
 }
