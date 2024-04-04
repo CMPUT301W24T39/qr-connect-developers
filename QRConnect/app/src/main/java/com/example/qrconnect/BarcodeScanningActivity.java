@@ -53,6 +53,7 @@ import com.google.mlkit.vision.common.InputImage;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
+
 public class BarcodeScanningActivity extends AppCompatActivity {
     private ProcessCameraProvider cameraProvider;
     private String TAG = "BarcodeScanning";
@@ -64,6 +65,7 @@ public class BarcodeScanningActivity extends AppCompatActivity {
 
     private LocationManager locationManager;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+
     //private String currentUserId = UserPreferences.getUserId(getApplicationContext());
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,12 +122,13 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         animator.setRepeatMode(ValueAnimator.REVERSE); // Make the line move back and forth within the adjusted area
         animator.start();
     }
+
     /**
      * Initiates the camera with {@link CameraX} APIs. This method sets up the camera provider, selects the back camera,
      * and binds the lifecycle of the camera to the current activity.
      * Referred from https://developer.android.com/media/camera/camerax/architecture
      * March 14, 2024
-    */
+     */
     private void startCamera() {
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() -> {
@@ -151,6 +154,7 @@ public class BarcodeScanningActivity extends AppCompatActivity {
             }
         }, ContextCompat.getMainExecutor(this));
     }
+
     /**
      * Pauses the camera preview by unbinding the camera provider from the current lifecycle.
      * This is used to temporarily halt the camera's operation.
@@ -216,7 +220,8 @@ public class BarcodeScanningActivity extends AppCompatActivity {
      */
     private class ImageAnalyzer implements ImageAnalysis.Analyzer {
 
-        @OptIn(markerClass = ExperimentalGetImage.class) @Override
+        @OptIn(markerClass = ExperimentalGetImage.class)
+        @Override
         public void analyze(@NonNull ImageProxy imageProxy) {
             Image mediaImage = imageProxy.getImage();
             if (mediaImage != null) {
@@ -240,7 +245,7 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         // Referred from https://stackoverflow.com/questions/25991367/difference-between-throttling-and-debouncing-a-function
         // Donal, Sept 23, 2024.
         long currentTime = System.currentTimeMillis();
-        if (currentTime - lastActionTime < 1000){
+        if (currentTime - lastActionTime < 1000) {
             startCamera();
             return;
         }
@@ -284,10 +289,10 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         eventRef.get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        try{
+                        try {
                             targetEvent = createEventFromDocumentSnapshot(documentSnapshot, eventId);
                             showSuccessDialog();
-                        } catch (Exception ex){
+                        } catch (Exception ex) {
                             showFailureDialog(ex.getMessage());
                         }
                     } else {
@@ -338,8 +343,7 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                 .document(targetEvent.getEventId());
         String currentUserId = UserPreferences.getUserId(getApplicationContext());
 
-        DocumentReference userRef = db.collection("users").document(currentUserId);
-
+        DocumentReference userRef = db.collection("users").document("1");
 
 
         userRef.get()
@@ -349,14 +353,40 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                         String lastName = documentSnapshot.getString("lastName");
                         String currentUserName = firstName + " " + lastName;
 
-                        requestLocationAndUpdateAttendee(locationData -> {
-                            // This block is called when the locationData is ready.
-                            // Proceed to use locationData here to update the attendee list.
-                            targetEvent.addAttendee(currentUserId, currentUserName, locationData);
-                            Log.d(TAG, "User's name: " + currentUserName);
-                            updateEventAttendeeLists(eventRef);
-                        });
 
+                        userRef.get().addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document.exists()) {
+                                    // Document was found in the cache or network. Access its data with document.getData()
+                                    // or get a specific field with document.get("fieldName")
+                                    Log.d("Document", "DocumentSnapshot data: " + document.get("isLocationTrackingOn"));
+
+                                    if (document.get("isLocationTrackingOn").equals("true")) {
+
+
+                                        requestLocationAndUpdateAttendee(locationData -> {
+                                            // This block is called when the locationData is ready.
+                                            // Proceed to use locationData here to update the attendee list.
+                                            targetEvent.addAttendee(currentUserId, currentUserName, locationData);
+                                            Log.d(TAG, "User's name: " + currentUserName);
+                                            updateEventAttendeeLists(eventRef);
+                                        });
+
+                                    } else{
+                                        targetEvent.addAttendee(currentUserId, currentUserName, "");
+                                        updateEventAttendeeLists(eventRef);
+                                    }
+
+                                } else {
+                                    // Document does not exist
+                                    Log.d("Document", "No such document");
+                                }
+                            } else {
+                                // Task failed with an exception
+                                Log.d("Document", "get failed with ", task.getException());
+                            }
+                        });
 
                     } else {
                         Log.d(TAG, "User document does not exist");
@@ -366,6 +396,7 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                     Log.e(TAG, "Error fetching user document", e);
                 });
     }
+
     private void requestLocationAndUpdateAttendee(LocationCallback callback) {
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -393,7 +424,6 @@ public class BarcodeScanningActivity extends AppCompatActivity {
     public interface LocationCallback {
         void onLocationReady(String locationData);
     }
-
 
     private void updateEventAttendeeLists(DocumentReference eventRef) {
         eventRef.update("attendeeListIdToTimes", targetEvent.getAttendeeListIdToCheckInTimes())

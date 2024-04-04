@@ -65,7 +65,7 @@ public class MapLocations extends AppCompatActivity {
                     // Assuming 'YourObject' is a class that represents the structure of your Firestore document.
                     Map<String, String> userLocations = (Map<String, String>) documentSnapshot.get("attendeeListIdToLocation");
 
-                    if (userLocations != null) {
+                    if (userLocations.equals("")) {
                         for (Map.Entry<String, String> entry : userLocations.entrySet()) {
                             String userId = entry.getKey();
                             String coordinate = entry.getValue();
