@@ -7,20 +7,21 @@
 
     <TextView
         android:id="@+id/attendee_name_text"
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:padding="20dp"
         android:text="AttendeeName"
         android:textSize="30sp">
     </TextView>
 
     <TextView
+        android:id="@+id/attendee_sign_in_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/attendee_sign_in_count"
         android:textSize="30sp"
-        android:layout_marginLeft="20dp"
-        android:text="Count#">
+        android:text="Count#"
+        android:padding="20dp">
     </TextView>
 
 </LinearLayout>

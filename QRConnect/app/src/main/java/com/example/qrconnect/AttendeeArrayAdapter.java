@@ -1,6 +1,7 @@
 package com.example.qrconnect;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,14 +12,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The AttendeeArrayAdapter class provides a way to adapt an ArrayList of Attendee objects
  * to be displayed in an AdapterView.
  * It extends the ArrayAdapter Class.
  */
-public class AttendeeArrayAdapter extends ArrayAdapter<User> {
+public class AttendeeArrayAdapter extends ArrayAdapter<DisplayAttendee> {
 
     private ArrayList<User> attendees;
     private Context context;
@@ -30,7 +30,7 @@ public class AttendeeArrayAdapter extends ArrayAdapter<User> {
      * @param attendees attendees for AttendeeArrayAdapter.
      * @param eventId eventID for AttendeeArrayAdapter.
      */
-    public AttendeeArrayAdapter(Context context, ArrayList<User> attendees, String eventId) {
+    public AttendeeArrayAdapter(Context context, ArrayList<DisplayUser> attendees, String eventId) {
         super(context, 0, attendees);
         this.attendees = attendees;
         this.context = context;
@@ -52,13 +52,17 @@ public class AttendeeArrayAdapter extends ArrayAdapter<User> {
             view = LayoutInflater.from(context).inflate(R.layout.attendee_content, parent,false);
         }
 
-        User attendee = attendees.get(position);
-
+        DisplayAttendee attendee = attendees.get(position);
         TextView attendeeName = view.findViewById(R.id.attendee_name_text);
         TextView attendeeCheckInCount = view.findViewById(R.id.attendee_sign_in_count);
 
-        attendeeName.setText(attendee.getFirstName() + attendee.getLastName());
-        attendeeCheckInCount.setText(String.valueOf(attendee.getCheckInCount(eventId)));
+        attendeeName.setText(attendee.getUserName());
+        if (attendee.getCheckInCount(eventId) == 0L){
+            Log.d("Attendee Array Adapter", "Adapt for displaying signup User");
+            attendeeCheckInCount.setText("");
+        } else {
+            attendeeCheckInCount.setText(String.valueOf(attendee.getCheckInCount(eventId)));
+        }
 
         return view;
     }

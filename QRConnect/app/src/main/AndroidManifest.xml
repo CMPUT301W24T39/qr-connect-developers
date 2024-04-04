@@ -2,12 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <uses-feature android:name="android.hardware.camera.any" />
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
@@ -31,7 +37,8 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTop"/>
         <activity
             android:name=".SplashActivity"
             android:exported="true">
@@ -71,6 +78,10 @@
             android:exported="true">
         </activity>
         <activity
+            android:name=".AdminEventDetails"
+            android:exported="true">
+        </activity>
+        <activity
             android:name=".AdminBrowseImages"
             android:exported="true">
         </activity>
@@ -84,10 +95,6 @@
         </activity>
         <activity
             android:name=".MapLocations"
-            android:exported="true">
-        </activity>
-        <activity
-            android:name=".ShareQRCode"
             android:exported="true">
         </activity>
         <activity
@@ -108,10 +115,14 @@
         <activity
             android:name=".ShareQRCodeActivity"
             android:exported="true"/>
-
+        <activity android:name=".SignUpUsersListActivity"
+            android:exported="true"/>
         <activity
             android:name=".EventDetailsInitializeActivity">
         </activity>
+        <activity android:name=".SignupDetailsActivity">
+        </activity>
+
 
         <provider
             android:name="androidx.core.content.FileProvider"

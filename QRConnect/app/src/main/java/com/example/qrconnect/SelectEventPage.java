@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -20,6 +21,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.util.Calendar;
 
 /**
  * The SelectEventPage class maintains the functions of SelectEventPage activity.
@@ -56,28 +59,39 @@ public class SelectEventPage extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Event selectedEvent = (Event) parent.getItemAtPosition(position);
 
+                Calendar dateTimeCurrentEvent = Calendar.getInstance();
+                dateTimeCurrentEvent.setTimeInMillis(currentEvent.getDate().getTimeInMillis());
+                dateTimeCurrentEvent.set(Calendar.HOUR_OF_DAY, currentEvent.getTime().get(Calendar.HOUR_OF_DAY));
+                dateTimeCurrentEvent.set(Calendar.MINUTE, currentEvent.getTime().get(Calendar.MINUTE));
 
-                String fieldNameCheckInQRCode = "checkInQRCodeImageUrl";
-                String fieldNamePromoteQRCode = "promoQRCodeImageUrl";
+                Calendar dateTimeSelectedEvent = Calendar.getInstance();
+                dateTimeSelectedEvent.setTimeInMillis(selectedEvent.getDate().getTimeInMillis());
+                dateTimeSelectedEvent.set(Calendar.HOUR_OF_DAY, selectedEvent.getTime().get(Calendar.HOUR_OF_DAY));
+                dateTimeSelectedEvent.set(Calendar.MINUTE, selectedEvent.getTime().get(Calendar.MINUTE));
 
-                currentEvent.setEventCheckInId(selectedEvent.getEventCheckInId());
-                currentEvent.setEventPromoId(selectedEvent.getEventPromoId());
+                if (dateTimeSelectedEvent.before(dateTimeCurrentEvent)){
 
-                updateEvent(currentEvent, fieldNameCheckInQRCode, selectedEvent.getEventCheckInId());
-                updateEvent(currentEvent, fieldNamePromoteQRCode, selectedEvent.getEventPromoId());
+                    String fieldNameCheckInQRCode = "checkInQRCodeImageUrl";
 
-                FirebaseStorage storage = FirebaseStorage.getInstance();
-                StorageReference storageRef = storage.getReference();
-                StorageReference pathReference = storageRef.child("qrcodes/" + selectedEvent.getEventId() + "_" + "checkInQRCodeImageUrl" + ".jpg");
-                pathReference.getDownloadUrl().addOnSuccessListener(uri -> {
-                    Intent resultIntent = new Intent();
-                    resultIntent.putExtra("imageUrl", uri.toString());
-                    setResult(RESULT_OK, resultIntent);
-                    returnUpdatedEvent(currentEvent);
-                }).addOnFailureListener(exception -> {
+                    currentEvent.setEventCheckInId(selectedEvent.getEventCheckInId());
+                    updateEvent(currentEvent, fieldNameCheckInQRCode, selectedEvent.getEventCheckInId());
 
-                });
+                    FirebaseStorage storage = FirebaseStorage.getInstance();
+                    StorageReference storageRef = storage.getReference();
+                    StorageReference pathReference = storageRef.child("qrcodes/" + selectedEvent.getEventId() + "_" + "checkInQRCodeImageUrl" + ".jpg");
+                    pathReference.getDownloadUrl().addOnSuccessListener(uri -> {
+                        Intent resultIntent = new Intent();
+                        resultIntent.putExtra("imageUrl", uri.toString());
+                        setResult(RESULT_OK, resultIntent);
+                        returnUpdatedEvent(currentEvent);
+                            }).addOnFailureListener(exception -> {
+                            Toast.makeText(SelectEventPage.this, "Check-in QR code is not successfully updated", Toast.LENGTH_SHORT).show();
+                        });
 
+                    }
+                else{
+                    Toast.makeText(SelectEventPage.this, "You cannot select future events", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

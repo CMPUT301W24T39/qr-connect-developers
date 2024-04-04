@@ -1,7 +1,6 @@
 package com.example.qrconnect;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,8 +15,10 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
@@ -28,9 +29,13 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.UUID;
+import java.text.SimpleDateFormat;
 /*
 https://developer.android.com/media/camera/camera-deprecated/photobasics
 https://stackoverflow.com/questions/5089300/how-can-i-change-the-image-of-an-imageview
@@ -55,25 +60,31 @@ https://www.youtube.com/watch?v=MCeWm8qu0sw
 https://stackoverflow.com/questions/44676579/how-to-make-option-menu-appear-on-bottom-of-the-screen
 https://stackoverflow.com/questions/72713837/redirecting-user-to-menu-section-after-button-click-by-popping-up-nav-bar-from
 https://developer.android.com/training/basics/intents/sending
+https://www.youtube.com/watch?v=hwe1abDO2Ag
+https://www.youtube.com/watch?v=c6c1giRekB4
  */
 
 /**
  * The MainActivity class maintains the functions of the main activity.
  * It extends AppCompatActivity.
  */
-public class MainActivity extends AppCompatActivity implements DeleteEventFragment.DeleteEventDialogListener{
+public class MainActivity extends AppCompatActivity implements DeleteEventFragment.DeleteEventDialogListener {
     private FloatingActionButton addButton;
     private ImageButton profileButton;
     private ImageButton notificationButton;
     private ImageButton browseEventsButton;
     static ArrayList<Event> eventDataList = new ArrayList<Event>();
+    static ArrayList<Event> userEventDataList = new ArrayList<Event>();
     ListView eventList;
     static boolean isAddButtonClicked = false;
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
-
+    private static CollectionReference userNotificationsRef;
     private ActivityResultLauncher<Intent> eventDetailsInitializeActivity;
     private EventAdapter eventAdapter;
+    private NotificationListener notificationListener;
+    private MilestoneManager milestoneManager;
+    private String userId;
 
     /**
      * This defines the functions in main activity.
@@ -86,49 +97,67 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Get user ID from SharedPreferences
+        userId = UserPreferences.getUserId(this);
+
+        // Initialize database
+        db = FirebaseFirestore.getInstance();
+        eventsRef = db.collection("events");
+        userNotificationsRef = db.collection("users").document(userId).collection("notifications");
+
+        // Start the notification listener to check notifications in real time and update the UI accordingly
+        notificationListener = new NotificationListener(this, userNotificationsRef);
+        notificationListener.startListening();
+        // Initialize milestone manager
+        milestoneManager= new MilestoneManager(this, userNotificationsRef, eventsRef);
+        milestoneManager.startManager();
+
+        // Initialize buttons
         eventList = findViewById(R.id.event_list_list);
         addButton = findViewById(R.id.button_add_event);
         profileButton = findViewById(R.id.user_icon_button);
         notificationButton = findViewById(R.id.notification_icon_button);
         browseEventsButton = findViewById(R.id.explore_event_button);
 
-        eventAdapter = new EventAdapter(this, eventDataList);
+        // Initialize adapters
+        eventAdapter = new EventAdapter(this, userEventDataList);
         eventList.setAdapter(eventAdapter);
 
-        db = FirebaseFirestore.getInstance();
-        eventsRef = db.collection("events");
+//        eventDetailsInitializeActivity = registerForActivityResult(
+//                new ActivityResultContracts.StartActivityForResult(),
+//                result -> {
+//                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+//                        Event updatedEvent = (Event) result.getData().getSerializableExtra("UPDATED_EVENT");
+//                        if(updatedEvent.getEventPromoId() != null && updatedEvent.getEventCheckInId() != null){
+//                            eventDataList.add(updatedEvent);
+//                            addNewEvent(updatedEvent);
+//                        }
+//                        eventAdapter.notifyDataSetChanged();
+//                    }
+//                }
+//        );
 
-        eventDetailsInitializeActivity = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Event updatedEvent = (Event) result.getData().getSerializableExtra("UPDATED_EVENT");
-                        addNewEvent(updatedEvent);
-                        eventAdapter.notifyDataSetChanged();
-                    }
-                }
-        );
 
-
+        // Add event button
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 isAddButtonClicked = true;
                 Event newEvent = new Event();
-
                 String uniqueID = UUID.randomUUID().toString();
                 newEvent.setEventTitle("New Event " + (eventDataList.size() +1));
                 newEvent.setEventId(uniqueID);
                 String hostId = UserPreferences.getUserId(getApplicationContext());
                 newEvent.setHostId(hostId);
-
-                eventDataList.add(newEvent);
                 eventAdapter.notifyDataSetChanged();
                 addNewEvent(newEvent);
-                startEventDetailsInitializeActivity(newEvent);
+                Intent intent = new Intent(MainActivity.this, EventDetailsInitializeActivity.class);
+                intent.putExtra("EVENT", newEvent);
+                startActivity(intent);
             }
         });
 
+        // Getting events from Firebase
         eventsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
@@ -138,11 +167,25 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                 }
                 if (querySnapshots != null) {
                     eventDataList.clear();
+                    userEventDataList.clear();
+                    // globalEventDataList.clear();
                     for (QueryDocumentSnapshot doc: querySnapshots){
                         String eventId = doc.getId();
                         String eventTitle = doc.getString("title");
-                        String eventDate = doc.getString("date");
-                        String eventTime = doc.getString("time");
+                        String eventTimeString = doc.getString("time");
+                        Calendar eventTime = null;
+                        if (eventTimeString != null && !eventTimeString.isEmpty()) {
+                            eventTime = TimeConverter.stringToCalendar(eventTimeString);
+                        } else {
+                            Log.e("Firestore", "Event time is null or empty for document: " + doc.getId());
+                        }
+                        String eventDateString = doc.getString("date");
+                        Calendar eventDate = null;
+                        if (eventDateString != null && !eventDateString.isEmpty()) {
+                            eventDate = DateConverter.stringToCalendar(eventDateString);
+                        } else {
+                            Log.e("Firestore", "Event time is null or empty for document: " + doc.getId());
+                        }
                         String eventLocation = doc.getString("location");
 //                        if (doc.getString("capacity") != null){
 //                            Integer eventCapacity = Integer.parseInt(doc.getString("capacity"));}
@@ -152,27 +195,37 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                         String hostId = doc.getString("hostId");
                         HashMap<String, Long> attendeeListIdToTimes = (HashMap<String, Long>) doc.get("attendeeListIdToTimes");
                         HashMap<String, String> attendeeListIdToName = (HashMap<String, String>) doc.get("attendeeListIdToName");
-                        eventDataList.add(new Event(eventTitle, eventDate,eventTime,
+                        HashMap<String, String> attendeeListIdToLocation = (HashMap<String, String>) doc.get("attendeeListIdToLocation");
+                        HashMap<String, String> signupUserIdToName = (HashMap<String, String>) doc.get("signupUserIdToName");
+                        eventDataList.add(new Event(eventTitle, eventDate, eventTime,
                                 eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
-                                hostId, attendeeListIdToTimes, attendeeListIdToName));
-                        Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate,eventTime, eventLocation, 0, eventAnnouncement, checkInId, promoId, eventId));
+                                hostId, attendeeListIdToTimes, attendeeListIdToName, attendeeListIdToLocation, signupUserIdToName));
+
+                        Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate, eventTime, eventLocation, 0, eventAnnouncement, checkInId, promoId, eventId));
                     }
+                    getUserEvents();
                     eventAdapter.notifyDataSetChanged();
                 }
             }
         });
 
-
-
+        // List of events
         eventList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-
-                new DeleteEventFragment(eventDataList.get(position)).show(getSupportFragmentManager(), "Delete Event");
+                Event currentEvent = userEventDataList.get(position);
+                String userId = UserPreferences.getUserId(getApplicationContext());
+                String hostId = currentEvent.getHostId();
+                if (userId.equals(hostId)) {
+                    new DeleteEventFragment(currentEvent).show(getSupportFragmentManager(), "Delete Event");
+                } else {
+                   Toast.makeText(MainActivity.this, "You are not the host of this event.", Toast.LENGTH_SHORT).show();
+                }
                 return true;
             }
         });
 
+        // User homepage profile button
         profileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -184,7 +237,9 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         browseEventsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, AttendeeBrowseEvents.class));
+                Intent intent = new Intent(MainActivity.this, AttendeeBrowseEvents.class);
+                intent.putExtra("events", (Serializable) eventDataList);
+                startActivity(intent);
             }
         });
 
@@ -192,23 +247,38 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         notificationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, AttendeeNotifications.class));
+                Intent intent = new Intent(MainActivity.this, AttendeeNotifications.class);
+                startActivity(intent);
+                // When this activity is launched, mark all the notifications as read
+                markNotificationsAsRead();
             }
         });
 
+        // Event list clicker
         eventList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 try {
                     Event currentEvent = eventAdapter.getItem(position);
-                    Intent showIntent = new Intent(MainActivity.this, EventDetailsActivity.class);
-                    showIntent.putExtra("EVENT", currentEvent);
+                    String userId = UserPreferences.getUserId(getApplicationContext());
+                    String hostId = currentEvent.getHostId();
+                    Intent showIntent;
+                    if (userId.equals(hostId)){
+                        showIntent = new Intent(MainActivity.this, EventDetailsActivity.class);
+                        showIntent.putExtra("EVENT", currentEvent);
+                    }
+                    else{
+                        showIntent = new Intent(MainActivity.this, PromoDetailsActivity.class);
+                        showIntent.putExtra("EVENT_ID", currentEvent.getEventId());
+                    }
                     startActivity(showIntent);
                 } catch (Exception e) {
                     Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
+        // User homepage scan qr code button
         Button cameraButton = findViewById(R.id.qr_code_scanner_button);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -223,19 +293,50 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         super.onResume();
         eventAdapter.notifyDataSetChanged();
     }
-
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.hasExtra("UPDATED_EVENT")) {
+            Event updatedEvent = (Event) intent.getSerializableExtra("UPDATED_EVENT");
+            eventDataList.add(updatedEvent);
+            // globalEventDataList.add(updatedEvent);
+            addNewEvent(updatedEvent);
+            eventAdapter.notifyDataSetChanged();
+        }
+    }
     /**
      * This adds a new event to firebase.
      * @param event This is a event that is added to firebase.
      */
     private void addNewEvent(Event event) {
+
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.US);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+
+        String formattedTime = "";
+        if (event.getTime() != null) {
+            formattedTime = timeFormat.format(event.getTime().getTime());
+        } else {
+            Log.e("Firestore", "Event time is null for event: " + event.getEventTitle());
+            formattedTime = timeFormat.format(Calendar.getInstance().getTime());
+        }
+
+        String formattedDate = "";
+        if (event.getDate() != null) {
+            formattedDate = dateFormat.format(event.getDate().getTime());
+        } else {
+            Log.e("Firestore", "Event time is null for event: " + event.getEventTitle());
+            formattedDate = dateFormat.format(Calendar.getInstance().getTime());
+        }
+
+
         HashMap<String, Object> data = new HashMap<>();
         data.put("title", event.getEventTitle());
-        data.put("date", event.getDate());
-        data.put("time", event.getTime());
+        data.put("date", formattedDate);
+        data.put("time", formattedTime);
         data.put("location", event.getLocation());
         data.put("capacity", event.getCapacity());
-        data.put("announcement", event.getAnnouncement());
+        data.put("description", event.getDescription());
 //        data.put("QRCodeImage", event.getQRCodeImage());
 //        data.put("PromoQRCodeImage", event.getPromoQRCodeImage());
 //        data.put("eventCheckInId", event.getEventCheckInId());
@@ -243,9 +344,12 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         data.put("eventId", event.getEventId());
         data.put("checkInQRCodeImageUrl", event.getEventCheckInId());
         data.put("promoQRCodeImageUrl", event.getEventPromoId());
+        data.put("posterURL", event.getEventPosterUrl());
         data.put("hostId", event.getHostId());
         data.put("attendeeListIdToTimes", event.getAttendeeListIdToCheckInTimes());
         data.put("attendeeListIdToName", event.getAttendeeListIdToName());
+        data.put("attendeeListIdToLocation", event.getAttendeeListIdToLocation());
+        data.put("signupUserIdToName", event.getSignupUserIdToName());
         data.put("currentAttendance", 0L);
         eventsRef
                 .document(event.getEventId())
@@ -265,6 +369,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
     public void deleteEvent(Event event){
 
         eventDataList.remove(event);
+        // globalEventDataList.remove(event);
         eventAdapter.notifyDataSetChanged();
         eventsRef
                 .document(event.getEventId())
@@ -291,11 +396,6 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
 
     }
 
-    private void startEventDetailsInitializeActivity(Event newEvent) {
-        Intent intent = new Intent(this, EventDetailsInitializeActivity.class);
-        intent.putExtra("EVENT", newEvent);
-        eventDetailsInitializeActivity.launch(intent);
-    }
 
     private void deleteQRCodesFromStorage(String filePath) {
         FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -314,4 +414,77 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         });
     }
 
+    /**
+     * Checks if the notifications are read or unread.
+     * If all notifications are read, make the alert on the notification bell invisible.
+     * If not all the notifications are read, make the alert on the notification bell visible.
+     */
+    public void checkNotifications() {
+        userNotificationsRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                boolean allRead = true;
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    boolean notificationRead = document.getBoolean("notificationRead");
+                    if (!notificationRead) {
+                        allRead = false;
+                        break;
+                    }
+                }
+                // If all the notifications are read (notificationRead == true) then change alert to invisible
+                if (allRead) {
+                    findViewById(R.id.notification_alert).setVisibility(View.INVISIBLE);
+                }
+                // If not all the notifications are read then change alert to visible
+                else {
+                    findViewById(R.id.notification_alert).setVisibility(View.VISIBLE);
+                }
+            }
+        });
+    }
+
+    /**
+     * When the attendee notification page is opened, marks all notifications as read.
+     * Changes the boolean notificationRead to true for all notifications in the database.
+     */
+    private void markNotificationsAsRead() {
+        // For notificationRead that are false
+        userNotificationsRef.whereEqualTo("notificationRead", false)
+            .get()
+            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            // Change notificationRead to true
+                            userNotificationsRef.document(document.getId()).update("notificationRead", true);
+                        }
+                    }
+                }
+            });
+    }
+
+    /**
+     * Stops the notification listener.
+     */
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (notificationListener != null) {
+            notificationListener.stopListening();
+        }
+    }
+
+    /**
+     * Goes through the events collection and separates the events unique to the user.
+     * These events include where the user id matches the host id (organizer),
+     * where the user id is in the attendeelist of an event (attendee/checked in),
+     * or where the user id is in the signuplist of an event (signed up).
+     */
+    private void getUserEvents() {
+        for (Event event : eventDataList) {
+            if (event.getHostId() != null && event.getHostId().equals(userId) || event.getAttendeeListIdToName().containsKey(userId)) {
+                userEventDataList.add(event);
+            }
+        }
+    }
 }

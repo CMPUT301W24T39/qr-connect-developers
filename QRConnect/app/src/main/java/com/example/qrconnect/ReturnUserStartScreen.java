@@ -52,6 +52,15 @@ public class ReturnUserStartScreen extends AppCompatActivity {
         String userId = UserPreferences.getUserId(getApplicationContext());
         welcomeBackTextView = findViewById(R.id.welcome_back_text);
         getUserInfoFromFirestore(userId);
+
+        // Initialize the view as admin button and set a click listener
+        Button view_as_admin_button = findViewById(R.id.user_view_as_admin_button);
+        view_as_admin_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ReturnUserStartScreen.this, AdminQRScan.class));
+            }
+        });
     }
 
     /**
@@ -70,6 +79,9 @@ public class ReturnUserStartScreen extends AppCompatActivity {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
+                    /**
+                     * NEED TO ADD CASE FOR NULL ENTRIES
+                     */
                     // Document exists, retrieve first and last names
                     String firstName = documentSnapshot.getString("firstName");
                     String lastName = documentSnapshot.getString("lastName");

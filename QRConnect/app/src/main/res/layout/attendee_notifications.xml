@@ -29,8 +29,10 @@
     </androidx.appcompat.widget.Toolbar>
 
     <ListView
+        android:id="@+id/notifications_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:background="@color/loading_pink">
     </ListView>
 
 </LinearLayout>

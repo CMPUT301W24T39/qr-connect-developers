@@ -11,7 +11,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import static com.example.qrconnect.MainActivity.eventDataList;
-import static com.example.qrconnect.MainActivity.numAddButtonClicked;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -109,16 +108,6 @@ public class MainActivityTest {
         });
     }
 
-    /**
-     * Tests the add button, specifically the adding an event, functionality in the user homepage.
-     */
-    @Test
-    public void testAddButton(){
-        onView(withId(R.id.button_add_event)).perform(click());
-        onData(is(instanceOf(String.class)))
-                .inAdapterView(withId(R.id.event_list_list)).atPosition(eventDataList.size() - 1)
-                .check(matches(withText("New Event "+numAddButtonClicked)));
-    }
 
     /**
      * Test the intent navigation going from MainActivity to QRCodeGeneratesPage
