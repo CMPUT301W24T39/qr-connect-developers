@@ -117,7 +117,7 @@ public class AdminBrowseProfiles extends AppCompatActivity {
 
                     // TODO: Implement the rest of the profile information.
 
-                    UserProfile userProfile = new UserProfile(userId);
+                    UserProfile userProfile = new UserProfile(userId, firstName, lastName);
                     userProfile.setFirstName(firstName);
                     userProfile.setLastName(lastName);
                     userProfile.setUserID(userId);
