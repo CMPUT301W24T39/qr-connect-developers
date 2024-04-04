@@ -387,10 +387,6 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                             }
                         });
 
-<<<<<<< HEAD
->>>>>>> Stashed changes
-=======
->>>>>>> origin
                     } else {
                         Log.d(TAG, "User document does not exist");
                     }
