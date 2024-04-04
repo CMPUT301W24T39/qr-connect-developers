@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                 isAddButtonClicked = true;
                 Event newEvent = new Event();
                 String uniqueID = UUID.randomUUID().toString();
-                newEvent.setEventTitle("New Event " + (eventDataList.size() +1));
+                newEvent.setEventTitle("New Event " + (userEventDataList.size() +1));
                 newEvent.setEventId(uniqueID);
                 String hostId = UserPreferences.getUserId(getApplicationContext());
                 newEvent.setHostId(hostId);

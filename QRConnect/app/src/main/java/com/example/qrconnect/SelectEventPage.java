@@ -1,6 +1,7 @@
 package com.example.qrconnect;
 
 import static com.example.qrconnect.MainActivity.eventDataList;
+import static com.example.qrconnect.MainActivity.userEventDataList;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -50,7 +51,7 @@ public class SelectEventPage extends AppCompatActivity {
         backButton2 = findViewById(R.id.arrow_back_2);
         currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
         autoCompleteTextView = findViewById(R.id.auto_complete_textview);
-        EventAdapter adapter = new EventAdapter(this, eventDataList);
+        EventAdapter adapter = new EventAdapter(this, userEventDataList);
         db = FirebaseFirestore.getInstance();
         autoCompleteTextView.setAdapter(adapter);
 
