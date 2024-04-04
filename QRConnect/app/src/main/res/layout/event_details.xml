@@ -274,6 +274,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:text="VIEW ATTENDEE LIST"/>
+                <Button
+                    android:id="@+id/event_details_view_signup_users_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="VIEW SIGNUP USERS"/>
+
 
         </LinearLayout>
 

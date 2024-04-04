@@ -135,12 +135,13 @@ public class AdminBrowseEvents extends AppCompatActivity {
                         HashMap<String, Long> attendeeListIdToTimes = (HashMap<String, Long>) doc.get("attendeeListIdToTimes");
                         HashMap<String, String> attendeeListIdToName = (HashMap<String, String>) doc.get("attendeeListIdToName");
                         HashMap<String, String> attendeeListIdToLocation = (HashMap<String, String>) doc.get("attendeeListIdToLocation");
+                        HashMap<String, String> signupUserIdToName = (HashMap<String, String>) doc.get("signupUserIdToName");
                         adminEventDataList.add(new Event(eventTitle, eventDate,eventTime,
                                 eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
-                                hostId, attendeeListIdToTimes, attendeeListIdToName, attendeeListIdToLocation));
+                                hostId, attendeeListIdToTimes, attendeeListIdToName, attendeeListIdToLocation,signupUserIdToName));
                         filteredEvents.add(new Event(eventTitle, eventDate,eventTime,
                                 eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
-                                hostId, attendeeListIdToTimes, attendeeListIdToName, attendeeListIdToLocation));
+                                hostId, attendeeListIdToTimes, attendeeListIdToName, attendeeListIdToLocation,signupUserIdToName));
                         Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate,eventTime, eventLocation, 0, eventAnnouncement, checkInId, promoId, eventId));
                     }
                     adminEventAdapter.notifyDataSetChanged();

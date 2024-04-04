@@ -293,22 +293,32 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         });
 
-        // initialize menu button
+        // initialize viewAttendeeList button
         Button viewAttendeeListButton = findViewById(R.id.view_attendee_list_button);
-
         viewAttendeeListButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 try {
                     Intent showIntent = new Intent(EventDetailsActivity.this, AttendeeListActivity.class);
-                    //TODO: showIntent.putExtra("EVENT", event);
                     showIntent.putExtra("EVENT", currentEvent);
                     startActivity(showIntent);
                 } catch (Exception e) {
                     Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
-
+        });
+        Button viewSignupUsersButton = findViewById(R.id.event_details_view_signup_users_button);
+        viewSignupUsersButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                try {
+                    Intent showIntent = new Intent(EventDetailsActivity.this, SignUpUsersListActivity.class);
+                    showIntent.putExtra("EVENT", currentEvent);
+                    startActivity(showIntent);
+                } catch (Exception e) {
+                    Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
         });
 
         // initialize send notification button

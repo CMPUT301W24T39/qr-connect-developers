@@ -60,7 +60,7 @@ public class DisplayAttendee {
             throw new IllegalArgumentException("EventID cannot be null.");
         }
         if (!eventCheckInCount.containsKey(eventID)){
-            throw new IllegalArgumentException("EventID not found in the check-in count map.");
+            return 0L;
         }
         return this.eventCheckInCount.getOrDefault(eventID, 0L);
     }

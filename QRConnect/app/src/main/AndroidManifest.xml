@@ -115,7 +115,8 @@
         <activity
             android:name=".ShareQRCodeActivity"
             android:exported="true"/>
-
+        <activity android:name=".SignUpUsersListActivity"
+            android:exported="true"/>
         <activity
             android:name=".EventDetailsInitializeActivity">
         </activity>
