@@ -341,10 +341,7 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         DocumentReference eventRef = db.collection("events")
                 .document(targetEvent.getEventId());
         String currentUserId = UserPreferences.getUserId(getApplicationContext());
-
-        DocumentReference userRef = db.collection("users").document("1");
-
-
+        DocumentReference userRef = db.collection("users").document(currentUserId);
         userRef.get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
@@ -359,11 +356,9 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                                 if (document.exists()) {
                                     // Document was found in the cache or network. Access its data with document.getData()
                                     // or get a specific field with document.get("fieldName")
-                                    Log.d("Document", "DocumentSnapshot data: " + document.get("isLocationTrackingOn"));
-
-                                    if (true) {
-
-
+                                    Boolean isLocationTrackingOn = document.getBoolean("isLocationTrackingOn");
+                                    Log.d("Document Tracking Data", "DocumentSnapshot data: " + document.getBoolean("isLocationTrackingOn"));
+                                    if (isLocationTrackingOn != null && isLocationTrackingOn) {
                                         requestLocationAndUpdateAttendee(locationData -> {
                                             // This block is called when the locationData is ready.
                                             // Proceed to use locationData here to update the attendee list.
@@ -371,8 +366,7 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                                             Log.d(TAG, "User's name: " + currentUserName);
                                             updateEventAttendeeLists(eventRef);
                                         });
-
-                                    } else{
+                                    } else {
                                         targetEvent.addAttendee(currentUserId, currentUserName, "");
                                         updateEventAttendeeLists(eventRef);
                                     }
