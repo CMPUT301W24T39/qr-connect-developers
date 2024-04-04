@@ -20,7 +20,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SinglePosterAdapter extends ArrayAdapter<Event>  {
+public class SinglePosterAdapter extends ArrayAdapter<Event> {
     private ArrayList<Event> eventsList;
     private Context context;
     private FirebaseFirestore db;
@@ -30,6 +30,7 @@ public class SinglePosterAdapter extends ArrayAdapter<Event>  {
         this.context = context;
         this.eventsList = events;
     }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View itemView = convertView;
@@ -56,31 +57,8 @@ public class SinglePosterAdapter extends ArrayAdapter<Event>  {
                     .into(eventPosterImageView);
         } else {
             // Event does not have a poster, load placeholder image
-          //  eventPosterImageView.setImageResource(R.drawable.placeholder_image);
+            eventPosterImageView.setImageResource(R.drawable.placeholder_image);
         }
         return itemView;
     }
-
-//    private void loadEventPoster(Event event, ImageView imageView) {
-//        if (event.getEventId() != null) {
-//            DocumentReference eventRef = db.collection("events").document(event.getEventId());
-//            eventRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//                @Override
-//                public void onSuccess(DocumentSnapshot documentSnapshot) {
-//                    if (documentSnapshot.exists()) {
-//                        String posterUrl = documentSnapshot.getString("posterURL");
-//                        Glide.with(context)
-//                                .load(posterUrl)
-//                                .into(imageView);
-//                    }
-//                }
-//            }).addOnFailureListener(new OnFailureListener() {
-//                @Override
-//                public void onFailure(Exception e) {
-//                    Log.e("Firestore", "Error fetching event document: " + e.getMessage());
-//                }
-//            });
-//        }
-//    }
-
 }

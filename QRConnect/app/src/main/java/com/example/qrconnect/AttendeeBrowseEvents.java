@@ -1,8 +1,10 @@
 package com.example.qrconnect;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
@@ -69,6 +71,20 @@ public class AttendeeBrowseEvents extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 finish();
+            }
+        });
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Get the clicked event
+                Event clickedEvent = filteredEvents.get(position);
+                // Get the event ID of the clicked event
+                String eventId = clickedEvent.getEventId();
+
+                // Start the SignupDetailsActivity and pass the clicked event
+                Intent intent = new Intent(AttendeeBrowseEvents.this, SignupDetailsActivity.class);
+                intent.putExtra("eventId", eventId);
+                startActivity(intent);
             }
         });
         }
