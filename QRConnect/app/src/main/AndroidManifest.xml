@@ -113,6 +113,9 @@
         <activity
             android:name=".EventDetailsInitializeActivity">
         </activity>
+        <activity android:name=".SignupDetailsActivity">
+        </activity>
+
 
         <provider
             android:name="androidx.core.content.FileProvider"
