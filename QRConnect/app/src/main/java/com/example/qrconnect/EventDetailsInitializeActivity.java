@@ -81,7 +81,7 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
         ImageButton calenderButton = findViewById(R.id.init_calender_button);
         ImageButton timeButton = findViewById(R.id.init_time_button);
 
-        // Initially disable the EditText if you want it to be disabled by default
+        // Initially disable the EditText
         eventCapacity.setEnabled(false); // Default state;
         eventDate.setFocusable(false);
         eventDate.setFocusableInTouchMode(false);
@@ -108,18 +108,6 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
             }
         });
 
-//        qrCodeGeneratesPage = registerForActivityResult(
-//                new ActivityResultContracts.StartActivityForResult(),
-//                new ActivityResultCallback<ActivityResult>() {
-//                    @Override
-//                    public void onActivityResult(ActivityResult result) {
-//                        if (result.getResultCode() == Activity.RESULT_OK) {
-//                            updatedEvent = (Event) result.getData().getSerializableExtra("UPDATED_EVENT");
-//                        }
-//                    }
-//                }
-//        );
-
         activityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
@@ -140,7 +128,7 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
                                             @Override
                                             public void onSuccess(Uri uri) {
                                                 String downloadUrl = uri.toString();
-                                                saveImageInfoToRealtimeDatabase(posterUrlString, downloadUrl);
+                                                uploadImageToRealtimeDatabase(posterUrlString, downloadUrl);
                                                 // set event poster url in currentEvent and firestore database
                                                 currentEvent.setEventPosterUrl(downloadUrl);
                                                 // Create a map to hold the data to be updated or added
@@ -292,12 +280,6 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
             public void onClick(View view) {
                 DocumentReference docRef = db.collection("events").document(currentEvent.getEventId());
 
-//                if (updatedEvent != null) {
-//                    Intent resultIntent = new Intent();
-//                    resultIntent.putExtra("UPDATED_EVENT", updatedEvent);
-//                    setResult(Activity.RESULT_OK, resultIntent);
-//
-//                }
                 if(currentEvent.getEventCheckInId() == null && currentEvent.getEventPromoId() == null){
                     docRef.delete()
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -402,7 +384,7 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
             }
         });
     }
-    private void saveImageInfoToRealtimeDatabase(String imageName, String downloadUrl) {
+    private void uploadImageToRealtimeDatabase(String imageName, String downloadUrl) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("eventposters");
         myRef.child(imageName).setValue(new ImageInfo(imageName, downloadUrl)).addOnCompleteListener(new OnCompleteListener<Void>() {
