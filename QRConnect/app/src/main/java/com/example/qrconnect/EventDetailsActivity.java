@@ -35,7 +35,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -146,7 +145,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                                             public void onSuccess(Uri uri) {
                                                 String downloadUrl = uri.toString();
                                                 // set event poster url in currentEvent and firestore database
-                                                saveImageInfoToRealtimeDatabase(currentEvent.getEventId(), downloadUrl);
+                                                uploadImageToRealtimeDatabase(currentEvent.getEventId(), downloadUrl);
                                                 currentEvent.setEventPosterUrl(downloadUrl);
                                                 // Create a map to hold the data to be updated or added
                                                 Map<String, Object> eventData = new HashMap<>();
@@ -434,7 +433,7 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         });
     }
-    private void saveImageInfoToRealtimeDatabase(String imageName, String downloadUrl) {
+    private void uploadImageToRealtimeDatabase(String imageName, String downloadUrl) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("eventposters");
         myRef.child(imageName).setValue(new ImageInfo(imageName, downloadUrl)).addOnCompleteListener(new OnCompleteListener<Void>() {
