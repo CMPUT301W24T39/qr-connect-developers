@@ -61,7 +61,7 @@ public class UserProfilePage extends AppCompatActivity {
     private StorageReference storageRef;
 
 
-    private UserProfile user = new UserProfile(USER_ID, "", "");
+    private UserProfile user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,10 +69,12 @@ public class UserProfilePage extends AppCompatActivity {
         setContentView(R.layout.user_profile_page);
 
         USER_ID = UserPreferences.getUserId(getApplicationContext());
+        user = new UserProfile(USER_ID, "", "");
 
         initializeFirebase();
         findViews();
         getUserData();
+
 
         handleAddPhotoButton();
         handleRemovePhotoButton();
@@ -218,7 +220,7 @@ public class UserProfilePage extends AppCompatActivity {
                     HashMap<String, Object> data = new HashMap<>();
                     data.put("profilePictureURL", url);
                     data.put("isProfilePictureUploaded", true);
-                    usersRef.document("1").update(data).addOnSuccessListener(
+                    usersRef.document(user.getUserID()).update(data).addOnSuccessListener(
                             new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void unused) {
@@ -248,7 +250,7 @@ public class UserProfilePage extends AppCompatActivity {
                 user.setProfilePictureUploaded(false);
                 HashMap<String, Object> data = new HashMap<>();
                 data.put("isProfilePictureUploaded", false);
-                usersRef.document("1").update(data).addOnSuccessListener(
+                usersRef.document(user.getUserID()).update(data).addOnSuccessListener(
                         new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
