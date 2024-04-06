@@ -66,7 +66,7 @@ public class UserProfilePage extends AppCompatActivity {
 
 
     private UserProfile user;
-    private UserProfile user;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
