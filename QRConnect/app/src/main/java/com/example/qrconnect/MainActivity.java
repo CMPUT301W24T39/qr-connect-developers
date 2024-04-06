@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                         String eventLocation = doc.getString("location");
 //                        if (doc.getString("capacity") != null){
 //                            Integer eventCapacity = Integer.parseInt(doc.getString("capacity"));}
-                        String eventAnnouncement = doc.getString("announcement");
+                        String eventDescription = doc.getString("description");
                         String checkInId = doc.getString("checkInQRCodeImageUrl");
                         String promoId = doc.getString("promoQRCodeImageUrl");
                         String hostId = doc.getString("hostId");
@@ -181,10 +181,10 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                         HashMap<String, String> attendeeListIdToLocation = (HashMap<String, String>) doc.get("attendeeListIdToLocation");
                         HashMap<String, String> signupUserIdToName = (HashMap<String, String>) doc.get("signupUserIdToName");
                         eventDataList.add(new Event(eventTitle, eventDate, eventTime,
-                                eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
+                                eventLocation, 0, eventDescription, checkInId, promoId, eventId,
                                 hostId, attendeeListIdToTimes, attendeeListIdToName, attendeeListIdToLocation, signupUserIdToName));
 
-                        Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate, eventTime, eventLocation, 0, eventAnnouncement, checkInId, promoId, eventId));
+                        Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate, eventTime, eventLocation, 0, eventDescription, checkInId, promoId, eventId));
                     }
                     getUserEvents();
                     eventAdapter.notifyDataSetChanged();
