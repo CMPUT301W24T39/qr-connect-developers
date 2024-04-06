@@ -21,9 +21,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -61,6 +65,7 @@ public class UserProfilePage extends AppCompatActivity {
     private StorageReference storageRef;
 
 
+    private UserProfile user;
     private UserProfile user;
 
     @Override
@@ -215,6 +220,7 @@ public class UserProfilePage extends AppCompatActivity {
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                     String url = uri.toString();
+                    uploadImageToRealtimeDatabase(USER_ID, url);
                     user.setProfilePictureURL(url);
                     user.setProfilePictureUploaded(true);
                     HashMap<String, Object> data = new HashMap<>();
@@ -237,6 +243,21 @@ public class UserProfilePage extends AppCompatActivity {
                         Log.e("Firebase", "Failed to upload profile picture to Firebase")
                 //TODO: handle error
         );
+    }
+
+    private void uploadImageToRealtimeDatabase(String imageName, String downloadUrl) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("images");
+        myRef.child(imageName).setValue(new ImageInfo(imageName, downloadUrl)).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()) {
+                    System.out.println("Uploaded successfully in realtime database");
+                } else {
+                    System.out.println("Failed to upload successfully in realtime database");
+                }
+            }
+        });
     }
 
     /**

@@ -3,9 +3,11 @@ package com.example.qrconnect;
 import android.media.Image;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 
@@ -32,18 +34,22 @@ public class AdminBrowseImages extends AppCompatActivity {
     private SearchView searchView;
     private ArrayList<UserProfile> filteredImages;
 
-    /**
-     * Called when the activity is first created. Responsible for initializing the admin browse images page.
-     * @param savedInstanceState If the activity is being re-initialized after
-     *     previously being shut down then this Bundle contains the data it most
-     *     recently supplied in {@link #onSaveInstanceState}. Otherwise it is null.
-     */
+    private ListView listViewImages;
+    private List<ImageInfo> imageUrls;
+    private ImagesAdapter adapter;
+    private ImageButton backButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.admin_browse_images);
 
-        ImageButton backButton = findViewById(R.id.admin_browse_images_back_button);
+        listViewImages = findViewById(R.id.admin_list_view_images);
+        imageUrls = new ArrayList<>();
+        adapter = new ImagesAdapter(this, imageUrls);
+        listViewImages.setAdapter(adapter);
+        backButton = findViewById(R.id.admin_browse_images_back_button);
+
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -126,4 +132,7 @@ public class AdminBrowseImages extends AppCompatActivity {
         }
         adminImageAdapter.notifyDataSetChanged();
     }
+
+
+
 }
