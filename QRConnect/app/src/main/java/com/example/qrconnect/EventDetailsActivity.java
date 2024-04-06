@@ -435,7 +435,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
     private void uploadImageToRealtimeDatabase(String imageName, String downloadUrl) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("eventposters");
+        DatabaseReference myRef = database.getReference("images");
         myRef.child(imageName).setValue(new ImageInfo(imageName, downloadUrl)).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {

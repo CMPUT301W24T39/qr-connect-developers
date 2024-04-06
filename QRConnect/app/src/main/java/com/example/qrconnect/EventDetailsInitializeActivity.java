@@ -128,7 +128,7 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
                                             @Override
                                             public void onSuccess(Uri uri) {
                                                 String downloadUrl = uri.toString();
-                                                uploadImageToRealtimeDatabase(posterUrlString, downloadUrl);
+                                                uploadImageToRealtimeDatabase(currentEvent.getEventId(), downloadUrl);
                                                 // set event poster url in currentEvent and firestore database
                                                 currentEvent.setEventPosterUrl(downloadUrl);
                                                 // Create a map to hold the data to be updated or added
@@ -386,7 +386,7 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
     }
     private void uploadImageToRealtimeDatabase(String imageName, String downloadUrl) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("eventposters");
+        DatabaseReference myRef = database.getReference("images");
         myRef.child(imageName).setValue(new ImageInfo(imageName, downloadUrl)).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {

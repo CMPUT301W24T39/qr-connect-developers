@@ -55,7 +55,7 @@ public class AdminBrowseImages extends AppCompatActivity {
     }
 
     private void loadImages() {
-        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference("eventposters");
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference("images");
         dbRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
