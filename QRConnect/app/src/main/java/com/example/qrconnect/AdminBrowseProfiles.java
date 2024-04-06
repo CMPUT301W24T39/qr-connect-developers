@@ -108,19 +108,25 @@ public class AdminBrowseProfiles extends AppCompatActivity {
                     String lastName = doc.getString("lastName");
                     String userId = doc.getString("userId");
 
-                    //String email = doc.getString("email");
-                    //String phone = doc.getString("phone");
-                    //String pronouns = doc.getString("pronouns");
-                    //boolean isLocationTrackingOn = doc.getBoolean("isLocationTrackingOn");
-                    //boolean isProfilePictureUploaded = doc.getBoolean("isProfilePictureUploaded");
-                    //String profilePictureURL = doc.getString("profilePictureURL");
+                    String email = doc.getString("email");
+                    String phone = doc.getString("phone");
+                    String pronouns = doc.getString("pronouns");
+                    boolean isLocationTrackingOn = doc.getBoolean("isLocationTrackingOn");
+                    boolean isProfilePictureUploaded = doc.getBoolean("isProfilePictureUploaded");
+                    String profilePictureURL = doc.getString("profilePictureURL");
 
                     // TODO: Implement the rest of the profile information.
 
                     UserProfile userProfile = new UserProfile(userId, firstName, lastName);
-                    userProfile.setFirstName(firstName);
-                    userProfile.setLastName(lastName);
-                    userProfile.setUserID(userId);
+//                    userProfile.setFirstName(firstName);
+//                    userProfile.setLastName(lastName);
+//                    userProfile.setUserID(userId);
+                    userProfile.setEmail(email);
+                    userProfile.setPhone(phone);
+                    userProfile.setPronouns(pronouns);
+                    userProfile.setLocationTracking(isLocationTrackingOn);
+                    userProfile.setProfilePictureUploaded(isProfilePictureUploaded);
+                    userProfile.setProfilePictureURL(profilePictureURL);
 
                     adminProfileDataList.add(userProfile);
                     filteredProfiles.add(userProfile);

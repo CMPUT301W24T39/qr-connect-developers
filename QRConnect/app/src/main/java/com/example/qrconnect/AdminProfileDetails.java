@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -44,6 +45,8 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
         // Get items from previous activity
         String userId = getIntent().getStringExtra("PROFILE");
 
+        //UserProfile user = createUser(userId);
+
         // Get event details for the event that was clicked on
         loadProfileDetails(userId);
 
@@ -72,37 +75,19 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
      * Fetches and displays the details of a profile from Firestore.
      * It also retrieves the profile picture image from Firebase Storage and displays it using Glide.
      *
-     * @param userID The unique identifier of the user whose details are to be loaded and displayed.
+     * @param userId The user's ID
      */
-    private void loadProfileDetails(String userID) {
+    private void loadProfileDetails(String userId) {
+        // UserProfile user = new UserProfile(userID, "", "");
+
         db = FirebaseFirestore.getInstance();
         usersRef = db.collection("users");
-        userRef = usersRef.document(userID);
+        userRef = usersRef.document(userId);
 
         userRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
-                // Set text fields with data from Firestore
-                ImageView profilePicture = findViewById(R.id.admin_profile_picture);
-                TextView firstName = findViewById(R.id.admin_profile_first_name);
-                TextView lastName = findViewById(R.id.admin_profile_last_name);
-                TextView pronouns = findViewById(R.id.admin_profile_pronouns);
-                TextView email = findViewById(R.id.admin_profile_email);
-                TextView phone = findViewById(R.id.admin_profile_phone);
-                TextView location = findViewById(R.id.admin_profile_location);
-
-                firstName.setText(documentSnapshot.getString("firstName"));
-                lastName.setText(documentSnapshot.getString("lastName"));
-
-                /*pronouns.setText(documentSnapshot.getString("pronouns"));
-                email.setText(documentSnapshot.getString("email"));
-                phone.setText(documentSnapshot.getString("phone"));
-                boolean tracking = documentSnapshot.getBoolean("isLocationTrackingOn");
-                if (tracking == false) {
-                    location.setText("Disabled");
-                if (tracking == true) {
-                    location.setText("Enabled");*/
-
-                // TODO: Implement the rest of the profile information.
+                UserProfile user = createUser(documentSnapshot);
+                setEditTextData(user);
 
             } else {
                 Log.d("ProfileDetails", "Document does not exist.");
@@ -111,6 +96,39 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
             Log.d("ProfileDetails", "Error fetching document: ", e);
         });
     }
+
+    private void setEditTextData(UserProfile user) {
+        ImageView profilePicture = findViewById(R.id.admin_profile_picture);
+        TextView firstName = findViewById(R.id.admin_profile_first_name);
+        TextView lastName = findViewById(R.id.admin_profile_last_name);
+        TextView pronouns = findViewById(R.id.admin_profile_pronouns);
+        TextView email = findViewById(R.id.admin_profile_email);
+        TextView phone = findViewById(R.id.admin_profile_phone);
+        TextView location = findViewById(R.id.admin_profile_location);
+
+        String userFirstName = user.getFirstName();
+        String userLastName = user.getLastName();
+        firstName.setText(userFirstName);
+        lastName.setText(userLastName);
+        Boolean isProfilePictureUploaded = user.getProfilePictureUploaded();
+        if (isProfilePictureUploaded) {
+            String profilePictureURL = user.getProfilePictureURL();
+            Glide.with(this).load(profilePictureURL).into(profilePicture);
+        } else {
+            profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
+        }
+
+        pronouns.setText(user.getPronouns());
+        email.setText(user.getEmail());
+        phone.setText(user.getPhone());
+        boolean tracking = user.getLocationTracking();
+        if (tracking) {
+            location.setText("Enabled");
+        } else {
+            location.setText("Disabled");
+        }
+    }
+
 
     /**
      * This deletes an event from the firebase.
@@ -135,5 +153,20 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
                     }
                 });
         finish();
+    }
+
+    private UserProfile createUser(DocumentSnapshot documentSnapshot) {
+        String userID = documentSnapshot.getString("userId");
+        UserProfile user = new UserProfile(userID, "", "");
+        user.setFirstName(documentSnapshot.getString("firstName"));
+        user.setLastName(documentSnapshot.getString("lastName"));
+        user.setPronouns(documentSnapshot.getString("pronouns"));
+        user.setEmail(documentSnapshot.getString("email"));
+        user.setPhone(documentSnapshot.getString("phone"));
+        user.setLocationTracking(documentSnapshot.getBoolean("isLocationTrackingOn"));
+        user.setProfilePictureUploaded(documentSnapshot.getBoolean("isProfilePictureUploaded"));
+        user.setProfilePictureURL(documentSnapshot.getString("profilePictureURL"));
+
+        return user;
     }
 }
