@@ -370,7 +370,6 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                                         targetEvent.addAttendee(currentUserId, currentUserName, "");
                                         updateEventAttendeeLists(eventRef);
                                     }
-
                                 } else {
                                     // Document does not exist
                                     Log.d("Document", "No such document");
@@ -409,9 +408,10 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                 }
             });
         } else {
-            // Request permissions
-            ActivityCompat.requestPermissions(this, new String[] { android.Manifest.permission.ACCESS_FINE_LOCATION }, MY_PERMISSIONS_REQUEST_LOCATION);
-            Toast.makeText(getApplicationContext(), "First enable LOCATION ACCESS", Toast.LENGTH_LONG).show();
+            // Request permission
+            Toast.makeText(getApplicationContext(), "Allow LOCATION ACCESS.", Toast.LENGTH_LONG).show();
+            ActivityCompat.requestPermissions(this, new String[] { android.Manifest.permission.ACCESS_FINE_LOCATION }, 1);
+            callback.onLocationReady("");
         }
     }
     public interface LocationCallback {
