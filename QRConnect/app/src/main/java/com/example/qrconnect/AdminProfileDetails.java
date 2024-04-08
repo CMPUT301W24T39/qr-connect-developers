@@ -28,6 +28,8 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
     private FirebaseFirestore db;
     private CollectionReference usersRef;
     private DocumentReference userRef;
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
 
     /**
      * Initializes the activity, sets the content view, and begins the process of loading profile details.
@@ -138,7 +140,7 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
      * @param userId the user id of the profile that is being deleted.
      */
     public void deleteProfile(String userId) {
-
+        // delete user profile from Firebase
         usersRef
                 .document(userId)
                 .delete()
@@ -154,6 +156,21 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
                         Log.w("Firestore", "Error deleting document", e);
                     }
                 });
+        // deletes user profile picture from Firebase Storage
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
+        StorageReference profilePictureRef = storageRef.child("profile_pictures/" + userId + ".png");
+        profilePictureRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Log.d("Firestore", "User profile picture successfully deleted");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("Firestore", "Could not delete user profile picture");
+            }
+        });
         finish();
     }
 
