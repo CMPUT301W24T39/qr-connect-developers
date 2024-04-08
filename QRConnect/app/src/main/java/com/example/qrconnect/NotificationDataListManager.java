@@ -5,14 +5,14 @@ import java.util.ArrayList;
 /**
  * The NotificationManager class manages the notifications of a user.
  */
-public class NotificationManager {
-    private static NotificationManager instance;
+public class NotificationDataListManager {
+    private static NotificationDataListManager instance;
     private ArrayList<Notification> notificationsDataList;
 
     /**
      * The NotificationManager constructor.
      */
-    private NotificationManager() {
+    private NotificationDataListManager() {
         notificationsDataList = new ArrayList<>();
     }
 
@@ -20,9 +20,9 @@ public class NotificationManager {
      * Getter for the instance of the NotificationManager.
      * @return instance of the NotificationManager.
      */
-    public static synchronized NotificationManager getInstance() {
+    public static synchronized NotificationDataListManager getInstance() {
         if (instance == null) {
-            instance = new NotificationManager();
+            instance = new NotificationDataListManager();
         }
         return instance;
     }

@@ -1,6 +1,11 @@
 package com.example.qrconnect;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputFilter;
@@ -9,11 +14,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.os.BuildCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -21,15 +27,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 /**
  * The SendNotificationsActivity class manages the functionality to send notifications.
@@ -127,10 +130,13 @@ public class SendNotificationsActivity extends AppCompatActivity {
         // Default read to false (unread)
         boolean read = false;
 
+        // Type: Milestone
+        String type = "push";
+
         // Able to send a notification without a description
         if (!title.isEmpty()) {
             // Create a new notification object
-            Notification notification = new Notification(eventTitle, title, description, date_string, read, eventId);
+            Notification notification = new Notification(eventTitle, title, description, date_string, read, eventId, type);
             // Checks if there are any attendees to send the notitication to
             if (!event.getAttendeeListIdToName().isEmpty()) {
                 for (String attendeeId : event.getAttendeeListIdToName().keySet()) {
