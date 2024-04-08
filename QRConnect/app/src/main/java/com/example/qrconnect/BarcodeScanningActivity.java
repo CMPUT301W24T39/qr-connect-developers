@@ -467,18 +467,11 @@ public class BarcodeScanningActivity extends AppCompatActivity {
 
     private void showCheckInSuccessfullyDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Check-In Successful");
-        builder.setMessage("Check-in was successful. What would you like to do next?");
+        builder.setTitle("Alert");
+        builder.setMessage("Check-in was successful.");
         builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 finish();
-            }
-        });
-
-        builder.setNegativeButton("Back", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                // Resume using the camera
-                startCamera();
             }
         });
 

@@ -42,17 +42,12 @@ public class EventAdapter extends ArrayAdapter<Event> {
         String userId = UserPreferences.getUserId(EventAdapter.this.getContext());
         String hostId = event.getHostId();
 
-        if(convertView == null){
-            if (userId.equals(hostId)) {
-                view = LayoutInflater.from(getContext()).inflate(R.layout.list_event_organizer, parent, false);
-            }
-            else {
-                view = LayoutInflater.from(getContext()).inflate(R.layout.list_event_checkin, parent, false);
-            }
-        } else {
-            view = convertView;
+        if (userId.equals(hostId)) {
+            view = LayoutInflater.from(getContext()).inflate(R.layout.list_event_organizer, parent, false);
         }
-
+        else {
+            view = LayoutInflater.from(getContext()).inflate(R.layout.list_event_checkin, parent, false);
+        }
 
         TextView eventTitle = view.findViewById(R.id.event_title_text);
 
