@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * The MilestoneManager class manages the event milestone notifications.
@@ -37,11 +38,12 @@ public class MilestoneManager {
     private MainActivity activity;
     boolean[] mileStoneReached;
     private String userId;
+    private ArrayList<Notification> notificationsDataList;
 
     /**
      * MilestoneManager constructor.
      */
-    public MilestoneManager(MainActivity mainActivity, CollectionReference notifications, String id){
+    public MilestoneManager(MainActivity mainActivity, CollectionReference notifications, String id, ArrayList<Notification> notificationsList){
         activity = mainActivity;
         notificationsRef = notifications;
         userId = id;
@@ -50,6 +52,8 @@ public class MilestoneManager {
         db = FirebaseFirestore.getInstance();
         eventsRef = db.collection("events");
 
+        notificationsDataList = notificationsList;
+        Log.d("MilestoneManager", "Notification data list: " + notificationsDataList);
     }
 
     public void startManager() {
@@ -70,6 +74,7 @@ public class MilestoneManager {
 
         // Log milestone check start
         Log.d("MilestoneManager", "Checking milestones for event: " + eventTitle);
+        Log.d("MilestoneManager", "Notification data list: " + notificationsDataList);
 
 
         // First person milestone
@@ -78,26 +83,35 @@ public class MilestoneManager {
             String description = "Congratulations! Your event has its first attendee!";
             checkIfMilestoneAlreadyReached(description, eventId);
             // Check if milestone was reached
-            if (!mileStoneReached[0] && currentAttendance == 1) {
+            if (!mileStoneReached[0]) {
                 sendNotification(eventId, eventTitle, title, description);
-            }
-        }
-
-        // Check milestones
-        for (Integer milestone : milestones) {
-            // Check if current attendance equals the milestone
-            if (currentAttendance.equals(milestone)) {
-                String title = "Event Milestone Reached!";
-                String description = "Congratulations! Your event has reached " + milestone + " attendees!";
-                sendNotification(eventId, eventTitle, title, description);
-
             }
         }
         // Checks if the current attendance is at the capacity
-        if (currentAttendance.equals(capacity) && capacity != 0) {
+        else if (currentAttendance.equals(capacity) && capacity != 0) {
             String title = "Event Milestone Reached!";
             String description = "Congratulations! Your event has reached its capacity of " + capacity + "!";
-            sendNotification(eventId, eventTitle, title, description);
+            checkIfMilestoneAlreadyReached(description, eventId);
+            // Check if milestone was reached
+            if (!mileStoneReached[0]) {
+                sendNotification(eventId, eventTitle, title, description);
+            }
+        }
+        // Check milestones
+        else {
+            for (Integer milestone : milestones) {
+                // Check if current attendance equals the milestone
+                if (currentAttendance.equals(milestone)) {
+                    String title = "Event Milestone Reached!";
+                    String description = "Congratulations! Your event has reached " + milestone + " attendees!";
+                    checkIfMilestoneAlreadyReached(description, eventId);
+                    // Check if milestone was reached
+                    if (!mileStoneReached[0]) {
+                        sendNotification(eventId, eventTitle, title, description);
+                    }
+
+                }
+            }
         }
     }
 
@@ -112,7 +126,7 @@ public class MilestoneManager {
         // Get the date and time when the notification is sent
         DateTimeFormatter dtf = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
+            dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         }
         LocalDateTime date = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -156,42 +170,67 @@ public class MilestoneManager {
 
         mileStoneReached[0] = false; // Default to false (milestone hasn't already been reached)
 
-        notificationsRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot userDocument : task.getResult()) {
-                        // Event Id
-                        String documentEventId = userDocument.getString("notificationEventId");
-                        Log.d("MilestoneManager", "Check the event milestone for event1: " + documentEventId);
-                        Log.d("MilestoneManager", "Check the event milestone for event2: " + eventId);
-                        // Event Description
-                        String documentDescription = userDocument.getString("notificationDescription");
-                        Log.d("MilestoneManager", "Check the description milestone for event1: " + documentDescription);
-                        Log.d("MilestoneManager", "Check the description milestone for event2: " + description);
-
-                        if (documentEventId != null) {
-                            Log.d("MilestoneManager", "Condition 1: documentEventId is not null");
-                        }
-                        if (documentEventId.equals(eventId)) {
-                            Log.d("MilestoneManager", "Condition 2: documentEventId equals eventId");
-                        }
-                        if (documentDescription != null) {
-                            Log.d("MilestoneManager", "Condition 3: documentDescription is not null");
-                        }
-                        if (documentDescription.equals(description)) {
-                            Log.d("MilestoneManager", "Condition 4: documentDescription equals description");
-                        }
-                        if (documentEventId != null && documentEventId.equals(eventId) && documentDescription != null && documentDescription.equals(description)){
-                            // If the milestone was already reached for this event
-                            mileStoneReached[0] = true;
-                            Log.d("MilestoneManager", "Milestone reached: " + mileStoneReached[0]);
-                        }
-                    }
-                } else {
-                    Log.d("Firestore", "Error getting documents: ", task.getException());
-                }
+        for (Notification notification : notificationsDataList) {
+            String documentEventId = notification.getNotificationEventId();
+            Log.d("MilestoneManager", "Check the event milestone for event1: " + documentEventId);
+            Log.d("MilestoneManager", "Check the event milestone for event2: " + eventId);
+            String documentDescription = notification.getNotificationDescription();
+            Log.d("MilestoneManager", "Check the description milestone for event1: " + documentDescription);
+            Log.d("MilestoneManager", "Check the description milestone for event2: " + description);
+            if (documentEventId != null) {
+                Log.d("MilestoneManager", "Condition 1: documentEventId is not null");
             }
-        });
+            if (documentEventId.equals(eventId)) {
+                Log.d("MilestoneManager", "Condition 2: documentEventId equals eventId");
+            }
+            if (documentDescription != null) {
+                Log.d("MilestoneManager", "Condition 3: documentDescription is not null");
+            }
+            if (documentDescription.equals(description)) {
+                Log.d("MilestoneManager", "Condition 4: documentDescription equals description");
+            }
+            if (documentEventId != null && documentEventId.equals(eventId) && documentDescription != null && documentDescription.equals(description)){
+                // If the milestone was already reached for this event
+                mileStoneReached[0] = true;
+                Log.d("MilestoneManager", "Milestone reached: " + mileStoneReached[0]);
+                break;
+            }
+        }
+
+        /*notificationsRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot userDocument : task.getResult()) {
+                    // Event Id
+                    String documentEventId = userDocument.getString("notificationEventId");
+                    Log.d("MilestoneManager", "Check the event milestone for event1: " + documentEventId);
+                    Log.d("MilestoneManager", "Check the event milestone for event2: " + eventId);
+                    // Event Description
+                    String documentDescription = userDocument.getString("notificationDescription");
+                    Log.d("MilestoneManager", "Check the description milestone for event1: " + documentDescription);
+                    Log.d("MilestoneManager", "Check the description milestone for event2: " + description);
+
+                    if (documentEventId != null) {
+                        Log.d("MilestoneManager", "Condition 1: documentEventId is not null");
+                    }
+                    if (documentEventId.equals(eventId)) {
+                        Log.d("MilestoneManager", "Condition 2: documentEventId equals eventId");
+                    }
+                    if (documentDescription != null) {
+                        Log.d("MilestoneManager", "Condition 3: documentDescription is not null");
+                    }
+                    if (documentDescription.equals(description)) {
+                        Log.d("MilestoneManager", "Condition 4: documentDescription equals description");
+                    }
+                    if (documentEventId != null && documentEventId.equals(eventId) && documentDescription != null && documentDescription.equals(description)){
+                        // If the milestone was already reached for this event
+                        mileStoneReached[0] = true;
+                        Log.d("MilestoneManager", "Milestone reached: " + mileStoneReached[0]);
+                        break;
+                    }
+                }
+            } else {
+                Log.d("Firestore", "Error getting documents: ", task.getException());
+            }
+        });*/
     }
 }

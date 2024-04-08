@@ -32,6 +32,10 @@ public class AdminDeleteProfileFragment extends DialogFragment {
         this.listener = listener;
     }
 
+    /**
+     * Set up listener
+     * @param context the context of this class
+     */
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -43,6 +47,13 @@ public class AdminDeleteProfileFragment extends DialogFragment {
         }
     }
 
+    /**
+     * Create a dialog
+     * @param savedInstanceState The last saved instance state of the Fragment,
+     * or null if this is a freshly created Fragment.
+     *
+     * @return a dialog
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {

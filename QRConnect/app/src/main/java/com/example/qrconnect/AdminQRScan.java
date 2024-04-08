@@ -76,6 +76,9 @@ public class AdminQRScan extends AppCompatActivity {
         enterTokenMethod();
     }
 
+    /**
+     * Prompt the users to enter token
+     */
     private void enterTokenMethod(){
         enter_token_button = findViewById(R.id.admin_enter_token_button);
         enter_token_button.setOnClickListener(new View.OnClickListener() {
@@ -292,6 +295,9 @@ public class AdminQRScan extends AppCompatActivity {
         }
     }
 
+    /**
+     * Change the camera on phone
+     */
     private void switchCamera(){
         usingFrontCamera = !usingFrontCamera;
         pauseCamera();

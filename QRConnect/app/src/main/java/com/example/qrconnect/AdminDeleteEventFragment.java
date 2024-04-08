@@ -21,12 +21,20 @@ public class AdminDeleteEventFragment extends DialogFragment {
         void deleteEvent(Event event);
     }
 
+    /**
+     * Constructor to store the attribute of the class
+     * @param event the event to be delete
+     * @param listener a listener to pop up the fragment
+     */
     public AdminDeleteEventFragment(Event event, AdminDeleteEventDialogListener listener) {
         this.event = event;
         this.listener = listener;
     }
 
-
+    /**
+     * Set up listener
+     * @param context the context of the class
+     */
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -38,6 +46,13 @@ public class AdminDeleteEventFragment extends DialogFragment {
         }
     }
 
+    /**
+     * Create a dialog
+     * @param savedInstanceState The last saved instance state of the Fragment,
+     * or null if this is a freshly created Fragment.
+     *
+     * @return a dialog
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {

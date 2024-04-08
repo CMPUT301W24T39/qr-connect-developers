@@ -1,7 +1,6 @@
 package com.example.qrconnect;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,7 +15,6 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -26,8 +24,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -68,7 +64,7 @@ https://www.youtube.com/watch?v=c6c1giRekB4
  * The MainActivity class maintains the functions of the main activity.
  * It extends AppCompatActivity.
  */
-public class MainActivity extends AppCompatActivity implements DeleteEventFragment.DeleteEventDialogListener {
+public class MainActivity extends AppCompatActivity{
     private FloatingActionButton addButton;
     private ImageButton profileButton;
     private ImageButton notificationButton;
@@ -76,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
     static ArrayList<Event> eventDataList = new ArrayList<Event>();
     static ArrayList<Event> userEventDataList = new ArrayList<Event>();
     ListView eventList;
-    static boolean isAddButtonClicked = false;
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
     private static CollectionReference userNotificationsRef;
@@ -85,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
     private NotificationListener notificationListener;
     private MilestoneManager milestoneManager;
     private String userId;
+    private ArrayList<Notification> notificationsDataList;
 
     /**
      * This defines the functions in main activity.
@@ -108,8 +104,10 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         // Start the notification listener to check notifications in real time and update the UI accordingly
         notificationListener = new NotificationListener(this, userNotificationsRef);
         notificationListener.startListening();
+        notificationsDataList = NotificationManager.getInstance().getNotificationsDataList();
+
         // Initialize milestone manager
-        milestoneManager= new MilestoneManager(this, userNotificationsRef, userId);
+        milestoneManager= new MilestoneManager(this, userNotificationsRef, userId, notificationsDataList);
         milestoneManager.startManager();
 
         // Initialize buttons
@@ -123,26 +121,10 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         eventAdapter = new EventAdapter(this, userEventDataList);
         eventList.setAdapter(eventAdapter);
 
-//        eventDetailsInitializeActivity = registerForActivityResult(
-//                new ActivityResultContracts.StartActivityForResult(),
-//                result -> {
-//                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-//                        Event updatedEvent = (Event) result.getData().getSerializableExtra("UPDATED_EVENT");
-//                        if(updatedEvent.getEventPromoId() != null && updatedEvent.getEventCheckInId() != null){
-//                            eventDataList.add(updatedEvent);
-//                            addNewEvent(updatedEvent);
-//                        }
-//                        eventAdapter.notifyDataSetChanged();
-//                    }
-//                }
-//        );
-
-
         // Add event button
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isAddButtonClicked = true;
                 Event newEvent = new Event();
                 String uniqueID = UUID.randomUUID().toString();
                 newEvent.setEventTitle("New Event " + (userEventDataList.size() +1));
@@ -206,22 +188,6 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                     getUserEvents();
                     eventAdapter.notifyDataSetChanged();
                 }
-            }
-        });
-
-        // List of events
-        eventList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Event currentEvent = userEventDataList.get(position);
-                String userId = UserPreferences.getUserId(getApplicationContext());
-                String hostId = currentEvent.getHostId();
-                if (userId.equals(hostId)) {
-                    new DeleteEventFragment(currentEvent).show(getSupportFragmentManager(), "Delete Event");
-                } else {
-                   Toast.makeText(MainActivity.this, "You are not the host of this event.", Toast.LENGTH_SHORT).show();
-                }
-                return true;
             }
         });
 
@@ -298,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         super.onNewIntent(intent);
         if (intent.hasExtra("UPDATED_EVENT")) {
             Event updatedEvent = (Event) intent.getSerializableExtra("UPDATED_EVENT");
+            
             eventDataList.add(updatedEvent);
             // globalEventDataList.add(updatedEvent);
             addNewEvent(updatedEvent);
@@ -337,10 +304,6 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         data.put("location", event.getLocation());
         data.put("capacity", event.getCapacity());
         data.put("description", event.getDescription());
-//        data.put("QRCodeImage", event.getQRCodeImage());
-//        data.put("PromoQRCodeImage", event.getPromoQRCodeImage());
-//        data.put("eventCheckInId", event.getEventCheckInId());
-//        data.put("eventPromoId", event.getEventPromoId());
         data.put("eventId", event.getEventId());
         data.put("checkInQRCodeImageUrl", event.getEventCheckInId());
         data.put("promoQRCodeImageUrl", event.getEventPromoId());
@@ -362,57 +325,6 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                 });
     }
 
-    /**
-     * This deletes an event from the firebase.
-     * @param event This is the event to delete.
-     */
-    public void deleteEvent(Event event){
-
-        eventDataList.remove(event);
-        // globalEventDataList.remove(event);
-        eventAdapter.notifyDataSetChanged();
-        eventsRef
-                .document(event.getEventId())
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("Firestore", "DocumentSnapshot successfully deleted!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("Firestore", "Error deleting document", e);
-                    }
-                });
-
-        if (event.getEventCheckInId() != null && event.getEventPromoId() != null){
-            String qrCodeFilePath = "qrcodes/" + event.getEventId() + "_" + "checkInQRCodeImageUrl" + ".jpg";
-            String promoQrCodeFilePath = "qrcodes/" + event.getEventId() + "_" + "promoQRCodeImageUrl" + ".jpg";
-            deleteQRCodesFromStorage(qrCodeFilePath);
-            deleteQRCodesFromStorage(promoQrCodeFilePath);
-        }
-
-    }
-
-
-    private void deleteQRCodesFromStorage(String filePath) {
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference fileRef = storage.getReference().child(filePath);
-
-        fileRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d("Storage", "File successfully deleted!");
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w("Storage", "Error deleting file", e);
-            }
-        });
-    }
 
     /**
      * Checks if the notifications are read or unread.
