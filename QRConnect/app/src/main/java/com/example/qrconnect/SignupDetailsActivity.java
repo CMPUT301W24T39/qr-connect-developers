@@ -1,5 +1,6 @@
 package com.example.qrconnect;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -156,7 +158,7 @@ public class SignupDetailsActivity extends AppCompatActivity {
                                 eventRef.update("signupUserIdToName", updatedSignupMap)
                                         .addOnSuccessListener(aVoid -> Log.d("SignupDetailsActivity", "User signed up successfully for event"))
                                         .addOnFailureListener(e -> Log.e("SignupDetailsActivity", "Error signing up user: " + e.getMessage()));
-
+                                showSignUpSuccessfullyDialog();
                             } else {
                                 Log.e("SignupDetailsActivity", "User document does not exist in the users collection.");
                             }
@@ -171,5 +173,20 @@ public class SignupDetailsActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    private void showSignUpSuccessfullyDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Alert");
+        builder.setMessage("Sign up was successful.");
+        builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+
+        // Create and show the AlertDialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }
