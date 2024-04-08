@@ -4,8 +4,12 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.os.BuildCompat;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,11 +25,13 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -108,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         // Start the notification listener to check notifications in real time and update the UI accordingly
         notificationListener = new NotificationListener(this, userNotificationsRef);
         notificationListener.startListening();
-        notificationsDataList = NotificationManager.getInstance().getNotificationsDataList();
+        notificationsDataList = NotificationDataListManager.getInstance().getNotificationsDataList();
 
         // Initialize milestone manager
         milestoneManager= new MilestoneManager(this, userNotificationsRef, userId, notificationsDataList);
@@ -124,6 +130,29 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         // Initialize adapters
         eventAdapter = new EventAdapter(this, userEventDataList);
         eventList.setAdapter(eventAdapter);
+
+        // Referenced https://www.youtube.com/watch?v=vyt20Gg2Ckg&ab_channel=CodesEasy for the push notification implementation
+        // Push notification permissions (asks users if QRConnect is allowed to send notifications to their device)
+        if (BuildCompat.isAtLeastQ()) {
+            if (ContextCompat.checkSelfPermission(MainActivity.this,
+                    android.Manifest.permission.POST_NOTIFICATIONS) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
+            }
+        }
+
+        // Initialize Firebase Cloud Messaging
+        FirebaseMessaging.getInstance().getToken()
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    String token = task.getResult();
+                    storeTokenInFirestore(token);
+                } else {
+                    Log.w("MainActivity", "Fetching FCM registration token failed", task.getException());
+                }
+            });
+
 
         // Add event button
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -468,5 +497,13 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                 userEventDataList.add(event);
             }
         }
+    }
+
+    private void storeTokenInFirestore(String token) {
+        DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(userId);
+
+        userRef.update("fcmToken", token)
+                .addOnSuccessListener(aVoid -> Log.d("MainActivity", "FCM token successfully stored in user document"))
+                .addOnFailureListener(e -> Log.e("MainActivity", "Error storing FCM token in user document", e));
     }
 }

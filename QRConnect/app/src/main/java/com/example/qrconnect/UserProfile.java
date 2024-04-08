@@ -12,6 +12,7 @@ public class UserProfile {
     protected String profilePictureURL;
     protected String pronouns;
     protected String userID;
+    protected String fcmToken;
 
     public UserProfile(String userID, String firstName, String lastName) {
         this.userID = userID;
@@ -23,6 +24,7 @@ public class UserProfile {
         this.phone = "";
         this.profilePictureURL = "";
         this.pronouns = "";
+        this.fcmToken = "";
     }
 
     public String getEmail() {
@@ -95,5 +97,13 @@ public class UserProfile {
 
     public void setUserID(String userID) {
         this.userID = userID;
+    }
+
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
     }
 }

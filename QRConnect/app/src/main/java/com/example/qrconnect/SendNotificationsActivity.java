@@ -1,6 +1,11 @@
 package com.example.qrconnect;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputFilter;
@@ -14,6 +19,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.os.BuildCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -133,6 +140,7 @@ public class SendNotificationsActivity extends AppCompatActivity {
             Notification notification = new Notification(eventTitle, title, description, date_string, read, eventId);
             // Checks if there are any attendees to send the notitication to
             if (!event.getAttendeeListIdToName().isEmpty()) {
+                makePushNotification(title, description);
                 for (String attendeeId : event.getAttendeeListIdToName().keySet()) {
                     usersRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
@@ -187,4 +195,42 @@ public class SendNotificationsActivity extends AppCompatActivity {
            Toast.makeText(SendNotificationsActivity.this, "Unable to send notification.", Toast.LENGTH_SHORT).show();
         }
     };
+
+    // Referenced https://www.youtube.com/watch?v=vyt20Gg2Ckg&ab_channel=CodesEasy for the push notification implementation
+    /**
+     * Creates a push notification.
+     * @param title the title of the notification.
+     * @param description the description of the notification.
+     */
+    public void makePushNotification(String title, String description){
+        String chanelID = "CHANNEL_ID_NOTIFICATION";
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), chanelID);
+        builder.setSmallIcon(R.drawable.push_notification)
+                .setContentTitle(title)
+                .setContentText(description)
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        Intent intent = new Intent(getApplicationContext(), PushNotificationActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("data", "Some value to be passed here");
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE);
+        builder.setContentIntent(pendingIntent);
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (BuildCompat.isAtLeastQ()) {
+            NotificationChannel notificationChannel =
+                    notificationManager.getNotificationChannel(chanelID);
+            if (notificationChannel == null) {
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                notificationChannel = new NotificationChannel(chanelID, "Some description", importance);
+                notificationChannel.setLightColor(Color.GREEN);
+                notificationChannel.enableVibration(true);
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+        }
+        notificationManager.notify(0,builder.build());
+    }
 }

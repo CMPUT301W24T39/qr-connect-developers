@@ -2,18 +2,12 @@ package com.example.qrconnect;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -23,7 +17,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 
 /**
  * The AttendeeNotifications class manages the attendee notifications page.
@@ -67,7 +60,7 @@ public class AttendeeNotifications extends AppCompatActivity {
 
         Intent intent = getIntent();
         notificationsList = findViewById(R.id.notifications_list);
-        notificationsDataList = NotificationManager.getInstance().getNotificationsDataList();
+        notificationsDataList = NotificationDataListManager.getInstance().getNotificationsDataList();
         notificationArrayAdapter = new NotificationArrayAdapter(this, notificationsDataList);
         notificationsList.setAdapter(notificationArrayAdapter);
 
