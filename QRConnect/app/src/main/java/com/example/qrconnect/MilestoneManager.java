@@ -142,7 +142,7 @@ public class MilestoneManager {
         // Default read to false (unread)
         boolean read = false;
 
-        // Type: Push Notification
+        // Type: Milestone Notification
         String type = "milestone";
 
         // Create a new notification object

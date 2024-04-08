@@ -427,6 +427,10 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
+    /**
+     * Checks if a notification is of type push so it can be sent as a push notification.
+     * @param addedDocument the notification that was added to the firebase.
+     */
     public void checkPushNotification(DocumentSnapshot addedDocument) {
         Log.d("PUSHNOTIFICATION", "Check push notification");
         String type = addedDocument.getString("notificationType");
@@ -440,6 +444,11 @@ public class MainActivity extends AppCompatActivity{
     }
 
     // Referenced https://www.youtube.com/watch?v=vyt20Gg2Ckg&ab_channel=CodesEasy for the push notification implementation
+    /**
+     * Creates a push notification.
+     * @param title the title of the push notification.
+     * @param description the description of the push notification.
+     */
     public void makePushNotification(String title, String description){
         Log.d("PUSHNOTIFICATION", "Make push notification");
         String chanelID = "CHANNEL_ID_NOTIFICATION";

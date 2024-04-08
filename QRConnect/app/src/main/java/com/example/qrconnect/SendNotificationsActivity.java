@@ -157,7 +157,6 @@ public class SendNotificationsActivity extends AppCompatActivity {
                                                         // Clear the title and description EditText fields after sending the notification
                                                         titleEditText.setText("");
                                                         descriptionEditText.setText("");
-                                                        //makePushNotification(title, description);
                                                     }
                                                 })
                                                 .addOnFailureListener(new OnFailureListener() {
@@ -194,37 +193,4 @@ public class SendNotificationsActivity extends AppCompatActivity {
            Toast.makeText(SendNotificationsActivity.this, "Unable to send notification.", Toast.LENGTH_SHORT).show();
         }
     };
-
-    // Referenced https://www.youtube.com/watch?v=vyt20Gg2Ckg&ab_channel=CodesEasy for the push notification implementation
-    /*public void makePushNotification(String title, String description){
-        String chanelID = "CHANNEL_ID_NOTIFICATION";
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), chanelID);
-        builder.setSmallIcon(R.drawable.push_notification)
-                .setContentTitle(title)
-                .setContentText(description)
-                .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-        Intent intent = new Intent(getApplicationContext(), PushNotificationActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra("data", "Some value to be passed here");
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE);
-        builder.setContentIntent(pendingIntent);
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        if (BuildCompat.isAtLeastQ()) {
-            NotificationChannel notificationChannel =
-                    notificationManager.getNotificationChannel(chanelID);
-            if (notificationChannel == null) {
-                int importance = NotificationManager.IMPORTANCE_HIGH;
-                notificationChannel = new NotificationChannel(chanelID, "Some description", importance);
-                notificationChannel.setLightColor(Color.GREEN);
-                notificationChannel.enableVibration(true);
-                notificationManager.createNotificationChannel(notificationChannel);
-            }
-        }
-        notificationManager.notify(0,builder.build());
-    }*/
 }
