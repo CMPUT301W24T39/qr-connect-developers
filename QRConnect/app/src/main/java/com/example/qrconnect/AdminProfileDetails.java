@@ -1,4 +1,5 @@
 package com.example.qrconnect;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -55,6 +56,8 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent(AdminProfileDetails.this, AdminBrowseProfiles.class);
+                startActivity(intent);
                 finish();
             }
         });
@@ -171,6 +174,8 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
                 Log.d("Firestore", "Could not delete user profile picture");
             }
         });
+        Intent intent = new Intent(AdminProfileDetails.this, AdminBrowseProfiles.class);
+        startActivity(intent);
         finish();
     }
 

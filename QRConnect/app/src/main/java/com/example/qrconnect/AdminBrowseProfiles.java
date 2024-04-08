@@ -2,7 +2,6 @@ package com.example.qrconnect;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -10,21 +9,15 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -39,6 +32,7 @@ public class AdminBrowseProfiles extends AppCompatActivity {
     private CollectionReference usersRef;
     private SearchView searchView;
     private ArrayList<UserProfile> filteredProfiles;
+
 
     /**
      * Called when the activity is first created. Responsible for initializing the admin browse profiles page.
@@ -87,6 +81,7 @@ public class AdminBrowseProfiles extends AppCompatActivity {
                     Intent showIntent = new Intent(AdminBrowseProfiles.this, AdminProfileDetails.class);
                     showIntent.putExtra("PROFILE", currentProfileId);
                     startActivity(showIntent);
+                    finish();
                 } catch (Exception e) {
                     Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
