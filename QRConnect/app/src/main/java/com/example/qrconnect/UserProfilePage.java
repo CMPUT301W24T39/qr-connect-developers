@@ -128,7 +128,6 @@ public class UserProfilePage extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.e("Firestore", "Error fetching user data");
-                // TODO: handle error
             }
         });
     }

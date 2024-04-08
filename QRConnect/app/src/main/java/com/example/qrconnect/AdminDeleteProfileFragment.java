@@ -32,7 +32,6 @@ public class AdminDeleteProfileFragment extends DialogFragment {
         this.listener = listener;
     }
 
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);

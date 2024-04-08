@@ -104,10 +104,10 @@ public class AdminBrowseProfiles extends AppCompatActivity {
                 adminProfileDataList.clear();
                 filteredProfiles.clear();
                 for (QueryDocumentSnapshot doc: querySnapshots){
+                    // gets user profile data from firebase and creates user object
                     String firstName = doc.getString("firstName");
                     String lastName = doc.getString("lastName");
                     String userId = doc.getString("userId");
-
                     String email = doc.getString("email");
                     String phone = doc.getString("phone");
                     String pronouns = doc.getString("pronouns");
@@ -115,12 +115,7 @@ public class AdminBrowseProfiles extends AppCompatActivity {
                     boolean isProfilePictureUploaded = doc.getBoolean("isProfilePictureUploaded");
                     String profilePictureURL = doc.getString("profilePictureURL");
 
-                    // TODO: Implement the rest of the profile information.
-
                     UserProfile userProfile = new UserProfile(userId, firstName, lastName);
-//                    userProfile.setFirstName(firstName);
-//                    userProfile.setLastName(lastName);
-//                    userProfile.setUserID(userId);
                     userProfile.setEmail(email);
                     userProfile.setPhone(phone);
                     userProfile.setPronouns(pronouns);
@@ -128,6 +123,7 @@ public class AdminBrowseProfiles extends AppCompatActivity {
                     userProfile.setProfilePictureUploaded(isProfilePictureUploaded);
                     userProfile.setProfilePictureURL(profilePictureURL);
 
+                    // adds user to list to be displayed to admin
                     adminProfileDataList.add(userProfile);
                     filteredProfiles.add(userProfile);
                 }

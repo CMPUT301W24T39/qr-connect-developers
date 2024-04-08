@@ -45,8 +45,6 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
         // Get items from previous activity
         String userId = getIntent().getStringExtra("PROFILE");
 
-        //UserProfile user = createUser(userId);
-
         // Get event details for the event that was clicked on
         loadProfileDetails(userId);
 
@@ -87,7 +85,7 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
         userRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 UserProfile user = createUser(documentSnapshot);
-                setEditTextData(user);
+                setViewsData(user);
 
             } else {
                 Log.d("ProfileDetails", "Document does not exist.");
@@ -97,7 +95,12 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
         });
     }
 
-    private void setEditTextData(UserProfile user) {
+    /**
+     * Sets the TextViews and ImageView of the user profile data
+     * @param user The UserProfile object of the user
+     */
+    private void setViewsData(UserProfile user) {
+        // gets TextViews and ImageView
         ImageView profilePicture = findViewById(R.id.admin_profile_picture);
         TextView firstName = findViewById(R.id.admin_profile_first_name);
         TextView lastName = findViewById(R.id.admin_profile_last_name);
@@ -106,18 +109,17 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
         TextView phone = findViewById(R.id.admin_profile_phone);
         TextView location = findViewById(R.id.admin_profile_location);
 
-        String userFirstName = user.getFirstName();
-        String userLastName = user.getLastName();
-        firstName.setText(userFirstName);
-        lastName.setText(userLastName);
-        Boolean isProfilePictureUploaded = user.getProfilePictureUploaded();
-        if (isProfilePictureUploaded) {
+        // sets profilePicture ImageView with user uploaded profile picture or
+        // generated profile picture if the user has not uploaded a profile picture
+        if (user.getProfilePictureUploaded()) {
             String profilePictureURL = user.getProfilePictureURL();
             Glide.with(this).load(profilePictureURL).into(profilePicture);
         } else {
             profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
         }
-
+        // sets TextViews with user data
+        firstName.setText(user.getFirstName());
+        lastName.setText(user.getLastName());
         pronouns.setText(user.getPronouns());
         email.setText(user.getEmail());
         phone.setText(user.getPhone());
@@ -155,6 +157,11 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
         finish();
     }
 
+    /**
+     * Creates and returns the UserProfile object to be displayed
+     * @param documentSnapshot DocumentSnapshot of the user document on firebase
+     * @return The UserProfile object to be displayed
+     */
     private UserProfile createUser(DocumentSnapshot documentSnapshot) {
         String userID = documentSnapshot.getString("userId");
         UserProfile user = new UserProfile(userID, "", "");
