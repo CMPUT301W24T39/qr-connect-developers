@@ -184,10 +184,13 @@ public class QRCodeGeneratesPage extends AppCompatActivity implements BottomNavi
     }
 
     /**
-     * This updates the event with the field name
-     * @param event the event to be updated
-     * @param fieldName the field name of the event
-     * @param Id update the field name with this id
+     * This upload a QR code to firebase storage and update the URL for QR code in firebase database.
+     * @param event This is an Event object to be used to generate a unique QR code.
+     * @param fieldName This is a reference in firebase database.
+     * @param Id the id to be updated
+     * This upload a QR code to firebase storage and update the URL for QR code in firebase database
+     * @param event This is an Event object to be used to generate a unique QR code.
+     * @param fieldName This is a reference in firebase database.
      */
     private void updateEvent(Event event, String fieldName, String Id) {
 
@@ -196,12 +199,6 @@ public class QRCodeGeneratesPage extends AppCompatActivity implements BottomNavi
                 .update(fieldName, Id);
     }
 
-    /**
-     * Upload QR Codes to firebase
-     * @param bitmap the bitmap to generate QR code
-     * @param event the current event
-     * @param fieldName the field name to be updated
-     */
     private void uploadQRImages(Bitmap bitmap, Event event, String fieldName){
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
@@ -227,10 +224,6 @@ public class QRCodeGeneratesPage extends AppCompatActivity implements BottomNavi
         });
     }
 
-    /**
-     * Go back to the Mainactivity page
-     * @param updatedEvent the updated event
-     */
     private void returnUpdatedEvent(Event updatedEvent) {
         Intent intent = new Intent(QRCodeGeneratesPage.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -239,10 +232,6 @@ public class QRCodeGeneratesPage extends AppCompatActivity implements BottomNavi
         finish();
     }
 
-    /**
-     * Return the check-in id
-     * @return an event check-in id
-     */
     @Override
     public String getCheckInId() {
         if (currentEvent != null) {
@@ -250,11 +239,6 @@ public class QRCodeGeneratesPage extends AppCompatActivity implements BottomNavi
         }
         return "";
     }
-
-    /**
-     * Get the QR code image from the firebase
-     * @param downloadUrl the reference of the QR code
-     */
     @Override
     public void onQRCodeUploaded(String downloadUrl) {
         runOnUiThread(() -> {

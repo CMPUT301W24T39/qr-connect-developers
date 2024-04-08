@@ -111,7 +111,7 @@ public class SendNotificationsActivity extends AppCompatActivity {
         // Get the date and time when the notification is sent
         DateTimeFormatter dtf = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+            dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
         }
         LocalDateTime date = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

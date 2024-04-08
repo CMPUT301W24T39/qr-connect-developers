@@ -2,18 +2,15 @@ package com.example.qrconnect;
 
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -22,7 +19,6 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -83,8 +79,6 @@ public class UserProfilePage extends AppCompatActivity {
         handleAddPhotoButton();
         handleRemovePhotoButton();
         handleSaveButton();
-        StorageReference profileImageRef = storageRef.child("profile_pictures/" + USER_ID  + ".png");
-        setProfilePicture(profileImageRef, profilePicture);
     }
 
     /**
@@ -127,6 +121,7 @@ public class UserProfilePage extends AppCompatActivity {
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         setUserData(documentSnapshot);
                         setEditTextData();
+                        setProfilePicture();
                     }
                 }
         ).addOnFailureListener(new OnFailureListener() {
@@ -149,6 +144,7 @@ public class UserProfilePage extends AppCompatActivity {
         user.setLastName(documentSnapshot.getString("lastName"));
         user.setPhone(documentSnapshot.getString("phone"));
         user.setPronouns(documentSnapshot.getString("pronouns"));
+        user.setProfilePictureURL(documentSnapshot.getString("profilePictureURL"));
     }
 
     /**
@@ -161,42 +157,17 @@ public class UserProfilePage extends AppCompatActivity {
         emailEditText.setText(user.getEmail());
         phoneEditText.setText(user.getPhone());
         locationSwitch.setChecked(user.getLocationTracking());
-
-        if(locationSwitch.isChecked()){
-            //if it is checked, then I wanna see if the app has permissions, if not, request them
-            if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                    || ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-                Toast.makeText(getApplicationContext(), "LOCATION ACCESS is turned on.", Toast.LENGTH_LONG).show();
-            } else{
-                ActivityCompat.requestPermissions(UserProfilePage.this, new String[] { android.Manifest.permission.ACCESS_FINE_LOCATION }, 1);
-            }
-        }
-
     }
 
     /**
      * Sets profile picture if it exists, sets a generated one if it doesn't
      */
-    private void setProfilePicture(StorageReference profileImageRef, ImageView profilePicture) {
-//        if (user.getProfilePictureUploaded()) {
-//            Glide.with(this).load(user.getProfilePictureURL()).into(profilePicture);
-//        } else {
-//            profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
-//        }
-        profileImageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                Glide.with(UserProfilePage.this)
-                        .load(uri)
-                        .into(profilePicture);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
-                Log.e("UserProfilePage", "Error loading image: ", exception);
-            }
-        });
+    private void setProfilePicture() {
+        if (user.getProfilePictureUploaded()) {
+            Glide.with(this).load(user.getProfilePictureURL()).into(profilePicture);
+        } else {
+            profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
+        }
     }
 
     /**
@@ -243,11 +214,11 @@ public class UserProfilePage extends AppCompatActivity {
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                     String url = uri.toString();
-                    uploadImageToRealtimeDatabase(USER_ID, url);
+                    user.setProfilePictureURL(url);
                     user.setProfilePictureUploaded(true);
                     HashMap<String, Object> data = new HashMap<>();
+                    data.put("profilePictureURL", url);
                     data.put("isProfilePictureUploaded", true);
-                    usersRef.document(user.getUserID()).update(data).addOnSuccessListener(
                     usersRef.document(user.getUserID()).update(data).addOnSuccessListener(
                             new OnSuccessListener<Void>() {
                                 @Override
@@ -278,7 +249,6 @@ public class UserProfilePage extends AppCompatActivity {
                 user.setProfilePictureUploaded(false);
                 HashMap<String, Object> data = new HashMap<>();
                 data.put("isProfilePictureUploaded", false);
-                usersRef.document(user.getUserID()).update(data).addOnSuccessListener(
                 usersRef.document(user.getUserID()).update(data).addOnSuccessListener(
                         new OnSuccessListener<Void>() {
                             @Override

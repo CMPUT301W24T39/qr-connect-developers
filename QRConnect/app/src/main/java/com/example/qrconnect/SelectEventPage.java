@@ -104,23 +104,12 @@ public class SelectEventPage extends AppCompatActivity {
         });
     }
 
-    /**
-     * Return the updated event to QRCodeGeneratesPage
-     * @param updatedEvent
-     */
     private void returnUpdatedEvent(Event updatedEvent) {
         Intent returnIntent = new Intent();
         returnIntent.putExtra("UPDATED_EVENT", updatedEvent);
         setResult(RESULT_OK, returnIntent);
         finish();
     }
-
-    /**
-     * Update the event
-     * @param event the event to be updated
-     * @param fieldName the name to be updated
-     * @param Id replace the field name with id
-     */
     private void updateEvent(Event event, String fieldName, String Id) {
 
         db.collection("events")

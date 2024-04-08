@@ -1,6 +1,5 @@
 package com.example.qrconnect;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -65,9 +64,8 @@ public class AttendeeNotifications extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         notificationsRef = db.collection("users").document(userId).collection("notifications");
 
-        Intent intent = getIntent();
         notificationsList = findViewById(R.id.notifications_list);
-        notificationsDataList = NotificationManager.getInstance().getNotificationsDataList();
+        notificationsDataList = new ArrayList<>();
         notificationArrayAdapter = new NotificationArrayAdapter(this, notificationsDataList);
         notificationsList.setAdapter(notificationArrayAdapter);
 
@@ -78,7 +76,6 @@ public class AttendeeNotifications extends AppCompatActivity {
      * Receive notifications from Firestore Database and update the notifications ListView
      */
     private void receiveNotifications() {
-        notificationsDataList.clear();
         notificationsRef.get()
             .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                 @Override

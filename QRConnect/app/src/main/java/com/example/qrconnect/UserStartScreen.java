@@ -103,6 +103,7 @@ public class UserStartScreen extends AppCompatActivity {
         userData.put("phone", user.getPhone());
         userData.put("isLocationTrackingOn", user.getLocationTracking());
         userData.put("isProfilePictureUploaded", user.getProfilePictureUploaded());
+        userData.put("profilePictureURL", user.getProfilePictureURL());
 
         // Add a new document with a generated ID to the "users" collection
         db.collection("users")

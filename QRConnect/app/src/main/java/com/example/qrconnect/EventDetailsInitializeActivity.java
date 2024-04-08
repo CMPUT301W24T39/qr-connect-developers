@@ -322,18 +322,6 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
     }
     // Refer from answered Nov 17, 2017 at 13:48 Grimthorr
     //https://stackoverflow.com/questions/47350129/about-the-firestore-query-data-documentation-specifically-documentsnapshot
-
-    /**
-     * Load the event data from firebase
-     * @param eventRef the reference of an event
-     * @param eventTitle the title of an event
-     * @param eventDescriptionEdit the description of an event
-     * @param eventDate the date of an event
-     * @param eventTime the time of an event
-     * @param eventLocation the location of an event
-     * @param eventCapacity the capacity of an event
-     * @param eventCurrentAttendance the attendance of an event
-     */
     @NonNull
     private void loadEventData(DocumentReference eventRef,
                                EditText eventTitle,
@@ -397,11 +385,6 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Load the poster of an event
-     * @param eventPosterRef the reference of an event
-     * @param eventPoster the poster of an event
-     */
     private void loadEventPoster(StorageReference eventPosterRef, ImageView eventPoster) {
         eventPosterRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
@@ -414,26 +397,6 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception exception) {
                 Log.e("EventDetailsActivity", "Error loading image: ", exception);
-            }
-        });
-    }
-
-    /**
-     * Upload the image to realtime databse
-     * @param imageName the name of the image
-     * @param downloadUrl the url of the image
-     */
-    private void uploadImageToRealtimeDatabase(String imageName, String downloadUrl) {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("images");
-        myRef.child(imageName).setValue(new ImageInfo(imageName, downloadUrl)).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()) {
-                    System.out.println("Uploaded successfully in realtime database");
-                } else {
-                    System.out.println("Failed to upload successfully in realtime database");
-                }
             }
         });
     }

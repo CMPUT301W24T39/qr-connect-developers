@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
- * This class stores and retrieves the user id from the device's local storage
+ * This class sotres and retieves the user id from the device's local storage
  */
 public class UserPreferences {
 

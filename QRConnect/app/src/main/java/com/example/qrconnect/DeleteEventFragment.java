@@ -11,30 +11,36 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-/**
- * The AdminDeleteEventFragment class is the fragment displayed when trying to delete an event as a admin.
- */
-public class AdminDeleteEventFragment extends DialogFragment {
+public class DeleteEventFragment extends DialogFragment {
     private Event event;
-    private AdminDeleteEventFragment.AdminDeleteEventDialogListener listener;
-    interface AdminDeleteEventDialogListener {
+    interface DeleteEventDialogListener {
         void deleteEvent(Event event);
     }
 
-    public AdminDeleteEventFragment(Event event, AdminDeleteEventDialogListener listener) {
+    public DeleteEventFragment(Event event) {
+
+        this.event = event;
+    }
+
+
+
+    public DeleteEventFragment() {}
+    public DeleteEventFragment(int contentLayoutId, Event event, DeleteEventDialogListener listener) {
+        super(contentLayoutId);
         this.event = event;
         this.listener = listener;
     }
 
+    private DeleteEventDialogListener listener;
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
-        if(context instanceof AdminDeleteEventFragment.AdminDeleteEventDialogListener){
-            listener = (AdminDeleteEventFragment.AdminDeleteEventDialogListener) context;
+        if(context instanceof DeleteEventFragment.DeleteEventDialogListener){
+            listener = (DeleteEventFragment.DeleteEventDialogListener) context;
         } else {
-            throw new RuntimeException(context.toString() + " must implement AdminDeleteBookDialogListener");
+            throw new RuntimeException(context.toString() + " must implement DeleteBookDialogListener");
         }
     }
 
@@ -42,6 +48,7 @@ public class AdminDeleteEventFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.fragment_delete_event,null);
+
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
@@ -53,6 +60,7 @@ public class AdminDeleteEventFragment extends DialogFragment {
 
                     if (event != null){
                         listener.deleteEvent(event);
+
                     }
                 })
                 .create();

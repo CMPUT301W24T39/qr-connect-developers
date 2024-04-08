@@ -36,10 +36,6 @@ import java.io.IOException;
 /*
 https://www.youtube.com/watch?v=eSi28xqGjbE
  */
-
-/**
- * The class to maintain the functions of sharing QR codes
- */
 public class ShareQRCodeActivity extends AppCompatActivity {
 
     ImageButton backButton;
@@ -47,14 +43,6 @@ public class ShareQRCodeActivity extends AppCompatActivity {
     ImageView promoteQrCodeToShare;
     ImageButton share_button1;
     ImageButton share_button2;
-
-    /**
-     * The method to maintain the features of this page
-     * @param savedInstanceState If the activity is being re-initialized after
-     *     previously being shut down then this Bundle contains the data it most
-     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
-     *
-     */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.share_qr_code_page);
@@ -112,10 +100,6 @@ public class ShareQRCodeActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Share the image to other apps
-     * @param id share the current event with this id
-     */
     private void shareImage(String id) {
         BitmapDrawable bitmapDrawable = (BitmapDrawable) qrCodeToShare.getDrawable();
         Bitmap bitmap = bitmapDrawable.getBitmap();
@@ -129,13 +113,6 @@ public class ShareQRCodeActivity extends AppCompatActivity {
 
 
     }
-
-    /**
-     * Get the image to share from firebase
-     * @param bitmap the tool to access QR code
-     * @param id the event id
-     * @return the uri of the image
-     */
     private Uri getImageToShare(Bitmap bitmap, String id) {
         File folder = new File(getCacheDir(), "qrcodes");
         Uri uri = null;
@@ -156,11 +133,6 @@ public class ShareQRCodeActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * Load the QR code to share
-     * @param qrCodeRef the reference of the QR codes in the firebase
-     * @param qrCodeToShare the image to share
-     */
     private void loadEventQrCodeToShare(StorageReference qrCodeRef, ImageView qrCodeToShare) {
         qrCodeRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override

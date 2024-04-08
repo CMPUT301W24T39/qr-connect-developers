@@ -7,9 +7,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-/**
- * Convert the String to Calendar
- */
 public class DateConverter {
     public static Calendar stringToCalendar(String dateTimeStr) {
         if (dateTimeStr == null || dateTimeStr.isEmpty()) {
