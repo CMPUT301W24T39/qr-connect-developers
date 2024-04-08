@@ -1,4 +1,6 @@
 package com.example.qrconnect;
+import android.util.Log;
+
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -38,6 +40,8 @@ public class NotificationListener {
             for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                 switch (dc.getType()) {
                     case ADDED: // If a notification was added
+                        Log.d("PUSHNOTIFICATION", "Notification added");
+                        activity.checkPushNotification(dc.getDocument());
                         activity.checkNotifications();
                         break;
                     case MODIFIED: // If a notification was modified (unread -> read)

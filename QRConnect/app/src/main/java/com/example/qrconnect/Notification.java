@@ -13,6 +13,7 @@ public class Notification{
     private String date;
     private boolean read;
     private String eventId;
+    private String type;
 
     /**
      * Constructs a Notification object with the specified details.
@@ -23,13 +24,14 @@ public class Notification{
      * @param read the read status of the notification.
      * @param eventId the event id associated with the notification.
      */
-    Notification(String event, String title, String description, String date, boolean read, String eventId){
+    Notification(String event, String title, String description, String date, boolean read, String eventId, String type){
         this.event = event;
         this.title = title;
         this.description = description;
         this.date = date;
         this.read = read;
         this.eventId = eventId;
+        this.type = type;
     }
 
     // Notification getters
@@ -125,4 +127,12 @@ public class Notification{
      * @param eventId the event id associated with the notification.
      */
     public void setNotificationEventId(String eventId){ this.eventId = eventId; }
+
+    public void setNotificationType(String type) {
+        this.type = type;
+    }
+
+    public String getNotificationType() {
+        return type;
+    }
 }

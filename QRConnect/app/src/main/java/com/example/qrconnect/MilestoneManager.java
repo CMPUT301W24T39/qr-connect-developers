@@ -142,8 +142,11 @@ public class MilestoneManager {
         // Default read to false (unread)
         boolean read = false;
 
+        // Type: Milestone Notification
+        String type = "milestone";
+
         // Create a new notification object
-        Notification notification = new Notification(eventTitle, title, description, date_string, read, eventId);
+        Notification notification = new Notification(eventTitle, title, description, date_string, read, eventId, type);
         // Add the notification to Firestore
         notificationsRef.add(notification)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
