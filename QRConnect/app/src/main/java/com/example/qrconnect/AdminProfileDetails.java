@@ -1,5 +1,6 @@
 package com.example.qrconnect;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -30,7 +31,7 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
     private CollectionReference usersRef;
     private DocumentReference userRef;
     private FirebaseStorage storage;
-    private StorageReference storageRef;
+    private StorageReference imageRef;
 
     /**
      * Initializes the activity, sets the content view, and begins the process of loading profile details.
@@ -47,6 +48,9 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
 
         // Get items from previous activity
         String userId = getIntent().getStringExtra("PROFILE");
+
+        // set up firebase references
+        setUpFirebase(userId);
 
         // Get event details for the event that was clicked on
         loadProfileDetails(userId);
@@ -75,18 +79,25 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
     }
 
     /**
+     * Sets up Firebase references to user and profile picture
+     * @param userId The user ID
+     */
+    private void setUpFirebase(String userId) {
+        db = FirebaseFirestore.getInstance();
+        usersRef = db.collection("users");
+        userRef = usersRef.document(userId);
+        storage = FirebaseStorage.getInstance();
+        imageRef = storage.getReference().child("profile_pictures/" + userId + ".png");
+
+    }
+
+    /**
      * Fetches and displays the details of a profile from Firestore.
      * It also retrieves the profile picture image from Firebase Storage and displays it using Glide.
      *
      * @param userId The user's ID
      */
     private void loadProfileDetails(String userId) {
-        // UserProfile user = new UserProfile(userID, "", "");
-
-        db = FirebaseFirestore.getInstance();
-        usersRef = db.collection("users");
-        userRef = usersRef.document(userId);
-
         userRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 UserProfile user = createUser(documentSnapshot);
@@ -116,12 +127,7 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
 
         // sets profilePicture ImageView with user uploaded profile picture or
         // generated profile picture if the user has not uploaded a profile picture
-        if (user.getProfilePictureUploaded()) {
-            String profilePictureURL = user.getProfilePictureURL();
-            Glide.with(this).load(profilePictureURL).into(profilePicture);
-        } else {
-            profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
-        }
+        setProfilePicture(profilePicture, user);
         // sets TextViews with user data
         firstName.setText(user.getFirstName());
         lastName.setText(user.getLastName());
@@ -134,6 +140,30 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
         } else {
             location.setText("Disabled");
         }
+    }
+
+    /**
+     * Sets profile picture Image View to picture on Firebase if it exists, generated image if it does not
+     * @param profilePicture the ImageView where the profile picture is displayed
+     * @param user the UserProfile object representing the user
+     */
+    private void setProfilePicture(ImageView profilePicture, UserProfile user) {
+        // loads user uploaded profile picture if it exists on Firebase
+        // on failure, generates a profile picture if the user has not uploaded one
+        imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Glide.with(AdminProfileDetails.this)
+                        .load(uri)
+                        .into(profilePicture);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
+                Log.e("UserProfilePage", "Error loading image: ", exception);
+            }
+        });
     }
 
 
@@ -160,10 +190,7 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
                     }
                 });
         // deletes user profile picture from Firebase Storage
-        storage = FirebaseStorage.getInstance();
-        storageRef = storage.getReference();
-        StorageReference profilePictureRef = storageRef.child("profile_pictures/" + userId + ".png");
-        profilePictureRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+        imageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
                 Log.d("Firestore", "User profile picture successfully deleted");
@@ -194,7 +221,6 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
         user.setPhone(documentSnapshot.getString("phone"));
         user.setLocationTracking(documentSnapshot.getBoolean("isLocationTrackingOn"));
         user.setProfilePictureUploaded(documentSnapshot.getBoolean("isProfilePictureUploaded"));
-        user.setProfilePictureURL(documentSnapshot.getString("profilePictureURL"));
 
         return user;
     }

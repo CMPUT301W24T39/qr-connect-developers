@@ -108,7 +108,6 @@ public class AdminBrowseProfiles extends AppCompatActivity {
                     String pronouns = doc.getString("pronouns");
                     boolean isLocationTrackingOn = doc.getBoolean("isLocationTrackingOn");
                     boolean isProfilePictureUploaded = doc.getBoolean("isProfilePictureUploaded");
-                    String profilePictureURL = doc.getString("profilePictureURL");
 
                     UserProfile userProfile = new UserProfile(userId, firstName, lastName);
                     userProfile.setEmail(email);
@@ -116,7 +115,6 @@ public class AdminBrowseProfiles extends AppCompatActivity {
                     userProfile.setPronouns(pronouns);
                     userProfile.setLocationTracking(isLocationTrackingOn);
                     userProfile.setProfilePictureUploaded(isProfilePictureUploaded);
-                    userProfile.setProfilePictureURL(profilePictureURL);
 
                     // adds user to list to be displayed to admin
                     adminProfileDataList.add(userProfile);
