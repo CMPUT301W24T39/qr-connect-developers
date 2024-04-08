@@ -79,15 +79,15 @@ public class ReturnUserStartScreen extends AppCompatActivity {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if (documentSnapshot.exists()) {
-                    /**
-                     * NEED TO ADD CASE FOR NULL ENTRIES
-                     */
                     // Document exists, retrieve first and last names
                     String firstName = documentSnapshot.getString("firstName");
                     String lastName = documentSnapshot.getString("lastName");
+                    // convert emtpy names
+                    if (firstName == null) {firstName = "";}
+                    if (lastName == null) {lastName = "";}
 
                     // Update welcome back text with the user's name
-                    String welcomeMessage = "Welcome back, " + firstName + " " + lastName;
+                    String welcomeMessage = "Welcome back! " + firstName + " " + lastName;
                     welcomeBackTextView.setText(welcomeMessage);
                 } else {
                     // Document does not exist, throw NoSuchElementException

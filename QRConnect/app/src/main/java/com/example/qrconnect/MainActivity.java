@@ -394,7 +394,8 @@ public class MainActivity extends AppCompatActivity{
      */
     private void getUserEvents() {
         for (Event event : eventDataList) {
-            if (event.getHostId() != null && event.getHostId().equals(userId) || event.getAttendeeListIdToName().containsKey(userId)) {
+            if (event.getHostId() != null && event.getHostId().equals(userId) || event.getAttendeeListIdToName().containsKey(userId)
+                || event.getSignupUserIdToName().containsKey(userId)) {
                 userEventDataList.add(event);
             }
         }

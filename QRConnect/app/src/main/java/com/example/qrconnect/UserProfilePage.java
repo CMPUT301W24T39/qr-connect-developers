@@ -30,8 +30,11 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -295,6 +298,9 @@ public class UserProfilePage extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
+                String profileImagePath = "profile_pictures/" + user.getUserID() + ".png";
+                checkAndDeleteImage(profileImagePath);
+                deleteDataByName(user.getUserID());
                 user.setProfilePictureUploaded(false);
                 HashMap<String, Object> data = new HashMap<>();
                 data.put("isProfilePictureUploaded", false);
@@ -370,6 +376,57 @@ public class UserProfilePage extends AppCompatActivity {
             public void onFailure(@NonNull Exception e) {
                 Log.e("Firestore", "Error writing user data to Firebase");
                 // TODO: handle error
+            }
+        });
+    }
+    /**
+     * This method checks if the image is in the path "eventposters/" or "profile_pictures"
+     * @param imagePath the path of the image
+     */
+    private void checkAndDeleteImage(String imagePath) {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference imageRef = storage.getReference().child(imagePath);
+
+        imageRef.delete().addOnSuccessListener(aVoid -> {
+            Log.d("DeleteImage", imagePath + " has been deleted from Firebase Storage.");
+        }).addOnFailureListener(exception -> {
+            Log.d("DeleteImage", "Failed to delete " + imagePath + " from Firebase Storage: " + exception.getMessage());
+        });
+    }
+
+
+    /**
+     * Delete the image using its name as the reference
+     * @param targetName
+     */
+    public void deleteDataByName(String targetName) {
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference("images");
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                boolean isFound = false;
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    String name = postSnapshot.child("name").getValue(String.class);
+                    if (targetName.equals(name)) {
+                        postSnapshot.getRef().removeValue()
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("DeleteOperation", "Successfully deleted the record with name: " + targetName);
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("DeleteOperation", "Failed to delete the record with name: " + targetName, e);
+                                });
+                        isFound = true;
+                        break;
+                    }
+                }
+                if (!isFound) {
+                    Log.d("DeleteOperation", "No record found with name: " + targetName);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("DeleteOperation", "Database error: " + databaseError.getMessage());
             }
         });
     }
