@@ -131,7 +131,7 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
 
 
     /**
-     * This deletes an event from the firebase.
+     * This deletes a user from the firebase.
      *
      * @param userId the user id of the profile that is being deleted.
      */

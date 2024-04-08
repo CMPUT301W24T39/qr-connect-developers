@@ -1,10 +1,21 @@
 package com.example.qrconnect;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The SplashActivity class represents the initial screen displayed when the application is launched.
@@ -31,6 +42,7 @@ public class SplashActivity extends AppCompatActivity {
                 // clears local storage for debugging purposes
 //                UserPreferences.clearUserId(getApplicationContext());
                 // Check if the user is a returning user or a new user
+
                 boolean isReturningUser = checkIfReturningUser();
 
                 // Create an intent based on whether the user is returning or new
@@ -38,6 +50,9 @@ public class SplashActivity extends AppCompatActivity {
                 if (isReturningUser) {
                     intent = new Intent(SplashActivity.this, ReturnUserStartScreen.class);
                 } else {
+                    // clears stored user ID if it exists
+                    // in case of deleted user profile, this will create a new one
+                    UserPreferences.clearUserId(getApplicationContext());
                     intent = new Intent(SplashActivity.this, UserStartScreen.class);
                 }
 
@@ -55,10 +70,35 @@ public class SplashActivity extends AppCompatActivity {
      * @return true if user is already registered; false otherwise
      */
     private boolean checkIfReturningUser() {
-        // Check if there is a stored user ID locally
-        String storedUserId = UserPreferences.getUserId(getApplicationContext());
+        try {
+            // Check if there is a stored user ID locally
+            String storedUserId = UserPreferences.getUserId(getApplicationContext());
 
-        // If a user ID exists, consider the user as returning; otherwise, they are a new user
-        return storedUserId != null && !storedUserId.isEmpty();
+            // If a user ID exists, consider the user as returning; otherwise, they are a new user
+            //        return storedUserId != null && !storedUserId.isEmpty();
+            if (storedUserId == null || storedUserId.isEmpty()) {
+                return false;
+            }
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            AtomicBoolean userIdExists = new AtomicBoolean(false);
+            Task<DocumentSnapshot> documentSnapshotTask = db.collection("users").document(storedUserId).get();
+            documentSnapshotTask.addOnSuccessListener(documentSnapshot -> {
+                userIdExists.set(documentSnapshot.exists());
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e("Firebase", "Error fetching user data");
+                }
+            });
+            Tasks.await(documentSnapshotTask);
+            return userIdExists.get();
+        } catch(Exception e) {
+            return false;
+        }
+    }
+
+    private boolean checkIfIdExistsInFirebase(String storedUserId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        return db.collection("users").document(storedUserId).get().getResult().exists();
     }
 }

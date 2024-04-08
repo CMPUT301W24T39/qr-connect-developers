@@ -53,7 +53,7 @@ public class AdminDeleteProfileFragment extends DialogFragment {
 
         return builder
                 .setView(view)
-                .setTitle("Delete an event")
+                .setTitle("Delete a profile")
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Delete", (dialog, which) -> {
 
