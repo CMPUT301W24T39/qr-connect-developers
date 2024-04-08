@@ -258,25 +258,29 @@
             </LinearLayout>
                 <Button
                     android:id="@+id/save_event_button"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:text="SAVE CHANGES" />
                 <Button
                     android:id="@+id/share_event_button"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:text="SHARE EVENT" />
                 <Button
                     android:id="@+id/view_attendee_list_button"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:text="VIEW ATTENDEE LIST"/>
                 <Button
                     android:id="@+id/event_details_view_signup_users_button"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:text="VIEW SIGNUP USERS"/>

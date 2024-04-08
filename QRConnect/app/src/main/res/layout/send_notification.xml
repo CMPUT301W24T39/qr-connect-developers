@@ -22,7 +22,7 @@
             android:id="@+id/send_notifications_page_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Notifications"
+            android:text="Send Announcement"
             android:layout_gravity="center_horizontal"
             android:textAppearance="?attr/textAppearanceHeadline6"
             android:textColor="@android:color/white" />
@@ -77,6 +77,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="16dp"
-        android:text="SEND NOTIFICATIONS" />
+        android:text="SEND ANNOUNCEMENT" />
 
 </LinearLayout>

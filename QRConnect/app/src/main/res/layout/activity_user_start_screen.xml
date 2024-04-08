@@ -48,11 +48,10 @@
 
         <Button
             android:id="@+id/newuser_continue_button"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Continue"
             android:layout_gravity="center"
-            android:background="@color/continue_button_color"
             android:layout_marginTop="10dp"
             >
         </Button>
@@ -60,10 +59,11 @@
             android:id="@+id/user_view_as_admin_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="View as Admin"
             android:layout_gravity="center"
-            android:background="@color/loading_pink"
-            android:layout_marginTop="5dp">
+            android:layout_marginTop="5dp"
+            android:backgroundTint="@android:color/transparent"
+            android:text="View as Admin"
+            android:textColor="@android:color/black">
 
         </Button>
 

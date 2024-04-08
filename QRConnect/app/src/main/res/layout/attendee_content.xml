@@ -10,7 +10,7 @@
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:padding="20dp"
+        android:padding="10dp"
         android:text="AttendeeName"
         android:textSize="30sp">
     </TextView>
@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:textSize="30sp"
         android:text="Count#"
-        android:padding="20dp">
+        android:padding="10dp">
     </TextView>
 
 </LinearLayout>

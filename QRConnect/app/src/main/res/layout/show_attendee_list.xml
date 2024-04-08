@@ -40,14 +40,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Current Attendance: "
-            android:textSize="24dp"/>
+            android:textSize="17dp"
+            android:layout_margin="10dp"/>
 
         <TextView
             android:id="@+id/attendee_list_count_current_attendance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text='10'
-            android:textSize="24dp"
+            android:layout_margin="10dp"
+            android:textSize="17dp"
             />
 
     </LinearLayout>
