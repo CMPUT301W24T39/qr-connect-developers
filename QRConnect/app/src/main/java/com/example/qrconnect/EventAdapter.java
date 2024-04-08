@@ -46,8 +46,15 @@ public class EventAdapter extends ArrayAdapter<Event> {
             view = LayoutInflater.from(getContext()).inflate(R.layout.list_event_organizer, parent, false);
         }
         else {
-            view = LayoutInflater.from(getContext()).inflate(R.layout.list_event_checkin, parent, false);
+            //check-in or signup
+            if (event.isAttendeeInThisEvent(userId)) {
+                view = LayoutInflater.from(getContext()).inflate(R.layout.list_event_checkin, parent, false);
+            } else {
+                view = LayoutInflater.from(getContext()).inflate(R.layout.list_event_signup, parent, false);
+
+            }
         }
+
 
         TextView eventTitle = view.findViewById(R.id.event_title_text);
 
