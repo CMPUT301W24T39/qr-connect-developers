@@ -7,10 +7,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * Convert the String to Calendar
+ */
 public class TimeConverter {
     public static Calendar stringToCalendar(String dateTimeStr) {
         if (dateTimeStr == null || dateTimeStr.isEmpty()) {
-            Log.e("TimeConverter", "Date string is null or empty");
+            Log.e("TimeConverter", "Time string is null or empty");
             return null;
         }
 
