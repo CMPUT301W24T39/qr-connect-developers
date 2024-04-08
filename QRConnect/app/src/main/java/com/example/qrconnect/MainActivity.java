@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
     private NotificationListener notificationListener;
     private MilestoneManager milestoneManager;
     private String userId;
+    private ArrayList<Notification> notificationsDataList;
 
     /**
      * This defines the functions in main activity.
@@ -107,8 +108,10 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         // Start the notification listener to check notifications in real time and update the UI accordingly
         notificationListener = new NotificationListener(this, userNotificationsRef);
         notificationListener.startListening();
+        notificationsDataList = NotificationManager.getInstance().getNotificationsDataList();
+
         // Initialize milestone manager
-        milestoneManager= new MilestoneManager(this, userNotificationsRef, userId);
+        milestoneManager= new MilestoneManager(this, userNotificationsRef, userId, notificationsDataList);
         milestoneManager.startManager();
 
         // Initialize buttons
