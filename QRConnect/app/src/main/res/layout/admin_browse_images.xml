@@ -29,12 +29,6 @@
 
     </androidx.appcompat.widget.Toolbar>
 
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/admin_images_search_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:queryHint="Search users for image..." />
-
     <ListView
         android:id="@+id/admin_browse_images_list"
         android:layout_width="match_parent"
