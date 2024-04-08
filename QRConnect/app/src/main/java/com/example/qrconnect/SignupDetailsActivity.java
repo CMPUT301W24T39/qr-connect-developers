@@ -21,6 +21,9 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
 
+/**
+ * The class maintains the functions of displaying event details when a user wants to sign up an event
+ */
 public class SignupDetailsActivity extends AppCompatActivity {
     /**
      * Initializes the activity, sets the content view, and begins the process of loading event details.

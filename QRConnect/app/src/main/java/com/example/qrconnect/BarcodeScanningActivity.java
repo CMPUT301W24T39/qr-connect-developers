@@ -54,6 +54,9 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * This class maintains the functions of scanning and decoding QR codes
+ */
 public class BarcodeScanningActivity extends AppCompatActivity {
     private ProcessCameraProvider cameraProvider;
     private String TAG = "BarcodeScanning";
