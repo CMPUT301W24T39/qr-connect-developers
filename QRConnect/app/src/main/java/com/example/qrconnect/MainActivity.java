@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity{
                         HashMap<String, String> attendeeListIdToLocation = (HashMap<String, String>) doc.get("attendeeListIdToLocation");
                         HashMap<String, String> signupUserIdToName = (HashMap<String, String>) doc.get("signupUserIdToName");
                         eventDataList.add(new Event(eventTitle, eventDate, eventTime,
-                                eventLocation, 0,  eventDescription, checkInId, promoId, eventId,
+                                eventLocation, 0, eventDescription, checkInId, promoId, eventId,
                                 hostId, attendeeListIdToTimes, attendeeListIdToName, attendeeListIdToLocation, signupUserIdToName));
 
                         Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate, eventTime, eventLocation, 0, eventDescription, checkInId, promoId, eventId));

@@ -40,7 +40,7 @@ public class AdminBrowseImages extends AppCompatActivity {
     private List<ImageInfo> imageUrls;
     private ImagesAdapter adapter;
     private ImageButton backButton;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

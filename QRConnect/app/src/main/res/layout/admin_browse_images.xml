@@ -35,4 +35,4 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/toolbar_admin_browse_images"/>
 
-</RelativeLayout>   
+</RelativeLayout>
