@@ -5,6 +5,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+// OLD
 public class PushNotificationActivity extends AppCompatActivity {
 
     TextView textView;

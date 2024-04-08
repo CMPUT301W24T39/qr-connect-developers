@@ -14,7 +14,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,19 +27,20 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
 
-import java.io.Serializable;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import retrofit2.HttpException;
+import retrofit2.Retrofit;
+import retrofit2.converter.moshi.MoshiConverterFactory;
 
 /**
  * The SendNotificationsActivity class manages the functionality to send notifications.
@@ -53,6 +53,11 @@ public class SendNotificationsActivity extends AppCompatActivity {
     private CollectionReference notificationsRef;
     private CollectionReference usersRef;
     private String userId;
+    private final FcmApi api = new Retrofit.Builder()
+            .baseUrl("http://10.0.2.2:8080/")
+            .addConverterFactory(MoshiConverterFactory.create())
+            .build()
+            .create(FcmApi.class);
 
     /**
      * Called when the activity is first created. Responsible for initializing the send notifications.
@@ -165,7 +170,8 @@ public class SendNotificationsActivity extends AppCompatActivity {
                                                             titleEditText.setText("");
                                                             descriptionEditText.setText("");
                                                             // Send FCM notification
-                                                            sendFCMNotification(fcmToken, title, description);
+                                                            makePushNotification(title, description);
+                                                            sendMessage(false, fcmToken, title, description);
                                                         }
                                                     })
                                                     .addOnFailureListener(new OnFailureListener() {
@@ -205,11 +211,6 @@ public class SendNotificationsActivity extends AppCompatActivity {
     };
 
     // Referenced https://www.youtube.com/watch?v=vyt20Gg2Ckg&ab_channel=CodesEasy for the push notification implementation
-    /**
-     * Creates a push notification.
-     * @param title the title of the notification.
-     * @param description the description of the notification.
-     */
     public void makePushNotification(String title, String description){
         String chanelID = "CHANNEL_ID_NOTIFICATION";
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), chanelID);
@@ -242,13 +243,7 @@ public class SendNotificationsActivity extends AppCompatActivity {
         notificationManager.notify(0,builder.build());
     }
 
-    /**
-     *
-     * @param fcmToken
-     * @param title
-     * @param description
-     */
-    private void sendFCMNotification(String fcmToken, String title, String description) {
+    /*private void sendFCMNotification(String fcmToken, String title, String description) {
         // Create the notification payload
         Map<String, String> notification = new HashMap<>();
         notification.put("title", title);
@@ -263,5 +258,42 @@ public class SendNotificationsActivity extends AppCompatActivity {
         FirebaseMessaging.getInstance().send(message);
                 //.addOnSuccessListener(response -> {Log.d("SendNotificationsActivity", "FCM notification sent successfully");})
                 //.addOnFailureListener(e -> {Log.e("SendNotificationsActivity", "Failed to send FCM notification");});
+    }*/
+
+    public SendNotificationsActivity() {
+        FirebaseMessaging.getInstance().subscribeToTopic("chat")
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            // Subscription to topic 'chat' successful
+                        } else {
+                            // Subscription failed
+                        }
+                    }
+                });
+    }
+
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    public void sendMessage(boolean isBroadcast, String fcmToken, String title, String description) {
+        executor.execute(() -> {
+            SendMessageDto messageData = new SendMessageDto(
+                    isBroadcast ? null : fcmToken,
+                    new NotificationBody(title, description)
+            );
+
+            try {
+                if (isBroadcast) {
+                    api.broadcast(messageData).execute();
+                } else {
+                    api.sendMessage(messageData).execute();
+                }
+
+            } catch (HttpException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

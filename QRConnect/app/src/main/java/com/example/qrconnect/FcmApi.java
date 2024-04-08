@@ -4,15 +4,16 @@ import retrofit2.http.Body;
 import retrofit2.http.POST;
 import retrofit2.Call;
 
+//
 public interface FcmApi {
 
     @POST("/send")
     Call<Void> sendMessage(
-            @Body SendMessageData body
+            @Body SendMessageDto body
     );
 
     @POST("/broadcast")
     Call<Void> broadcast(
-            @Body SendMessageData body
+            @Body SendMessageDto body
     );
 }

@@ -1,10 +1,10 @@
 package com.example.qrconnect;
 
-public class SendMessageData {
+public class SendMessageDto {
     private String to;
     private NotificationBody notification;
 
-    public SendMessageData(String to, NotificationBody notification) {
+    public SendMessageDto(String to, NotificationBody notification) {
         this.to = to;
         this.notification = notification;
     }

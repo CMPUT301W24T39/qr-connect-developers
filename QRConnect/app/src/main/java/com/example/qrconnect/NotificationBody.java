@@ -1,5 +1,6 @@
 package com.example.qrconnect;
 
+//
 class NotificationBody {
     private String title;
     private String body;

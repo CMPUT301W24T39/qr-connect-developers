@@ -10,6 +10,7 @@ import androidx.core.os.BuildCompat;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -24,6 +25,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
@@ -133,10 +135,12 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
 
         // Referenced https://www.youtube.com/watch?v=vyt20Gg2Ckg&ab_channel=CodesEasy for the push notification implementation
         // Push notification permissions (asks users if QRConnect is allowed to send notifications to their device)
-        if (BuildCompat.isAtLeastQ()) {
-            if (ContextCompat.checkSelfPermission(MainActivity.this,
+        FirebaseApp.initializeApp(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(MainActivity.this,
                     android.Manifest.permission.POST_NOTIFICATIONS) !=
                     PackageManager.PERMISSION_GRANTED) {
+
                 ActivityCompat.requestPermissions(MainActivity.this,
                         new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
             }

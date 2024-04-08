@@ -42,7 +42,7 @@ public class MapLocations extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map_locations);
 
-        Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID);
+        // Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID);
 
         MapView map = (MapView) findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
