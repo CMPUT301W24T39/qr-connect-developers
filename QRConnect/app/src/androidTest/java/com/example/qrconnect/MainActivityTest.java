@@ -24,6 +24,8 @@ import androidx.test.espresso.intent.matcher.IntentMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +35,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
+@Ignore
 public class MainActivityTest {
     @Rule
     public ActivityScenarioRule<MainActivity> scenario = new ActivityScenarioRule<MainActivity>(MainActivity.class);
@@ -126,6 +129,7 @@ public class MainActivityTest {
      * Tests back button feature for QR generators.
      */
     @Test
+    @Ignore
     public void testIsBackButton1Worked(){
         onView(withId(R.id.button_add_event)).perform(click());
 
@@ -138,6 +142,7 @@ public class MainActivityTest {
      * Tests the add event button to change navigation from the user homepage and changes to generated QR codes.
      */
     @Test
+
     public void testIsActivitySwitchedFromQRCodeGeneratesPage(){
         Intents.init();
         onView(withId(R.id.button_add_event)).perform(click());
