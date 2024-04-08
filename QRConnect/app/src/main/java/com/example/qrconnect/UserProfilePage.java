@@ -62,6 +62,7 @@ public class UserProfilePage extends AppCompatActivity {
     private TextInputEditText pronounsEditText;
     private TextInputEditText emailEditText;
     private TextInputEditText phoneEditText;
+    private TextInputEditText homepageEditText;
 
     private FirebaseFirestore db;
     private CollectionReference usersRef;
@@ -113,6 +114,7 @@ public class UserProfilePage extends AppCompatActivity {
         pronounsEditText = findViewById(R.id.pronouns_edit);
         emailEditText = findViewById(R.id.email_edit);
         phoneEditText =  findViewById(R.id.phone_edit);
+        homepageEditText = findViewById(R.id.homepage_edit);
 
         locationSwitch = findViewById(R.id.location_switch);
 
@@ -151,6 +153,7 @@ public class UserProfilePage extends AppCompatActivity {
         user.setLastName(documentSnapshot.getString("lastName"));
         user.setPhone(documentSnapshot.getString("phone"));
         user.setPronouns(documentSnapshot.getString("pronouns"));
+        user.setHomepage(documentSnapshot.getString("homepage"));
     }
 
     /**
@@ -162,6 +165,7 @@ public class UserProfilePage extends AppCompatActivity {
         pronounsEditText.setText(user.getPronouns());
         emailEditText.setText(user.getEmail());
         phoneEditText.setText(user.getPhone());
+        homepageEditText.setText(user.getHomepage());
         locationSwitch.setChecked(user.getLocationTracking());
 
         if(locationSwitch.isChecked()){
@@ -332,6 +336,7 @@ public class UserProfilePage extends AppCompatActivity {
         String pronouns = pronounsEditText.getText().toString();
         String email = emailEditText.getText().toString();
         String phone = phoneEditText.getText().toString();
+        String homepage = homepageEditText.getText().toString();
         Boolean isLocationTrackingOn = locationSwitch.isChecked();
 
         user.setFirstName(firstName);
@@ -339,6 +344,7 @@ public class UserProfilePage extends AppCompatActivity {
         user.setPronouns(pronouns);
         user.setEmail(email);
         user.setPhone(phone);
+        user.setHomepage(homepage);
         user.setLocationTracking(isLocationTrackingOn);
 
         HashMap<String, Object> data = new HashMap<>();
@@ -347,6 +353,7 @@ public class UserProfilePage extends AppCompatActivity {
         data.put("pronouns", pronouns);
         data.put("email", email);
         data.put("phone", phone);
+        data.put("homepage", homepage);
         data.put("isLocationTrackingOn", isLocationTrackingOn);
 
         // Hardcoded to single user for now.

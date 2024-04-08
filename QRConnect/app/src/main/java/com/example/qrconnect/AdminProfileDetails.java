@@ -88,7 +88,6 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
         userRef = usersRef.document(userId);
         storage = FirebaseStorage.getInstance();
         imageRef = storage.getReference().child("profile_pictures/" + userId + ".png");
-
     }
 
     /**
@@ -102,7 +101,6 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
             if (documentSnapshot.exists()) {
                 UserProfile user = createUser(documentSnapshot);
                 setViewsData(user);
-
             } else {
                 Log.d("ProfileDetails", "Document does not exist.");
             }
@@ -123,6 +121,7 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
         TextView pronouns = findViewById(R.id.admin_profile_pronouns);
         TextView email = findViewById(R.id.admin_profile_email);
         TextView phone = findViewById(R.id.admin_profile_phone);
+        TextView homepage = findViewById(R.id.admin_profile_homepage);
         TextView location = findViewById(R.id.admin_profile_location);
 
         // sets profilePicture ImageView with user uploaded profile picture or
@@ -134,6 +133,7 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
         pronouns.setText(user.getPronouns());
         email.setText(user.getEmail());
         phone.setText(user.getPhone());
+        homepage.setText(user.getHomepage());
         boolean tracking = user.getLocationTracking();
         if (tracking) {
             location.setText("Enabled");
@@ -219,6 +219,7 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
         user.setPronouns(documentSnapshot.getString("pronouns"));
         user.setEmail(documentSnapshot.getString("email"));
         user.setPhone(documentSnapshot.getString("phone"));
+        user.setHomepage(documentSnapshot.getString("homepage"));
         user.setLocationTracking(documentSnapshot.getBoolean("isLocationTrackingOn"));
         user.setProfilePictureUploaded(documentSnapshot.getBoolean("isProfilePictureUploaded"));
 

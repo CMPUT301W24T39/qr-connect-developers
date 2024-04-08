@@ -125,6 +125,21 @@
                 android:hint="Phone" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/homepage_layout"
+            android:layout_width="409dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/phone_layout"
+            tools:layout_editor_absoluteX="1dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/homepage_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Homepage" />
+        </com.google.android.material.textfield.TextInputLayout>
         <Switch
             android:id="@+id/location_switch"
             android:layout_width="120dp"

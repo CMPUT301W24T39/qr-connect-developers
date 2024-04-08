@@ -11,6 +11,7 @@ public class UserProfile {
     protected String lastName;
     protected String phone;
     protected String pronouns;
+    protected String homepage;
     protected String userID;
 
     /**
@@ -28,6 +29,7 @@ public class UserProfile {
         this.isProfilePictureUploaded = false;
         this.phone = "";
         this.pronouns = "";
+        this.homepage = "";
     }
 
     /**
@@ -129,13 +131,27 @@ public class UserProfile {
     public String getPronouns() {
         return pronouns;
     }
-
     /**
      * Set the pronouns of the user
      * @param pronouns the pronouns of the user
      */
     public void setPronouns(String pronouns) {
         this.pronouns = pronouns;
+    }
+    /**
+     * Get the homepage of the user
+     * @return the homepage of the user
+     */
+    public String getHomepage() {
+        return homepage;
+    }
+
+    /**
+     * Set the homepage of the user
+     * @param homepage the homepage of the user
+     */
+    public void setHomepage(String homepage) {
+        this.homepage = homepage;
     }
     /**
      * Get the userID of the user
