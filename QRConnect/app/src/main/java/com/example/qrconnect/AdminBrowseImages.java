@@ -89,6 +89,9 @@ public class AdminBrowseImages extends AppCompatActivity {
         });
     }
 
+    /**
+     * This method load the images from realtime database to the screen
+     */
     private void loadImages() {
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference("images");
         dbRef.addValueEventListener(new ValueEventListener() {
@@ -111,6 +114,10 @@ public class AdminBrowseImages extends AppCompatActivity {
         });
     }
 
+    /**
+     * This method checks if the image is in the path "eventposters/" or "profile_pictures"
+     * @param imagePath the path of the image
+     */
     private void checkAndDeleteImage(String imagePath) {
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference imageRef = storage.getReference().child(imagePath);
@@ -122,6 +129,10 @@ public class AdminBrowseImages extends AppCompatActivity {
         });
     }
 
+    /**
+     * Delete the image using its name as the reference
+     * @param targetName
+     */
     public void deleteDataByName(String targetName) {
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference("images");
         dbRef.addListenerForSingleValueEvent(new ValueEventListener() {

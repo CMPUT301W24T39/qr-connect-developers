@@ -11,10 +11,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class maintain the functions of user sign up
+ */
 public class SignUpUsersListActivity extends AppCompatActivity {
     private ArrayList<DisplayAttendee> attendees;
     private AttendeeArrayAdapter adapter;
 
+    /**
+     * Maintain the features of this page
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     *
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +46,11 @@ public class SignUpUsersListActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Add a signed up user to a list
+     * @param event the event to sign up
+     * @return the list of sign up users
+     */
     private ArrayList<DisplayAttendee> generateSignUpUsers(Event event) {
         ArrayList<DisplayAttendee> signUpUsers = new ArrayList<>();
         HashMap<String, String> signUpUsersIdToName = event.getSignupUserIdToName();
