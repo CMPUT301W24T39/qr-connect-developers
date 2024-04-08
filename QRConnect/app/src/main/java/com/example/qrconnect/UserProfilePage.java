@@ -85,6 +85,8 @@ public class UserProfilePage extends AppCompatActivity {
         handleAddPhotoButton();
         handleRemovePhotoButton();
         handleSaveButton();
+        StorageReference profileImageRef = storageRef.child("profile_pictures/" + USER_ID  + ".png");
+        setProfilePicture(profileImageRef, profilePicture);
     }
 
     /**
@@ -127,7 +129,6 @@ public class UserProfilePage extends AppCompatActivity {
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         setUserData(documentSnapshot);
                         setEditTextData();
-                        setProfilePicture();
                     }
                 }
         ).addOnFailureListener(new OnFailureListener() {
@@ -151,7 +152,6 @@ public class UserProfilePage extends AppCompatActivity {
         user.setLastName(documentSnapshot.getString("lastName"));
         user.setPhone(documentSnapshot.getString("phone"));
         user.setPronouns(documentSnapshot.getString("pronouns"));
-        user.setProfilePictureURL(documentSnapshot.getString("profilePictureURL"));
     }
 
     /**
@@ -180,12 +180,26 @@ public class UserProfilePage extends AppCompatActivity {
     /**
      * Sets profile picture if it exists, sets a generated one if it doesn't
      */
-    private void setProfilePicture() {
-        if (user.getProfilePictureUploaded()) {
-            Glide.with(this).load(user.getProfilePictureURL()).into(profilePicture);
-        } else {
-            profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
-        }
+    private void setProfilePicture(StorageReference profileImageRef, ImageView profilePicture) {
+//        if (user.getProfilePictureUploaded()) {
+//            Glide.with(this).load(user.getProfilePictureURL()).into(profilePicture);
+//        } else {
+//            profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
+//        }
+        profileImageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Glide.with(UserProfilePage.this)
+                        .load(uri)
+                        .into(profilePicture);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
+                Log.e("UserProfilePage", "Error loading image: ", exception);
+            }
+        });
     }
 
     /**
@@ -233,12 +247,10 @@ public class UserProfilePage extends AppCompatActivity {
                 imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                     String url = uri.toString();
                     uploadImageToRealtimeDatabase(USER_ID, url);
-                    user.setProfilePictureURL(url);
                     user.setProfilePictureUploaded(true);
                     HashMap<String, Object> data = new HashMap<>();
-                    data.put("profilePictureURL", url);
                     data.put("isProfilePictureUploaded", true);
-                    usersRef.document("1").update(data).addOnSuccessListener(
+                    usersRef.document(user.getUserID()).update(data).addOnSuccessListener(
                             new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void unused) {
@@ -283,7 +295,7 @@ public class UserProfilePage extends AppCompatActivity {
                 user.setProfilePictureUploaded(false);
                 HashMap<String, Object> data = new HashMap<>();
                 data.put("isProfilePictureUploaded", false);
-                usersRef.document("1").update(data).addOnSuccessListener(
+                usersRef.document(user.getUserID()).update(data).addOnSuccessListener(
                         new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
