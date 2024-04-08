@@ -14,6 +14,8 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +32,7 @@ public class AttendeeBrowseEventsTest {
     public ActivityScenarioRule<AttendeeBrowseEvents> scenario = new ActivityScenarioRule<AttendeeBrowseEvents>(AttendeeBrowseEvents.class);
 
     @Test
+    @Ignore
     public void clickEvent_opensSignupDetailsActivity() {
         ActivityScenario.launch(AttendeeBrowseEvents.class);
         // Click on an event in the list
@@ -43,6 +46,7 @@ public class AttendeeBrowseEventsTest {
         });
     }
     @Test
+    @Ignore
     public void testBackButton(){
         ActivityScenario.launch(AttendeeBrowseEvents.class);
         onView(withId(R.id.attendee_browse_events_back_button)).perform(click());

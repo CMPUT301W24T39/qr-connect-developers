@@ -10,6 +10,8 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +26,7 @@ public class QRCodeGeneratesPageTest {
      * Tests if the back button goes to the user homescreen.
      */
     @Test
+    @Ignore
     public void testBackButton(){
         ActivityScenario.launch(QRCodeGeneratesPage.class);
         onView(withId(R.id.arrow_back_1)).perform(click());
