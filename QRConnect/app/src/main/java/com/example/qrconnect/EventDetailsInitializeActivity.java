@@ -48,11 +48,11 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Called when the event is first created. Responsible for initializing the activity.
+ */
 public class EventDetailsInitializeActivity extends AppCompatActivity {
-    /**
-     * Called when the activity is first created. Responsible for initializing the activity.
-     * @param savedInstanceState A Bundle containing the activity's previously frozen state, if there was one.
-     */
+
     private ActivityResultLauncher<Intent> activityResultLauncher;
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private StorageReference storageRef = storage.getReference();
@@ -62,6 +62,14 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
 
     Event updatedEvent;
     private int year, month, day, hour, minute;
+
+    /**
+     * Created when the event is first initialized
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     *
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -17,6 +17,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+/**
+ * This class maintains the functions of loading event details when a user wants to sign up
+ */
 public class SignupActivity extends AppCompatActivity {
     /**
      * Initializes the activity, sets the content view, and begins the process of loading event details.

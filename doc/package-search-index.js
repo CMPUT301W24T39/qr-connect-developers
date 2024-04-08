@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"com.example.qrconnect"},{"l":"所有程序包","u":"allpackages-index.html"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.example.qrconnect"}];updateSearchResults();

@@ -16,6 +16,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+/**
+ * This class maintains the functions of displaying promo details of an event
+ */
 public class PromoDetailsActivity extends AppCompatActivity {
     /**
      * Initializes the activity, sets the content view, and begins the process of loading event details.
