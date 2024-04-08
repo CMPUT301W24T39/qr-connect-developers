@@ -1,6 +1,11 @@
 package com.example.qrconnect;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputFilter;
@@ -9,11 +14,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.os.BuildCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -21,15 +27,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 /**
  * The SendNotificationsActivity class manages the functionality to send notifications.
@@ -127,10 +130,13 @@ public class SendNotificationsActivity extends AppCompatActivity {
         // Default read to false (unread)
         boolean read = false;
 
+        // Type: Milestone
+        String type = "push";
+
         // Able to send a notification without a description
         if (!title.isEmpty()) {
             // Create a new notification object
-            Notification notification = new Notification(eventTitle, title, description, date_string, read, eventId);
+            Notification notification = new Notification(eventTitle, title, description, date_string, read, eventId, type);
             // Checks if there are any attendees to send the notitication to
             if (!event.getAttendeeListIdToName().isEmpty()) {
                 for (String attendeeId : event.getAttendeeListIdToName().keySet()) {
@@ -151,6 +157,7 @@ public class SendNotificationsActivity extends AppCompatActivity {
                                                         // Clear the title and description EditText fields after sending the notification
                                                         titleEditText.setText("");
                                                         descriptionEditText.setText("");
+                                                        //makePushNotification(title, description);
                                                     }
                                                 })
                                                 .addOnFailureListener(new OnFailureListener() {
@@ -187,4 +194,37 @@ public class SendNotificationsActivity extends AppCompatActivity {
            Toast.makeText(SendNotificationsActivity.this, "Unable to send notification.", Toast.LENGTH_SHORT).show();
         }
     };
+
+    // Referenced https://www.youtube.com/watch?v=vyt20Gg2Ckg&ab_channel=CodesEasy for the push notification implementation
+    /*public void makePushNotification(String title, String description){
+        String chanelID = "CHANNEL_ID_NOTIFICATION";
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), chanelID);
+        builder.setSmallIcon(R.drawable.push_notification)
+                .setContentTitle(title)
+                .setContentText(description)
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        Intent intent = new Intent(getApplicationContext(), PushNotificationActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("data", "Some value to be passed here");
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE);
+        builder.setContentIntent(pendingIntent);
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (BuildCompat.isAtLeastQ()) {
+            NotificationChannel notificationChannel =
+                    notificationManager.getNotificationChannel(chanelID);
+            if (notificationChannel == null) {
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                notificationChannel = new NotificationChannel(chanelID, "Some description", importance);
+                notificationChannel.setLightColor(Color.GREEN);
+                notificationChannel.enableVibration(true);
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+        }
+        notificationManager.notify(0,builder.build());
+    }*/
 }

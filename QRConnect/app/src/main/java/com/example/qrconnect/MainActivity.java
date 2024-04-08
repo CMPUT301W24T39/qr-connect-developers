@@ -3,8 +3,18 @@ package com.example.qrconnect;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.os.BuildCompat;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,7 +28,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -104,7 +116,7 @@ public class MainActivity extends AppCompatActivity{
         // Start the notification listener to check notifications in real time and update the UI accordingly
         notificationListener = new NotificationListener(this, userNotificationsRef);
         notificationListener.startListening();
-        notificationsDataList = NotificationManager.getInstance().getNotificationsDataList();
+        notificationsDataList = NotificationDataListManager.getInstance().getNotificationsDataList();
 
         // Initialize milestone manager
         milestoneManager= new MilestoneManager(this, userNotificationsRef, userId, notificationsDataList);
@@ -120,6 +132,19 @@ public class MainActivity extends AppCompatActivity{
         // Initialize adapters
         eventAdapter = new EventAdapter(this, userEventDataList);
         eventList.setAdapter(eventAdapter);
+
+        // Referenced https://www.youtube.com/watch?v=vyt20Gg2Ckg&ab_channel=CodesEasy for the push notification implementation
+        // Push notification permissions (asks users if QRConnect is allowed to send notifications to their device)
+        FirebaseApp.initializeApp(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(MainActivity.this,
+                    android.Manifest.permission.POST_NOTIFICATIONS) !=
+                    PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
+            }
+        }
 
         // Add event button
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -332,6 +357,7 @@ public class MainActivity extends AppCompatActivity{
      * If not all the notifications are read, make the alert on the notification bell visible.
      */
     public void checkNotifications() {
+        Log.d("PUSHNOTIFICATION", "Check notification");
         userNotificationsRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 boolean allRead = true;
@@ -399,5 +425,51 @@ public class MainActivity extends AppCompatActivity{
                 userEventDataList.add(event);
             }
         }
+    }
+
+    public void checkPushNotification(DocumentSnapshot addedDocument) {
+        Log.d("PUSHNOTIFICATION", "Check push notification");
+        String type = addedDocument.getString("notificationType");
+        Log.d("PUSHNOTIFICATION", "Notification type: " + type);
+        String title = addedDocument.getString("notificationTitle");
+        String description = addedDocument.getString("notificationDescription");
+        if (type != null && type.equals("push")) {
+            makePushNotification(title, description);
+        }
+
+    }
+
+    // Referenced https://www.youtube.com/watch?v=vyt20Gg2Ckg&ab_channel=CodesEasy for the push notification implementation
+    public void makePushNotification(String title, String description){
+        Log.d("PUSHNOTIFICATION", "Make push notification");
+        String chanelID = "CHANNEL_ID_NOTIFICATION";
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), chanelID);
+        builder.setSmallIcon(R.drawable.push_notification)
+                .setContentTitle(title)
+                .setContentText(description)
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        Intent intent = new Intent(getApplicationContext(), PushNotificationActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("data", "Some value to be passed here");
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE);
+        builder.setContentIntent(pendingIntent);
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (BuildCompat.isAtLeastQ()) {
+            NotificationChannel notificationChannel =
+                    notificationManager.getNotificationChannel(chanelID);
+            if (notificationChannel == null) {
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                notificationChannel = new NotificationChannel(chanelID, "Some description", importance);
+                notificationChannel.setLightColor(Color.GREEN);
+                notificationChannel.enableVibration(true);
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+        }
+        notificationManager.notify(0,builder.build());
     }
 }
