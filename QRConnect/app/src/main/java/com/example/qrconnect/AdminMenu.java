@@ -33,6 +33,8 @@ public class AdminMenu extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent intent = new Intent(AdminMenu.this, SplashActivity.class);
+                startActivity(intent);
                 finish();
             }
         });
