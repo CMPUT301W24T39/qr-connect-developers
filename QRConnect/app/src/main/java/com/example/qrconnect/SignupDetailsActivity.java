@@ -3,6 +3,7 @@ package com.example.qrconnect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,6 +17,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.HashMap;
+
 public class SignupDetailsActivity extends AppCompatActivity {
     /**
      * Initializes the activity, sets the content view, and begins the process of loading event details.
@@ -26,12 +29,19 @@ public class SignupDetailsActivity extends AppCompatActivity {
      *                           this Bundle contains the data it most recently supplied in onSaveInstanceState.
      *                           Otherwise, it is null.
      */
+
+    // define attributes
+    private FirebaseFirestore db;
+    private String eventId;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String eventId = getIntent().getStringExtra("eventId");
+        eventId = getIntent().getStringExtra("eventId");
         Log.d("Signup Details Activity", "Received event ID: " + eventId);
         setContentView(R.layout.event_details_signup);
         loadSignupDetails(eventId);
+
+        setupSignupButton();
+
         signupBackAction();
     }
     /**
@@ -96,6 +106,69 @@ public class SignupDetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
+            }
+        });
+    }
+    private void setupSignupButton(){
+        Button signup_button = findViewById(R.id.signup_details_signup_button);
+        signup_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // add user to signup
+                String userId = UserPreferences.getUserId(getApplicationContext());
+                db = FirebaseFirestore.getInstance();
+                DocumentReference eventRef = db.collection("events").document(eventId);
+
+                eventRef.get().addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        DocumentReference userRef = db.collection("users").document(userId);
+                        // get user's name
+                        userRef.get().addOnSuccessListener(userDocument -> {
+                            if (userDocument.exists()) {
+                                String firstName = userDocument.getString("firstName");
+                                String lastName = userDocument.getString("lastName");
+                                String currentUserName;
+                                // Check if firstName or lastName are null and replace with empty string if so
+                                if (firstName == null && lastName == null) {
+                                    // If both are null, set currentUserName to "anonymous"
+                                    currentUserName = "Anonymous";
+                                } else {
+                                    // If only one of them is null, replace it with an empty string
+                                    if (firstName == null) {
+                                        firstName = "";
+                                    }
+                                    if (lastName == null) {
+                                        lastName = "";
+                                    }
+                                    currentUserName = firstName + " " + lastName;
+                                }
+
+                                // Create a new hashmap to update the signupUserIdToName field
+                                HashMap<String, String> updatedSignupMap = new HashMap<>();
+                                // Get the existing signupUserIdToName hashmap from Firestore
+                                HashMap<String, String> existingSignupMap = (HashMap<String, String>) documentSnapshot.get("signupUserIdToName");
+                                if (existingSignupMap != null) {
+                                    updatedSignupMap.putAll(existingSignupMap);
+                                }
+                                updatedSignupMap.put(userId, currentUserName);
+
+                                // Update the signupUserIdToName field in Firestore
+                                eventRef.update("signupUserIdToName", updatedSignupMap)
+                                        .addOnSuccessListener(aVoid -> Log.d("SignupDetailsActivity", "User signed up successfully for event"))
+                                        .addOnFailureListener(e -> Log.e("SignupDetailsActivity", "Error signing up user: " + e.getMessage()));
+
+                            } else {
+                                Log.e("SignupDetailsActivity", "User document does not exist in the users collection.");
+                            }
+                        }).addOnFailureListener(e -> {
+                            Log.e("SignupDetailsActivity", "Error fetching user document: " + e.getMessage());
+                        });
+                    } else {
+                        Log.e("SignupDetailsActivity", "Event document does not exist.");
+                    }
+                }).addOnFailureListener(e -> {
+                    Log.e("SignupDetailsActivity", "Error fetching event document: " + e.getMessage());
+                });
             }
         });
     }
