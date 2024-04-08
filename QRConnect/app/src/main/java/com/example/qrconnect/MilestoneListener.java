@@ -59,9 +59,7 @@ public class MilestoneListener {
                             // Event title
                             String title = newDocumentSnapshot.getString("title");
                             // Event capacity
-                            Integer capacity = 0;
-                            if (newDocumentSnapshot.getLong("capacity") != null){
-                                capacity = newDocumentSnapshot.getLong("capacity").intValue();}
+                            Integer capacity = newDocumentSnapshot.getLong("capacity").intValue();
                             // Event current attendance
                             Integer currentAttendance = newDocumentSnapshot.getLong("currentAttendance").intValue();
 

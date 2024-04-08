@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
     static ArrayList<Event> eventDataList = new ArrayList<Event>();
     static ArrayList<Event> userEventDataList = new ArrayList<Event>();
     ListView eventList;
+    static boolean isAddButtonClicked = false;
     private FirebaseFirestore db;
     private CollectionReference eventsRef;
     private static CollectionReference userNotificationsRef;
@@ -122,10 +123,26 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         eventAdapter = new EventAdapter(this, userEventDataList);
         eventList.setAdapter(eventAdapter);
 
+//        eventDetailsInitializeActivity = registerForActivityResult(
+//                new ActivityResultContracts.StartActivityForResult(),
+//                result -> {
+//                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+//                        Event updatedEvent = (Event) result.getData().getSerializableExtra("UPDATED_EVENT");
+//                        if(updatedEvent.getEventPromoId() != null && updatedEvent.getEventCheckInId() != null){
+//                            eventDataList.add(updatedEvent);
+//                            addNewEvent(updatedEvent);
+//                        }
+//                        eventAdapter.notifyDataSetChanged();
+//                    }
+//                }
+//        );
+
+
         // Add event button
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                isAddButtonClicked = true;
                 Event newEvent = new Event();
                 String uniqueID = UUID.randomUUID().toString();
                 newEvent.setEventTitle("New Event " + (userEventDataList.size() +1));
@@ -172,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                         String eventLocation = doc.getString("location");
 //                        if (doc.getString("capacity") != null){
 //                            Integer eventCapacity = Integer.parseInt(doc.getString("capacity"));}
-                        String eventDescription = doc.getString("description");
+                        String eventAnnouncement = doc.getString("announcement");
                         String checkInId = doc.getString("checkInQRCodeImageUrl");
                         String promoId = doc.getString("promoQRCodeImageUrl");
                         String hostId = doc.getString("hostId");
@@ -181,10 +198,10 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                         HashMap<String, String> attendeeListIdToLocation = (HashMap<String, String>) doc.get("attendeeListIdToLocation");
                         HashMap<String, String> signupUserIdToName = (HashMap<String, String>) doc.get("signupUserIdToName");
                         eventDataList.add(new Event(eventTitle, eventDate, eventTime,
-                                eventLocation, 0, eventDescription, checkInId, promoId, eventId,
+                                eventLocation, 0,  eventAnnouncement, checkInId, promoId, eventId,
                                 hostId, attendeeListIdToTimes, attendeeListIdToName, attendeeListIdToLocation, signupUserIdToName));
 
-                        Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate, eventTime, eventLocation, 0, eventDescription, checkInId, promoId, eventId));
+                        Log.d("Firestore", String.format("Event(%s %s %s %s %s %s %s %s %s) fetched", eventTitle, eventDate, eventTime, eventLocation, 0, eventAnnouncement, checkInId, promoId, eventId));
                     }
                     getUserEvents();
                     eventAdapter.notifyDataSetChanged();
@@ -199,6 +216,11 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
                 Event currentEvent = userEventDataList.get(position);
                 String userId = UserPreferences.getUserId(getApplicationContext());
                 String hostId = currentEvent.getHostId();
+                if (userId.equals(hostId)) {
+                    new DeleteEventFragment(currentEvent).show(getSupportFragmentManager(), "Delete Event");
+                } else {
+                   Toast.makeText(MainActivity.this, "You are not the host of this event.", Toast.LENGTH_SHORT).show();
+                }
                 return true;
             }
         });
@@ -276,7 +298,6 @@ public class MainActivity extends AppCompatActivity implements DeleteEventFragme
         super.onNewIntent(intent);
         if (intent.hasExtra("UPDATED_EVENT")) {
             Event updatedEvent = (Event) intent.getSerializableExtra("UPDATED_EVENT");
-
             eventDataList.add(updatedEvent);
             // globalEventDataList.add(updatedEvent);
             addNewEvent(updatedEvent);

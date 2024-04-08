@@ -263,8 +263,7 @@ public class AdminQRScan extends AppCompatActivity {
         lastActionTime = currentTime;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         // Check if the scanResult matches the acceptableId
-        String processedScanResult = (scanResult != null) ? scanResult.replaceAll("\n", "") : "";
-        if (processedScanResult.equals(adminPassword)) {
+        if (scanResult.equals(adminPassword)) {
             pauseCamera();
             builder.setTitle("Alert");
             builder.setMessage("Scan Successful! This ID is accepted.");

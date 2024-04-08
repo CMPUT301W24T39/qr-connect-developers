@@ -33,8 +33,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -81,7 +79,7 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
         ImageButton calenderButton = findViewById(R.id.init_calender_button);
         ImageButton timeButton = findViewById(R.id.init_time_button);
 
-        // Initially disable the EditText
+        // Initially disable the EditText if you want it to be disabled by default
         eventCapacity.setEnabled(false); // Default state;
         eventDate.setFocusable(false);
         eventDate.setFocusableInTouchMode(false);
@@ -108,6 +106,18 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
             }
         });
 
+//        qrCodeGeneratesPage = registerForActivityResult(
+//                new ActivityResultContracts.StartActivityForResult(),
+//                new ActivityResultCallback<ActivityResult>() {
+//                    @Override
+//                    public void onActivityResult(ActivityResult result) {
+//                        if (result.getResultCode() == Activity.RESULT_OK) {
+//                            updatedEvent = (Event) result.getData().getSerializableExtra("UPDATED_EVENT");
+//                        }
+//                    }
+//                }
+//        );
+
         activityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 new ActivityResultCallback<ActivityResult>() {
@@ -120,6 +130,7 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
                                 eventPoster.setImageURI(selectedImageUri);
                                 String posterUrlString = currentEvent.getEventId() + "_" + fieldName + ".jpg";
 
+
                                 UploadTask uploadTask = eventPosterRef.putFile(selectedImageUri);
                                 uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                     @Override
@@ -128,7 +139,6 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
                                             @Override
                                             public void onSuccess(Uri uri) {
                                                 String downloadUrl = uri.toString();
-                                                uploadImageToRealtimeDatabase(currentEvent.getEventId(), downloadUrl);
                                                 // set event poster url in currentEvent and firestore database
                                                 currentEvent.setEventPosterUrl(downloadUrl);
                                                 // Create a map to hold the data to be updated or added
@@ -280,6 +290,12 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
             public void onClick(View view) {
                 DocumentReference docRef = db.collection("events").document(currentEvent.getEventId());
 
+//                if (updatedEvent != null) {
+//                    Intent resultIntent = new Intent();
+//                    resultIntent.putExtra("UPDATED_EVENT", updatedEvent);
+//                    setResult(Activity.RESULT_OK, resultIntent);
+//
+//                }
                 if(currentEvent.getEventCheckInId() == null && currentEvent.getEventPromoId() == null){
                     docRef.delete()
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -381,20 +397,6 @@ public class EventDetailsInitializeActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception exception) {
                 Log.e("EventDetailsActivity", "Error loading image: ", exception);
-            }
-        });
-    }
-    private void uploadImageToRealtimeDatabase(String imageName, String downloadUrl) {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("images");
-        myRef.child(imageName).setValue(new ImageInfo(imageName, downloadUrl)).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()) {
-                    System.out.println("Uploaded successfully in realtime database");
-                } else {
-                    System.out.println("Failed to upload successfully in realtime database");
-                }
             }
         });
     }
