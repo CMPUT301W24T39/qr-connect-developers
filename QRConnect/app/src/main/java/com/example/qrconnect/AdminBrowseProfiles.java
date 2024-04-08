@@ -2,7 +2,6 @@ package com.example.qrconnect;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -10,21 +9,15 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -39,6 +32,7 @@ public class AdminBrowseProfiles extends AppCompatActivity {
     private CollectionReference usersRef;
     private SearchView searchView;
     private ArrayList<UserProfile> filteredProfiles;
+
 
     /**
      * Called when the activity is first created. Responsible for initializing the admin browse profiles page.
@@ -87,6 +81,7 @@ public class AdminBrowseProfiles extends AppCompatActivity {
                     Intent showIntent = new Intent(AdminBrowseProfiles.this, AdminProfileDetails.class);
                     showIntent.putExtra("PROFILE", currentProfileId);
                     startActivity(showIntent);
+                    finish();
                 } catch (Exception e) {
                     Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
@@ -104,24 +99,24 @@ public class AdminBrowseProfiles extends AppCompatActivity {
                 adminProfileDataList.clear();
                 filteredProfiles.clear();
                 for (QueryDocumentSnapshot doc: querySnapshots){
+                    // gets user profile data from firebase and creates user object
                     String firstName = doc.getString("firstName");
                     String lastName = doc.getString("lastName");
                     String userId = doc.getString("userId");
-
-                    //String email = doc.getString("email");
-                    //String phone = doc.getString("phone");
-                    //String pronouns = doc.getString("pronouns");
-                    //boolean isLocationTrackingOn = doc.getBoolean("isLocationTrackingOn");
-                    //boolean isProfilePictureUploaded = doc.getBoolean("isProfilePictureUploaded");
-                    //String profilePictureURL = doc.getString("profilePictureURL");
-
-                    // TODO: Implement the rest of the profile information.
+                    String email = doc.getString("email");
+                    String phone = doc.getString("phone");
+                    String pronouns = doc.getString("pronouns");
+                    boolean isLocationTrackingOn = doc.getBoolean("isLocationTrackingOn");
+                    boolean isProfilePictureUploaded = doc.getBoolean("isProfilePictureUploaded");
 
                     UserProfile userProfile = new UserProfile(userId, firstName, lastName);
-                    userProfile.setFirstName(firstName);
-                    userProfile.setLastName(lastName);
-                    userProfile.setUserID(userId);
+                    userProfile.setEmail(email);
+                    userProfile.setPhone(phone);
+                    userProfile.setPronouns(pronouns);
+                    userProfile.setLocationTracking(isLocationTrackingOn);
+                    userProfile.setProfilePictureUploaded(isProfilePictureUploaded);
 
+                    // adds user to list to be displayed to admin
                     adminProfileDataList.add(userProfile);
                     filteredProfiles.add(userProfile);
                 }

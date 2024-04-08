@@ -101,6 +101,7 @@ public class UserStartScreen extends AppCompatActivity {
         userData.put("pronouns", user.getPronouns());
         userData.put("email", user.getEmail());
         userData.put("phone", user.getPhone());
+        userData.put("homepage", user.getHomepage());
         userData.put("isLocationTrackingOn", user.getLocationTracking());
         userData.put("isProfilePictureUploaded", user.getProfilePictureUploaded());
 

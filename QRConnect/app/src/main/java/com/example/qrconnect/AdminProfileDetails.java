@@ -1,4 +1,6 @@
 package com.example.qrconnect;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +17,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -27,6 +30,8 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
     private FirebaseFirestore db;
     private CollectionReference usersRef;
     private DocumentReference userRef;
+    private FirebaseStorage storage;
+    private StorageReference imageRef;
 
     /**
      * Initializes the activity, sets the content view, and begins the process of loading profile details.
@@ -44,6 +49,9 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
         // Get items from previous activity
         String userId = getIntent().getStringExtra("PROFILE");
 
+        // set up firebase references
+        setUpFirebase(userId);
+
         // Get event details for the event that was clicked on
         loadProfileDetails(userId);
 
@@ -52,6 +60,8 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent(AdminProfileDetails.this, AdminBrowseProfiles.class);
+                startActivity(intent);
                 finish();
             }
         });
@@ -69,41 +79,28 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
     }
 
     /**
+     * Sets up Firebase references to user and profile picture
+     * @param userId The user ID
+     */
+    private void setUpFirebase(String userId) {
+        db = FirebaseFirestore.getInstance();
+        usersRef = db.collection("users");
+        userRef = usersRef.document(userId);
+        storage = FirebaseStorage.getInstance();
+        imageRef = storage.getReference().child("profile_pictures/" + userId + ".png");
+    }
+
+    /**
      * Fetches and displays the details of a profile from Firestore.
      * It also retrieves the profile picture image from Firebase Storage and displays it using Glide.
      *
-     * @param userID The unique identifier of the user whose details are to be loaded and displayed.
+     * @param userId The user's ID
      */
-    private void loadProfileDetails(String userID) {
-        db = FirebaseFirestore.getInstance();
-        usersRef = db.collection("users");
-        userRef = usersRef.document(userID);
-
+    private void loadProfileDetails(String userId) {
         userRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
-                // Set text fields with data from Firestore
-                ImageView profilePicture = findViewById(R.id.admin_profile_picture);
-                TextView firstName = findViewById(R.id.admin_profile_first_name);
-                TextView lastName = findViewById(R.id.admin_profile_last_name);
-                TextView pronouns = findViewById(R.id.admin_profile_pronouns);
-                TextView email = findViewById(R.id.admin_profile_email);
-                TextView phone = findViewById(R.id.admin_profile_phone);
-                TextView location = findViewById(R.id.admin_profile_location);
-
-                firstName.setText(documentSnapshot.getString("firstName"));
-                lastName.setText(documentSnapshot.getString("lastName"));
-
-                /*pronouns.setText(documentSnapshot.getString("pronouns"));
-                email.setText(documentSnapshot.getString("email"));
-                phone.setText(documentSnapshot.getString("phone"));
-                boolean tracking = documentSnapshot.getBoolean("isLocationTrackingOn");
-                if (tracking == false) {
-                    location.setText("Disabled");
-                if (tracking == true) {
-                    location.setText("Enabled");*/
-
-                // TODO: Implement the rest of the profile information.
-
+                UserProfile user = createUser(documentSnapshot);
+                setViewsData(user);
             } else {
                 Log.d("ProfileDetails", "Document does not exist.");
             }
@@ -113,12 +110,70 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
     }
 
     /**
-     * This deletes an event from the firebase.
+     * Sets the TextViews and ImageView of the user profile data
+     * @param user The UserProfile object of the user
+     */
+    private void setViewsData(UserProfile user) {
+        // gets TextViews and ImageView
+        ImageView profilePicture = findViewById(R.id.admin_profile_picture);
+        TextView firstName = findViewById(R.id.admin_profile_first_name);
+        TextView lastName = findViewById(R.id.admin_profile_last_name);
+        TextView pronouns = findViewById(R.id.admin_profile_pronouns);
+        TextView email = findViewById(R.id.admin_profile_email);
+        TextView phone = findViewById(R.id.admin_profile_phone);
+        TextView homepage = findViewById(R.id.admin_profile_homepage);
+        TextView location = findViewById(R.id.admin_profile_location);
+
+        // sets profilePicture ImageView with user uploaded profile picture or
+        // generated profile picture if the user has not uploaded a profile picture
+        setProfilePicture(profilePicture, user);
+        // sets TextViews with user data
+        firstName.setText(user.getFirstName());
+        lastName.setText(user.getLastName());
+        pronouns.setText(user.getPronouns());
+        email.setText(user.getEmail());
+        phone.setText(user.getPhone());
+        homepage.setText(user.getHomepage());
+        boolean tracking = user.getLocationTracking();
+        if (tracking) {
+            location.setText("Enabled");
+        } else {
+            location.setText("Disabled");
+        }
+    }
+
+    /**
+     * Sets profile picture Image View to picture on Firebase if it exists, generated image if it does not
+     * @param profilePicture the ImageView where the profile picture is displayed
+     * @param user the UserProfile object representing the user
+     */
+    private void setProfilePicture(ImageView profilePicture, UserProfile user) {
+        // loads user uploaded profile picture if it exists on Firebase
+        // on failure, generates a profile picture if the user has not uploaded one
+        imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Glide.with(AdminProfileDetails.this)
+                        .load(uri)
+                        .into(profilePicture);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                profilePicture.setImageBitmap(AvatarGenerator.generateAvatar(user));
+                Log.e("UserProfilePage", "Error loading image: ", exception);
+            }
+        });
+    }
+
+
+    /**
+     * This deletes a user from the firebase.
      *
      * @param userId the user id of the profile that is being deleted.
      */
     public void deleteProfile(String userId) {
-
+        // delete user profile from Firebase
         usersRef
                 .document(userId)
                 .delete()
@@ -134,6 +189,40 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
                         Log.w("Firestore", "Error deleting document", e);
                     }
                 });
+        // deletes user profile picture from Firebase Storage
+        imageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Log.d("Firestore", "User profile picture successfully deleted");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("Firestore", "Could not delete user profile picture");
+            }
+        });
+        Intent intent = new Intent(AdminProfileDetails.this, AdminBrowseProfiles.class);
+        startActivity(intent);
         finish();
+    }
+
+    /**
+     * Creates and returns the UserProfile object to be displayed
+     * @param documentSnapshot DocumentSnapshot of the user document on firebase
+     * @return The UserProfile object to be displayed
+     */
+    private UserProfile createUser(DocumentSnapshot documentSnapshot) {
+        String userID = documentSnapshot.getString("userId");
+        UserProfile user = new UserProfile(userID, "", "");
+        user.setFirstName(documentSnapshot.getString("firstName"));
+        user.setLastName(documentSnapshot.getString("lastName"));
+        user.setPronouns(documentSnapshot.getString("pronouns"));
+        user.setEmail(documentSnapshot.getString("email"));
+        user.setPhone(documentSnapshot.getString("phone"));
+        user.setHomepage(documentSnapshot.getString("homepage"));
+        user.setLocationTracking(documentSnapshot.getBoolean("isLocationTrackingOn"));
+        user.setProfilePictureUploaded(documentSnapshot.getBoolean("isProfilePictureUploaded"));
+
+        return user;
     }
 }

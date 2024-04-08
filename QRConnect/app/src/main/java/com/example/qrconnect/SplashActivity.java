@@ -1,10 +1,22 @@
 package com.example.qrconnect;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The SplashActivity class represents the initial screen displayed when the application is launched.
@@ -28,24 +40,47 @@ public class SplashActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                // clears local storage for debugging purposes
-//                UserPreferences.clearUserId(getApplicationContext());
                 // Check if the user is a returning user or a new user
-                boolean isReturningUser = checkIfReturningUser();
+                String storedUserId = UserPreferences.getUserId(getApplicationContext());
+                boolean isReturningUser = checkIfReturningUser(storedUserId);
 
                 // Create an intent based on whether the user is returning or new
-                Intent intent;
+                final Intent[] intent = new Intent[1];
                 if (isReturningUser) {
-                    intent = new Intent(SplashActivity.this, ReturnUserStartScreen.class);
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    db.collection("users")
+                        .document(storedUserId).get().addOnSuccessListener(
+                            new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    if (documentSnapshot.exists()) {
+                                        // goes to ReturnUserStartScreen if user ID matches
+                                        intent[0] = new Intent(SplashActivity.this, ReturnUserStartScreen.class);
+                                    } else {
+                                        // clears user ID if it does not exist in Firebase
+                                        UserPreferences.clearUserId(getApplicationContext());
+                                        intent[0] = new Intent(SplashActivity.this, UserStartScreen.class);
+                                    }
+                                    // Start the corresponding activity
+                                    startActivity(intent[0]);
+                                    // Finish the current SplashActivity to prevent going back to it using the back button
+                                    finish();
+                                }
+                            }
+                        ).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e("Firestore", "Error fetching data");
+                            }
+                        });
                 } else {
-                    intent = new Intent(SplashActivity.this, UserStartScreen.class);
+                    // goes to UserStartScreen if no user ID is found on device
+                    intent[0] = new Intent(SplashActivity.this, UserStartScreen.class);
+                    // Start the corresponding activity
+                    startActivity(intent[0]);
+                    // Finish the current SplashActivity to prevent going back to it using the back button
+                    finish();
                 }
-
-                // Start the corresponding activity
-                startActivity(intent);
-
-                // Finish the current SplashActivity to prevent going back to it using the back button
-                finish();
             }
         }, 3000); // 3000 milliseconds (3 seconds) delay
     }
@@ -54,11 +89,7 @@ public class SplashActivity extends AppCompatActivity {
      * Checks if current user is already registered in the app
      * @return true if user is already registered; false otherwise
      */
-    private boolean checkIfReturningUser() {
-        // Check if there is a stored user ID locally
-        String storedUserId = UserPreferences.getUserId(getApplicationContext());
-
-        // If a user ID exists, consider the user as returning; otherwise, they are a new user
-        return storedUserId != null && !storedUserId.isEmpty();
+    private boolean checkIfReturningUser(String storedUserId) {
+            return (storedUserId != null && !storedUserId.isEmpty());
     }
 }
