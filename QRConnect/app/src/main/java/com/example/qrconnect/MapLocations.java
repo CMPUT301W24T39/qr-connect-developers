@@ -51,7 +51,9 @@ public class MapLocations extends AppCompatActivity {
         map.setMultiTouchControls(true);
 
         IMapController mapController = map.getController();
-        mapController.setZoom(9.5);
+        mapController.setZoom(13);
+        mapController.setCenter(new GeoPoint(53.52203014477642, -113.52509220601709 ));
+        mapController.animateTo(new GeoPoint(53.52203014477642, -113.52509220601709 ));
 
         Event currentEvent = (Event) getIntent().getSerializableExtra("EVENT");
         FirebaseFirestore db = FirebaseFirestore.getInstance();

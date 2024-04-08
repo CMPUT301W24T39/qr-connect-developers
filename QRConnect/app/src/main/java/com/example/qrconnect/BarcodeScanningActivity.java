@@ -66,6 +66,13 @@ public class BarcodeScanningActivity extends AppCompatActivity {
     private LocationManager locationManager;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+    /**
+     * The onCreate method is to maintain the features in this page
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     *
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +85,9 @@ public class BarcodeScanningActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Create a scanning line in the camera
+     */
     private void initializeScanningLine() {
         final View scanningLine = findViewById(R.id.scanningLine);
         final View focusArea = findViewById(R.id.focusArea);
@@ -283,6 +293,10 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Check if the event is in the firebase
+     * @param eventId the event to be checked
+     */
     private void readEventFromDatabase(String eventId) {
         DocumentReference eventRef = db.collection("events").document(eventId);
         eventRef.get()
@@ -337,6 +351,9 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    /**
+     * Do the actions if confirmed
+     */
     private void proceedWithConfirmAction() {
         DocumentReference eventRef = db.collection("events")
                 .document(targetEvent.getEventId());
@@ -370,7 +387,6 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                                         targetEvent.addAttendee(currentUserId, currentUserName, "");
                                         updateEventAttendeeLists(eventRef);
                                     }
-
                                 } else {
                                     // Document does not exist
                                     Log.d("Document", "No such document");
@@ -390,6 +406,10 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Get the service of location
+     * @param callback the callback of location
+     */
     private void requestLocationAndUpdateAttendee(LocationCallback callback) {
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -409,15 +429,20 @@ public class BarcodeScanningActivity extends AppCompatActivity {
                 }
             });
         } else {
-            // Request permissions
-            ActivityCompat.requestPermissions(this, new String[] { android.Manifest.permission.ACCESS_FINE_LOCATION }, MY_PERMISSIONS_REQUEST_LOCATION);
-            Toast.makeText(getApplicationContext(), "First enable LOCATION ACCESS", Toast.LENGTH_LONG).show();
+            // Request permission
+            Toast.makeText(getApplicationContext(), "Allow LOCATION ACCESS.", Toast.LENGTH_LONG).show();
+            ActivityCompat.requestPermissions(this, new String[] { android.Manifest.permission.ACCESS_FINE_LOCATION }, 1);
+            callback.onLocationReady("");
         }
     }
     public interface LocationCallback {
         void onLocationReady(String locationData);
     }
 
+    /**
+     * Update the list of attendees
+     * @param eventRef the reference of an event in firebase
+     */
     private void updateEventAttendeeLists(DocumentReference eventRef) {
         eventRef.update("attendeeListIdToTimes", targetEvent.getAttendeeListIdToCheckInTimes())
                 .addOnSuccessListener(v -> {
@@ -465,20 +490,16 @@ public class BarcodeScanningActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Display the success dialog on the screen
+     */
     private void showCheckInSuccessfullyDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Check-In Successful");
-        builder.setMessage("Check-in was successful. What would you like to do next?");
+        builder.setTitle("Alert");
+        builder.setMessage("Check-in was successful.");
         builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 finish();
-            }
-        });
-
-        builder.setNegativeButton("Back", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                // Resume using the camera
-                startCamera();
             }
         });
 
@@ -488,6 +509,10 @@ public class BarcodeScanningActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * If the scanning is not successful, then show an error message
+     * @param errorMsg the message to be displayed on the screen
+     */
     private void showFailureDialog(String errorMsg) {
         pauseCamera();
         handleQRCodeNotFound(errorMsg);
@@ -615,6 +640,12 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         startCamera();
     }
 
+    /**
+     * Return a new event
+     * @param documentSnapshot the tool to update event
+     * @param eventId the event
+     * @return a new event
+     */
     private Event createEventFromDocumentSnapshot(DocumentSnapshot documentSnapshot,
                                                   String eventId) {
         // Extract data from the document snapshot
@@ -626,7 +657,7 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         String location = documentSnapshot.getString("location");
         Long capacityLong = documentSnapshot.getLong("capacity");
         Integer capacity = capacityLong != null ? capacityLong.intValue() : 0;
-        String announcement = documentSnapshot.getString("announcement");
+        String description = documentSnapshot.getString("description");
         String checkInQRCodeImageUrl = documentSnapshot.getString("checkInQRCodeImageUrl");
         String promoQRCodeImageUrl = documentSnapshot.getString("promoQRCodeImageUrl");
         String hostId = documentSnapshot.getString("hostId");
@@ -639,7 +670,7 @@ public class BarcodeScanningActivity extends AppCompatActivity {
         HashMap<String, String> signupUserIdToName =
                 (HashMap<String, String>) documentSnapshot.get("signupUserIdToName");
         // Create the Event object manually
-        return new Event(eventTitle, date, time, location, capacity, announcement,
+        return new Event(eventTitle, date, time, location, capacity, description,
                 checkInQRCodeImageUrl, promoQRCodeImageUrl, eventId, hostId,
                 attendeeListIdToTimes, attendeeListIdToName, attendeeListIdToLocation, signupUserIdToName);
     }

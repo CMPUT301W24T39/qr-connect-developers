@@ -162,6 +162,10 @@ public class AdminEventDetails extends AppCompatActivity implements AdminDeleteE
         finish();
     }
 
+    /**
+     * Delete the QR codes from Storage
+     * @param filePath the path of the file
+     */
     private void deleteQRCodesFromStorage(String filePath) {
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference fileRef = storage.getReference().child(filePath);
