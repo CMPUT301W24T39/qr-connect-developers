@@ -47,6 +47,7 @@ public class SplashActivity extends AppCompatActivity {
                 // Create an intent based on whether the user is returning or new
                 final Intent[] intent = new Intent[1];
                 if (isReturningUser) {
+                    // checks if locally stored user ID belongs to an existing user on firebase
                     FirebaseFirestore db = FirebaseFirestore.getInstance();
                     db.collection("users")
                         .document(storedUserId).get().addOnSuccessListener(

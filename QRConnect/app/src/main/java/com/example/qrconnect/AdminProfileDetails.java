@@ -56,6 +56,7 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // restarts the AdminBrowseProfiles page to refresh the list of profiles
                 Intent intent = new Intent(AdminProfileDetails.this, AdminBrowseProfiles.class);
                 startActivity(intent);
                 finish();
@@ -174,6 +175,7 @@ public class AdminProfileDetails extends AppCompatActivity implements AdminDelet
                 Log.d("Firestore", "Could not delete user profile picture");
             }
         });
+        // restarts the AdminBrowseProfiles page to refresh the list of profiles
         Intent intent = new Intent(AdminProfileDetails.this, AdminBrowseProfiles.class);
         startActivity(intent);
         finish();
