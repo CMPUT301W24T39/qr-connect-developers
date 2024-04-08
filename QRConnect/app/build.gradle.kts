@@ -71,6 +71,8 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation ("com.google.firebase:firebase-database:20.0.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+
 
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
 

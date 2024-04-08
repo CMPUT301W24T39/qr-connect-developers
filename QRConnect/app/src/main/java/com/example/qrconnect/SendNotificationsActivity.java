@@ -23,8 +23,8 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.os.BuildCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -32,11 +32,15 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The SendNotificationsActivity class manages the functionality to send notifications.
@@ -140,34 +144,38 @@ public class SendNotificationsActivity extends AppCompatActivity {
             Notification notification = new Notification(eventTitle, title, description, date_string, read, eventId);
             // Checks if there are any attendees to send the notitication to
             if (!event.getAttendeeListIdToName().isEmpty()) {
-                makePushNotification(title, description);
                 for (String attendeeId : event.getAttendeeListIdToName().keySet()) {
                     usersRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if (task.isSuccessful()) {
                                 for (QueryDocumentSnapshot userDocument : task.getResult()) {
-                                    String userId = userDocument.getId();
-                                    CollectionReference userNotifications = usersRef.document(userId).collection("notifications");
-                                    if (userId.equals(attendeeId)) {
-                                        // Add the notification to Firestore
-                                        userNotifications.add(notification)
-                                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                    @Override
-                                                    public void onSuccess(DocumentReference documentReference) {
-                                                        Toast.makeText(SendNotificationsActivity.this, "Notification sent successfully.", Toast.LENGTH_SHORT).show();
-                                                        // Clear the title and description EditText fields after sending the notification
-                                                        titleEditText.setText("");
-                                                        descriptionEditText.setText("");
-                                                    }
-                                                })
-                                                .addOnFailureListener(new OnFailureListener() {
-                                                    @Override
-                                                    public void onFailure(@NonNull Exception e) {
-                                                        Toast.makeText(SendNotificationsActivity.this, "Failed to send notification.", Toast.LENGTH_SHORT).show();
-                                                        Log.e("Firestore", "Error adding notification.", e);
-                                                    }
-                                                });
+                                    String fcmToken = userDocument.getString("fcmToken");
+                                    if (fcmToken != null && !fcmToken.isEmpty()) {
+                                        String userId = userDocument.getId();
+                                        CollectionReference userNotifications = usersRef.document(userId).collection("notifications");
+                                        if (userId.equals(attendeeId)) {
+                                            // Add the notification to Firestore
+                                            userNotifications.add(notification)
+                                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                        @Override
+                                                        public void onSuccess(DocumentReference documentReference) {
+                                                            Toast.makeText(SendNotificationsActivity.this, "Notification sent successfully.", Toast.LENGTH_SHORT).show();
+                                                            // Clear the title and description EditText fields after sending the notification
+                                                            titleEditText.setText("");
+                                                            descriptionEditText.setText("");
+                                                            // Send FCM notification
+                                                            sendFCMNotification(fcmToken, title, description);
+                                                        }
+                                                    })
+                                                    .addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Toast.makeText(SendNotificationsActivity.this, "Failed to send notification.", Toast.LENGTH_SHORT).show();
+                                                            Log.e("Firestore", "Error adding notification.", e);
+                                                        }
+                                                    });
+                                        }
                                     }
                                 }
                             } else {
@@ -232,5 +240,28 @@ public class SendNotificationsActivity extends AppCompatActivity {
             }
         }
         notificationManager.notify(0,builder.build());
+    }
+
+    /**
+     *
+     * @param fcmToken
+     * @param title
+     * @param description
+     */
+    private void sendFCMNotification(String fcmToken, String title, String description) {
+        // Create the notification payload
+        Map<String, String> notification = new HashMap<>();
+        notification.put("title", title);
+        notification.put("body", description);
+
+        // Construct the message
+        RemoteMessage message = new RemoteMessage.Builder(fcmToken)
+            .setData(notification)
+            .build();
+
+        // Send the notification using Firebase Cloud Messaging
+        FirebaseMessaging.getInstance().send(message);
+                //.addOnSuccessListener(response -> {Log.d("SendNotificationsActivity", "FCM notification sent successfully");})
+                //.addOnFailureListener(e -> {Log.e("SendNotificationsActivity", "Failed to send FCM notification");});
     }
 }
